@@ -8,10 +8,18 @@
     padding: 0;
     min-height: 100vh;
     font-family: theme('fontFamily.sans');
-    background: radial-gradient(circle at top left, rgba(224, 242, 254, 0.4), transparent 40%),
-      radial-gradient(circle at bottom right, rgba(255, 237, 213, 0.5), transparent 40%);
-    background-color: #fcfcfc;
-    color: #1f2937;
+    background: linear-gradient(135deg, #ffffff 0%, #e0f2fe 50%, #f1f5f9 100%);
+    background-color: #ffffff;
+    color: #0a0a0a;
+  }
+
+  /* Glassmorphism utility for sections if needed */
+  .glass-panel {
+    background: rgba(255, 255, 255, 0.7);
+    backdrop-filter: blur(16px);
+    -webkit-backdrop-filter: blur(16px);
+    border: 1px solid rgba(255, 255, 255, 0.5);
+    box-shadow: 0 4px 30px rgba(0, 0, 0, 0.05);
   }
 
   #root {
