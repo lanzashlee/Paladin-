@@ -3,6 +3,9 @@ import { BrowserRouter as Router, Routes, Route } from 'react-router-dom';
 import Home from './pages/Home';
 import QuoteRequest from './pages/QuoteRequest';
 import PolicyManagement from './pages/PolicyManagement';
+import About from './pages/About';
+import FAQ from './pages/FAQ';
+
 function App() {
   return (
     <Router>
@@ -10,6 +13,8 @@ function App() {
         <Route path="/" element={<Home />} />
         <Route path="/quote" element={<QuoteRequest />} />
         <Route path="/policies" element={<PolicyManagement />} />
+        <Route path="/about" element={<About />} />
+        <Route path="/faq" element={<FAQ />} />
         {/* Add more routes here */}
       </Routes>
     </Router>
