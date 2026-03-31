@@ -86,18 +86,21 @@ export default function FAQ() {
 
       <main className="flex-1">
         {/* Intro Section */}
-        <section className="py-16 px-6 bg-white border-b border-gray-100">
+        <section className="py-14 md:py-16 px-6 bg-white border-b border-gray-100">
           <div className="max-w-5xl mx-auto text-center">
-            <h1 className="text-4xl md:text-5xl font-extrabold text-[#0a0a0a] mb-4">
+            <p className="inline-flex items-center px-4 py-1 rounded-full bg-blue-50 text-[#0077b6] text-xs font-semibold tracking-wide uppercase mb-3">
+              Help Center
+            </p>
+            <h1 className="text-3xl md:text-4xl font-extrabold text-[#0a0a0a] mb-3">
               Frequently Asked Questions
             </h1>
-            <p className="text-lg md:text-xl text-gray-600 max-w-3xl mx-auto leading-relaxed">
+            <p className="text-base md:text-lg text-gray-600 max-w-3xl mx-auto leading-relaxed">
               Got questions? We’ve got answers. Here’s a list of common questions our clients ask
               before working with us.
             </p>
 
             {/* Search */}
-            <div className="mt-8 max-w-xl mx-auto">
+            <div className="mt-6 max-w-xl mx-auto">
               <div className="relative">
                 <input
                   type="text"
@@ -118,31 +121,31 @@ export default function FAQ() {
         </section>
 
         {/* FAQ List */}
-        <section className="py-16 px-6">
-          <div className="max-w-5xl mx-auto">
-            <div className="space-y-6">
+        <section className="py-14 md:py-16 px-6">
+          <div className="max-w-4xl mx-auto">
+            <div className="space-y-5">
               {filteredFaqs.map((item, index) => (
                 <details
                   key={item.question}
-                  className="group bg-white border border-gray-100 rounded-2xl p-5 md:p-6 shadow-sm hover:shadow-md transition-shadow"
+                  className="group bg-white border border-gray-100 rounded-2xl px-5 py-4 md:px-6 md:py-5 shadow-sm hover:shadow-md transition-shadow"
                   open={index === 0 && !query}
                 >
                   <summary className="flex items-center justify-between cursor-pointer list-none">
-                    <h2 className="text-base md:text-lg font-semibold text-[#0a0a0a] pr-4">
+                    <h2 className="text-sm md:text-base font-semibold text-[#0a0a0a] pr-4">
                       {item.question}
                     </h2>
-                    <span className="ml-4 flex h-8 w-8 items-center justify-center rounded-full border border-gray-300 text-gray-500 text-sm group-open:rotate-45 transition-transform">
+                    <span className="ml-4 flex h-7 w-7 items-center justify-center rounded-full border border-gray-300 text-gray-500 text-xs group-open:rotate-45 transition-transform">
                       +
                     </span>
                   </summary>
-                  <div className="mt-3 text-sm md:text-base text-gray-600 leading-relaxed text-justify">
+                  <div className="mt-2 text-xs md:text-sm text-gray-600 leading-relaxed text-justify">
                     {item.answer}
                   </div>
                 </details>
               ))}
 
               {filteredFaqs.length === 0 && (
-                <p className="text-center text-gray-500 text-sm mt-6">
+                <p className="text-center text-gray-500 text-xs md:text-sm mt-5">
                   No questions matched your search. Try different keywords or browse the full list.
                 </p>
               )}
@@ -151,25 +154,25 @@ export default function FAQ() {
         </section>
 
         {/* CTA Section */}
-        <section className="py-16 px-6 bg-gradient-to-r from-[#0077b6] to-[#023e8a] text-white">
-          <div className="max-w-4xl mx-auto text-center space-y-6">
-            <h2 className="text-3xl md:text-4xl font-extrabold">
+        <section className="py-14 md:py-16 px-6 bg-gradient-to-r from-[#0077b6] to-[#023e8a] text-white">
+          <div className="max-w-3xl mx-auto text-center space-y-5">
+            <h2 className="text-2xl md:text-3xl font-extrabold">
               Still have questions?
             </h2>
-            <p className="text-lg md:text-xl text-blue-100 max-w-2xl mx-auto leading-relaxed">
+            <p className="text-base md:text-lg text-blue-100 max-w-2xl mx-auto leading-relaxed">
               If you didn’t find the answer you were looking for, we’re here to help.
             </p>
 
-            <div className="flex flex-col sm:flex-row items-center justify-center gap-4 mt-4">
+            <div className="flex flex-col sm:flex-row items-center justify-center gap-3 mt-3">
               <Link
                 to="/quote"
-                className="bg-white text-[#0077b6] px-8 py-3 rounded-full font-bold text-sm md:text-base shadow-lg hover:bg-gray-100 transition-colors"
+                className="bg-white text-[#0077b6] px-7 py-2.5 rounded-full font-bold text-xs md:text-sm shadow-md hover:bg-gray-100 transition-colors"
               >
                 Request a Quote
               </Link>
               <Link
                 to="/contact"
-                className="border-2 border-white text-white px-8 py-3 rounded-full font-bold text-sm md:text-base hover:bg-white/10 transition-colors"
+                className="border border-white text-white px-7 py-2.5 rounded-full font-bold text-xs md:text-sm hover:bg-white/10 transition-colors"
               >
                 Contact Us Directly
               </Link>

@@ -38,7 +38,7 @@ function Header() {
 
       <div className="flex items-center gap-6 text-sm font-medium">
         <Link to="/quote" className="bg-[#0077b6] text-white px-6 py-2.5 rounded-full shadow-lg shadow-blue-500/30 hover:bg-blue-700 transition-all hover:-translate-y-0.5">
-          Request Quote
+          Request a Quote
         </Link>
       </div>
     </header>
