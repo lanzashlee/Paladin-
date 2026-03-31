@@ -1,0 +1,43 @@
+.quote-request {
+  background: #f7f7f7;
+  padding: 2rem 1rem;
+  text-align: center;
+}
+.quote-request h2 {
+  color: #003366;
+  margin-bottom: 1rem;
+}
+.quote-request__form {
+  display: flex;
+  flex-direction: column;
+  gap: 1rem;
+  max-width: 400px;
+  margin: 0 auto;
+}
+.quote-request__form input,
+.quote-request__form select,
+.quote-request__form textarea {
+  padding: 0.75rem 1rem;
+  border: 1px solid #cfd8dc;
+  border-radius: 6px;
+  font-size: 1rem;
+}
+.quote-request__form button {
+  background: #003366;
+  color: #fff;
+  border: none;
+  padding: 0.75rem 1rem;
+  border-radius: 6px;
+  font-size: 1rem;
+  cursor: pointer;
+  transition: background 0.2s;
+}
+.quote-request__form button:hover {
+  background: #ffcc00;
+  color: #003366;
+}
+.quote-request__success {
+  color: #2e7d32;
+  font-weight: bold;
+  margin-top: 2rem;
+}

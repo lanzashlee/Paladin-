@@ -1,0 +1,30 @@
+.policy-management {
+  background: #fff;
+  padding: 2rem 1rem;
+  text-align: center;
+}
+.policy-management h2 {
+  color: #003366;
+  margin-bottom: 1rem;
+}
+.policy-table {
+  width: 100%;
+  max-width: 600px;
+  margin: 0 auto;
+  border-collapse: collapse;
+  background: #f4f8fb;
+  border-radius: 10px;
+  overflow: hidden;
+  box-shadow: 0 2px 8px rgba(0,0,0,0.06);
+}
+.policy-table th, .policy-table td {
+  padding: 1rem;
+  border-bottom: 1px solid #e0e7ef;
+}
+.policy-table th {
+  background: #003366;
+  color: #fff;
+}
+.policy-table tr:last-child td {
+  border-bottom: none;
+}

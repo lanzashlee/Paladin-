@@ -1,0 +1,22 @@
+@tailwind base;
+@tailwind components;
+@tailwind utilities;
+
+@layer base {
+  body {
+    margin: 0;
+    padding: 0;
+    min-height: 100vh;
+    font-family: theme('fontFamily.sans');
+    background: radial-gradient(circle at top left, rgba(224, 242, 254, 0.4), transparent 40%),
+      radial-gradient(circle at bottom right, rgba(255, 237, 213, 0.5), transparent 40%);
+    background-color: #fcfcfc;
+    color: #1f2937;
+  }
+
+  #root {
+    min-height: 100vh;
+    display: flex;
+    flex-direction: column;
+  }
+}
