@@ -1,22 +1,25 @@
 import React from 'react';
-import { ShieldCheck, TrendingDown, HeartHandshake } from 'lucide-react';
+import { Handshake, CircleDollarSign, Star } from 'lucide-react';
 
 const reasons = [
   {
-    icon: <ShieldCheck className="w-8 h-8 text-[#0077b6]" />,
+    icon: <Handshake className="w-8 h-8 text-[#0077b6]" />,
     title: 'Personalized Service',
-    desc: 'One-on-one assistance with a licensed agent to customize an insurance plan that meets your exact needs.'
+    desc:
+      'Unforeseen events and a lack of the right kind of insurance can spell trouble quickly. When you choose our insurance services, you will have one-on-one assistance with a licensed agent who will guide you through every step to customize an insurance plan that specifically meets your needs.',
   },
   {
-    icon: <TrendingDown className="w-8 h-8 text-[#0077b6]" />,
+    icon: <CircleDollarSign className="w-8 h-8 text-[#0077b6]" />,
     title: 'Competitive Rates',
-    desc: 'Affordable rates with flexible payment options. Get covered quickly at a price you can absolutely afford.'
+    desc:
+      'Many financial experts will tell you poor planning can be costly. We make it a priority to offer affordable rates with flexible payment options to cover your company. Paladin Professional Insurance Solutions will get you covered quickly and at a price you can afford.',
   },
   {
-    icon: <HeartHandshake className="w-8 h-8 text-[#0077b6]" />,
+    icon: <Star className="w-8 h-8 text-[#0077b6]" />,
     title: 'Quality and Care',
-    desc: 'We treat clients like family. Our promise: the right coverage at an unbeatable price for ultimate peace of mind.'
-  }
+    desc:
+      'Everyone has different insurance needs — there is no one-size-fits-all solution. We take pride in servicing our clients as we would for our own family. Our promise is to find you the correct coverage at an unbeatable price, giving you peace of mind that you are fully protected at a fair rate.',
+  },
 ];
 
 function WhyChooseUs() {
@@ -36,7 +39,7 @@ function WhyChooseUs() {
                 {r.icon}
               </div>
               <h3 className="text-xl font-bold text-white mb-3">{r.title}</h3>
-              <p className="text-gray-300 leading-relaxed text-sm text-justify">{r.desc}</p>
+              <p className="text-gray-300 leading-relaxed text-sm md:text-base text-justify">{r.desc}</p>
             </div>
           ))}
         </div>
