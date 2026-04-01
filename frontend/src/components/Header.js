@@ -22,11 +22,16 @@ function Header() {
   return (
     <header className="sticky top-0 z-40 bg-white/95 backdrop-blur border-b border-gray-100">
       <div className="flex items-center justify-between py-4 md:py-5 px-6 md:px-8 max-w-7xl mx-auto w-full">
-        <div className="flex items-center gap-2">
+        <div className="flex items-center gap-3">
           <img src={logo} alt="Paladin Logo" className="h-10 w-auto object-contain" />
-          <span className="text-xl font-bold tracking-tight" style={{ color: '#0077b6' }}>
-            Paladin<span style={{ color: '#000000ff' }}>Insurance Solutions</span>
-          </span>
+          <div className="flex flex-col leading-tight">
+            <span className="text-2xl font-black tracking-tight" style={{ color: '#0077b6' }}>
+              PALADIN
+            </span>
+            <span className="text-sm font-semibold text-gray-900">
+              Professional Insurance Solutions
+            </span>
+          </div>
         </div>
 
         <nav className="hidden md:flex items-center gap-8 text-sm font-medium">
@@ -35,6 +40,7 @@ function Header() {
           <Link to="/faq" className={getNavLinkClasses('/faq')}>FAQ</Link>
           <Link to="/blog" className={getNavLinkClasses('/blog')}>Blog</Link>
           <Link to="/about" className={getNavLinkClasses('/about')}>About Us</Link>
+          <Link to="/contact" className={getNavLinkClasses('/contact')}>Contact Us</Link>
         </nav>
 
         <div className="flex items-center gap-6 text-sm font-medium">
