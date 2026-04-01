@@ -1,6 +1,6 @@
 import React, { useState, useMemo } from 'react';
 import { Link } from 'react-router-dom';
-import { Target, Lightbulb, Building2 } from 'lucide-react';
+import { Target, ShieldCheck, Building2 } from 'lucide-react';
 import Header from '../components/Header';
 import Footer from '../components/Footer';
 import WhyChooseUs from '../components/WhyChooseUs';
@@ -170,10 +170,10 @@ export default function About() {
               A Legacy of <br/><span className="text-[#0077b6]">Protection & Trust</span>
             </h2>
             <p className="text-gray-600 text-base md:text-lg leading-relaxed mb-4 font-medium text-justify">
-              Paladin Business Services was founded with a singular purpose: to provide unparalleled protection for individuals, families, and businesses. We started as an independent agency driven by the core belief that every client deserves personalized attention and comprehensive coverage at competitive rates.
+              Paladin Professional Insurance Solutions is a full-service independent insurance agency committed to delivering premium protection across personal, commercial, and specialty lines.
             </p>
             <p className="text-gray-600 text-base md:text-lg leading-relaxed font-medium text-justify">
-              Over the years, we've grown into a trusted community partner, expanding our expertise across professional liability, commercial coverage, and personal insurance. Our journey has always been guided by our commitment to acting as a true "Paladin" – a steadfast champion for our clients' security and peace of mind.
+              We understand that every client is unique — which is why we take a consultative, hands-on approach to crafting coverage that truly fits your life and your business.
             </p>
           </div>
           <div className="md:w-1/2 w-full">
@@ -198,7 +198,7 @@ export default function About() {
               Purpose & Direction
             </p>
             <h2 className="text-3xl md:text-4xl font-extrabold text-[#0a0a0a]">
-              Our Mission &amp; Vision
+              Our Mission &amp; Our Promise
             </h2>
           </div>
 
@@ -211,28 +211,30 @@ export default function About() {
                 <h3 className="text-xl md:text-2xl font-bold text-[#0a0a0a]">Our Mission</h3>
               </div>
               <p className="text-gray-600 text-sm md:text-base leading-relaxed text-justify">
-                Our mission is to provide you with the quality service and care you deserve. We
-                understand the unique challenges of owning and operating a business, which is why
-                we’re committed to hassle-free insurance service built around your needs. With
-                agents who bring 20+ years of experience in the insurance industry, we take pride in
-                being reliable advocates—delivering clear guidance, responsive support, and peace of
-                mind every step of the way.
+                Our mission is to provide you with the quality service and care that you deserve. We
+                understand the unique challenges of owning and operating a business. This is why we
+                are dedicated to providing you with hassle-free insurance service that best suits your
+                needs.
               </p>
             </div>
             
             <div className="p-8 rounded-2xl border border-gray-100 bg-white shadow-md hover:shadow-lg transition-all duration-200">
               <div className="flex items-center gap-3 mb-4">
                 <div className="w-10 h-10 rounded-2xl bg-[#0077b6]/10 flex items-center justify-center">
-                  <Lightbulb className="w-5 h-5 text-[#0077b6]" />
+                  <ShieldCheck className="w-5 h-5 text-[#0077b6]" />
                 </div>
-                <h3 className="text-xl md:text-2xl font-bold text-[#0a0a0a]">Our Vision</h3>
+                <h3 className="text-xl md:text-2xl font-bold text-[#0a0a0a]">Our Promise</h3>
               </div>
-              <p className="text-gray-600 text-sm md:text-base leading-relaxed text-justify">
-                To set the industry standard for integrity and client care in the insurance
-                marketplace. We envision a future where navigating insurance is simple and
-                transparent, allowing businesses and individuals to thrive with absolute confidence
-                in their security.
+              <p className="text-gray-600 text-sm md:text-base leading-relaxed text-justify mb-4">
+                With agents that have over 20 years of experience in the insurance industry, we take
+                pride in being able to service you. We promise to:
               </p>
+              <ul className="text-gray-600 text-sm md:text-base leading-relaxed space-y-2 pl-5 list-disc text-left">
+                <li>Find you the correct coverage at an unbeatable price</li>
+                <li>Provide one-on-one guidance through every step of the process</li>
+                <li>Treat every client as we would our own family</li>
+                <li>Deliver peace of mind — knowing you&apos;re covered at a fair rate</li>
+              </ul>
             </div>
           </div>
         </div>

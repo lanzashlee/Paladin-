@@ -5,12 +5,14 @@ import QuoteRequest from './pages/QuoteRequest';
 import PolicyManagement from './pages/PolicyManagement';
 import About from './pages/About';
 import FAQ from './pages/FAQ';
+import Service from './pages/Service';
 
 function App() {
   return (
     <Router>
       <Routes>
         <Route path="/" element={<Home />} />
+        <Route path="/service" element={<Service />} />
         <Route path="/quote" element={<QuoteRequest />} />
         <Route path="/policies" element={<PolicyManagement />} />
         <Route path="/about" element={<About />} />
