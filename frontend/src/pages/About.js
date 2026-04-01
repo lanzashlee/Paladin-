@@ -253,11 +253,12 @@ export default function About() {
             </p>
           </div>
           
-          <div className="grid grid-cols-1 md:grid-cols-3 gap-10">
+          <div className="grid grid-cols-1 md:grid-cols-4 gap-10">
             {[
               { name: "Michael Sterling", role: "Founder & Principal Broker", bio: "With over 20 years in the industry, Michael founded Paladin to bring a higher standard of care to commercial insurance.", img: TeamMember1 },
               { name: "Sarah Jenkins", role: "Head of Client Relations", bio: "Sarah ensures every client receives the personalized, attentive service that Paladin is universally known for.", img: TeamMember2 },
               { name: "David Chen", role: "Senior Risk Analyst", bio: "David specializes in designing tailored liability strategies for both emerging businesses and established enterprises.", img: TeamMember3 },
+              { name: "Lisa Morales", role: "Client Success Manager", bio: "Lisa keeps every policy on track, coordinating renewals and follow-ups so clients stay protected without the paperwork headaches.", img: TeamMember2 },
             ].map((member, idx) => (
               <div key={idx} className="group text-center bg-white p-6 rounded-3xl shadow-xl shadow-gray-200/40 hover:-translate-y-2 transition-all duration-300">
                 <div className="relative w-48 h-48 mx-auto rounded-[2rem] overflow-hidden mb-8 shadow-md">
