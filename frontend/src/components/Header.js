@@ -38,6 +38,7 @@ function Header() {
           <Link to="/" className={getNavLinkClasses('/')}>Home</Link>
           <Link to="/service" className={getNavLinkClasses('/service')}>Our service</Link>
           <Link to="/faq" className={getNavLinkClasses('/faq')}>FAQ</Link>
+          <Link to="/blog" className={getNavLinkClasses('/blog')}>Blog</Link>
           <Link to="/about" className={getNavLinkClasses('/about')}>About Us</Link>
           <Link to="/contact" className={getNavLinkClasses('/contact')}>Contact Us</Link>
         </nav>
