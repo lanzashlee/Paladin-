@@ -12,14 +12,18 @@ function ContactInfo() {
         {/* Left side: Content */}
         <div className="flex-1 relative z-10">
           <h2 className="text-3xl lg:text-4xl font-extrabold text-[#0a0a0a] leading-tight mb-8">
-            Connect with Paladin Support
+            Contact & Location
           </h2>
+          <p className="text-gray-600 leading-relaxed mb-8 max-w-2xl">
+            We'd love to hear from you. Reach out to us through any of the channels below - our
+            licensed agents are ready to assist.
+          </p>
           
           <div className="space-y-6">
             <div className="flex items-start gap-4">
               <MapPin className="w-6 h-6 text-[#0077b6] shrink-0 mt-0.5" />
               <div>
-                <p className="font-semibold text-gray-900">Corporate Address</p>
+                <p className="font-semibold text-gray-900">Address</p>
                 <p className="text-gray-600 mt-1 hover:text-[#0077b6] transition-colors"><a href="https://maps.google.com" target="_blank" rel="noreferrer">3787 Transport ST Suite A7 Box #5<br/>Ventura, CA 93003</a></p>
               </div>
             </div>
@@ -31,7 +35,7 @@ function ContactInfo() {
 
             <div className="flex items-center gap-4">
               <Printer className="w-6 h-6 text-[#0077b6]" />
-              <p className="text-gray-600 font-medium">805-830-1680 <span className="text-sm font-normal text-gray-400">(Fax)</span></p>
+              <p className="text-gray-600 font-medium">805-830-1680</p>
             </div>
 
             <div className="flex items-center gap-4">
@@ -41,7 +45,7 @@ function ContactInfo() {
 
             <div className="flex items-center gap-4 mt-8 pt-6 border-t border-gray-200/60">
               <Shield className="w-6 h-6 text-[#0077b6]" />
-              <p className="text-gray-600 text-sm">License #: <span className="font-medium text-[#0a0a0a]">6010043</span><br/>(CA, AZ, ID, IL, IN, NV, NC, OH, TX)</p>
+              <p className="text-gray-600 text-sm">Licensed in CA, AZ, ID, IL, IN, NV, NC, OH and TX</p>
             </div>
             
             <div className="flex items-center gap-4">

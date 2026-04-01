@@ -1,32 +1,76 @@
 import React from 'react';
 
 const products = [
-  { title: 'General Liability', desc: 'Protects businesses from third-party claims for injury, property damage, and more.', img: 'https://images.unsplash.com/photo-1506744038136-46273834b3fb?auto=format&fit=crop&w=400&q=80' },
-  { title: 'Renters Insurance', desc: 'Covers your belongings and liability as a renter against theft, fire, and more.', img: 'https://images.unsplash.com/photo-1464983953574-0892a716854b?auto=format&fit=crop&w=400&q=80' },
-  { title: 'Umbrella Insurance', desc: 'Extra liability coverage for your assets and peace of mind.', img: 'https://images.unsplash.com/photo-1465101046530-73398c7f28ca?auto=format&fit=crop&w=400&q=80' },
-  { title: "Worker's Compensation", desc: 'Financial and medical support for employees injured on the job.', img: 'https://images.unsplash.com/photo-1515378791036-0648a3ef77b2?auto=format&fit=crop&w=400&q=80' },
-  { title: 'Flood Insurance', desc: 'Covers damage from natural disasters, burst pipes, and water-related incidents.', img: 'https://images.unsplash.com/photo-1501594907352-04cda38ebc29?auto=format&fit=crop&w=400&q=80' },
-  { title: 'Commercial Auto', desc: 'Protects business vehicles from accidents, damage, and liability claims.', img: 'https://images.unsplash.com/photo-1511918984145-48de785d4c4e?auto=format&fit=crop&w=400&q=80' },
+  {
+    num: '1',
+    title: 'General Liability',
+    desc: 'Protects businesses from financial loss due to third-party claims for bodily injury, property damage, and personal injury. Our policies offer broad coverage and 24/7 assistance.',
+  },
+  {
+    num: '2',
+    title: 'Renters Insurance',
+    desc: 'Protect your belongings and liability as a renter. Our policies cover theft, fire, water damage, and more - tailored to your specific rental situation.',
+  },
+  {
+    num: '3',
+    title: 'Umbrella Insurance',
+    desc: "Get additional liability coverage beyond your existing policies. Our umbrella insurance provides extra protection for your assets and peace of mind when standard limits aren't enough.",
+  },
+  {
+    num: '4',
+    title: "Workers' Compensation",
+    desc: 'Provides financial support and medical benefits to employees injured or ill due to their job - covering medical expenses, lost wages, rehabilitation costs, and death benefits for dependents.',
+  },
+  {
+    num: '5',
+    title: 'Flood Insurance',
+    desc: 'Protect your home and belongings from flood damage caused by natural disasters, burst pipes, and other water-related incidents. We help identify your flood risk and find the right level of coverage.',
+  },
+  {
+    num: '6',
+    title: 'Commercial Auto Insurance',
+    desc: 'Protects against financial losses from accidents, property damage, and liability claims involving business vehicles - including bodily injury, property damage, theft, vandalism, and legal costs.',
+  },
+  {
+    num: '7',
+    title: 'Cyber Liability Insurance',
+    desc: 'Designed to protect businesses from financial losses stemming from cyberattacks and data breaches - covering data recovery, legal fees, and notification expenses required by data protection laws.',
+  },
+  {
+    num: '8',
+    title: 'Earthquake Insurance',
+    desc: 'A specialized form of property coverage designed to protect against the financial impact of earthquake damage - filling the gap left by standard homeowners or commercial policies that exclude seismic events.',
+  },
+  {
+    num: '9',
+    title: 'Commercial Insurance',
+    desc: 'A broad safeguard for businesses offering protection against liabilities, property damage, employee injuries, and other potential losses arising from everyday operations. Custom-tailored for your industry.',
+  },
 ];
 
 function FeaturedProducts() {
   return (
-    <section className="py-24 px-8 max-w-7xl mx-auto w-full" id="services">
+    <section className="py-24 px-8 max-w-7xl mx-auto w-full" id="coverage-offerings">
       <div className="text-center mb-16">
-        <h2 className="text-4xl font-extrabold text-[#0a0a0a] tracking-tight mb-4">Our Premium Solutions</h2>
-        <p className="text-lg text-gray-600 max-w-2xl mx-auto">Discover the perfect coverage tailored to secure your professional and personal assets.</p>
+        <h2 className="text-4xl font-extrabold text-[#0a0a0a] tracking-tight mb-4">Our Coverage Offerings</h2>
+        <p className="text-lg text-gray-600 max-w-3xl mx-auto leading-relaxed">
+          We proudly offer a comprehensive suite of insurance products designed to protect what
+          matters most to you and your business.
+        </p>
       </div>
       
-      <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-8">
-        {products.map((p, i) => (
-          <div key={i} className="glass-panel rounded-3xl overflow-hidden group hover:-translate-y-2 transition-transform duration-300 cursor-pointer">
-            <div className="h-48 overflow-hidden">
-              <img src={p.img} alt={p.title} className="w-full h-full object-cover group-hover:scale-110 transition-transform duration-700" />
+      <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-6">
+        {products.map((p) => (
+          <div
+            key={p.num}
+            className="glass-panel rounded-3xl p-8 flex flex-col gap-4 group hover:-translate-y-1 hover:shadow-xl hover:shadow-blue-500/10 transition-all duration-300"
+          >
+            <div className="w-12 h-12 rounded-2xl bg-[#0077b6] flex items-center justify-center shadow-md shadow-blue-500/20 shrink-0">
+              <span className="text-white text-base font-black">{p.num}</span>
             </div>
-            <div className="p-8">
-              <h3 className="text-xl font-bold text-[#0a0a0a] mb-2 group-hover:text-[#0077b6] transition-colors">{p.title}</h3>
-              <p className="text-gray-600 text-sm leading-relaxed">{p.desc}</p>
-            </div>
+
+            <h3 className="text-xl font-bold text-[#0a0a0a] group-hover:text-[#0077b6] transition-colors">{p.title}</h3>
+            <p className="text-gray-600 text-sm leading-relaxed">{p.desc}</p>
           </div>
         ))}
       </div>
