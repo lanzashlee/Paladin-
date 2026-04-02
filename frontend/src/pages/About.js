@@ -4,6 +4,7 @@ import { Target, ShieldCheck, Building2 } from 'lucide-react';
 import Header from '../components/Header';
 import Footer from '../components/Footer';
 import WhyChooseUs from '../components/WhyChooseUs';
+import MapLocation from '../components/MapLocation';
 
 import TeamMember1 from '../assets/team_member_1_1774940222890.png';
 import TeamMember2 from '../assets/team_member_2_1774940252257.png';
@@ -275,6 +276,8 @@ export default function About() {
 
       {/* Partners & Carriers Section */}
       <PartnersSection />
+
+      <MapLocation className="pt-0 -mt-10" />
 
       {/* CTA Section */}
       <section className="py-16 md:py-20 px-6 bg-gradient-to-r from-[#0077b6] to-[#023e8a] text-center text-white relative overflow-hidden">

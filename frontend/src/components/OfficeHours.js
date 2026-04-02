@@ -1,22 +1,17 @@
 import React from 'react';
-import { Clock } from 'lucide-react';
 
 const hours = [
+  { day: 'Sunday',    open: null,        close: null,       closed: true  },
   { day: 'Monday',    open: '09:00 AM', close: '05:00 PM', closed: false },
   { day: 'Tuesday',   open: '09:00 AM', close: '05:00 PM', closed: false },
   { day: 'Wednesday', open: '09:00 AM', close: '05:00 PM', closed: false },
   { day: 'Thursday',  open: '09:00 AM', close: '05:00 PM', closed: false },
   { day: 'Friday',    open: '09:00 AM', close: '05:00 PM', closed: false },
   { day: 'Saturday',  open: null,        close: null,       closed: true  },
-  { day: 'Sunday',    open: null,        close: null,       closed: true  },
 ];
 
-// getDay() returns 0=Sun,1=Mon...6=Sat. Map to our array index.
-const todayIndex = (() => {
-  const d = new Date().getDay(); // 0=Sun ... 6=Sat
-  if (d === 0) return 6; // Sunday → index 6
-  return d - 1;           // Mon=0 ... Sat=5
-})();
+// getDay() returns 0=Sun,1=Mon...6=Sat. This matches our array index directly.
+const todayIndex = new Date().getDay();
 
 function OfficeHours() {
   return (
@@ -51,15 +46,10 @@ function OfficeHours() {
               <div
                 key={row.day}
                 className={`grid grid-cols-[1fr_auto] items-center px-8 py-4 border-b border-gray-100/80 last:border-none transition-colors
-                  ${isToday ? 'bg-blue-50 font-semibold' : 'hover:bg-gray-50/60'}`}
+                  ${isToday ? 'bg-blue-50' : 'hover:bg-gray-50/60'}`}
               >
                 <div className="flex items-center gap-3">
-                  {isToday && (
-                    <span className="inline-flex items-center gap-1 text-[10px] font-bold text-[#0077b6] bg-blue-100 px-2 py-0.5 rounded-full uppercase tracking-wider">
-                      <Clock className="w-3 h-3" /> Today
-                    </span>
-                  )}
-                  <span className={`text-sm ${isToday ? 'text-[#0a0a0a]' : 'text-gray-700'}`}>
+                  <span className={`text-sm font-semibold ${isToday ? 'text-[#0077b6]' : 'text-gray-700'}`}>
                     {row.day}
                   </span>
                 </div>
@@ -69,7 +59,7 @@ function OfficeHours() {
                     row.closed
                       ? 'text-red-400 font-semibold'
                       : isToday
-                      ? 'text-[#0077b6]'
+                      ? 'text-[#0077b6] font-semibold'
                       : 'text-gray-600'
                   }`}
                 >
