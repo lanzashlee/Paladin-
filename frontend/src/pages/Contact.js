@@ -53,6 +53,39 @@ function Contact() {
     setFormData({ name: '', email: '', subject: '', message: '' });
   };
 
+  const requestCards = [
+    {
+      title: 'Personalized Consultation',
+      desc: 'Do you need proper and affordable coverage? Request a consultation now to have a personalized insurance plan that fits your specific needs.',
+      cta: 'Request',
+    },
+    {
+      title: 'Request Proof of Insurance',
+      desc: 'Request proof of insurance below! One of our licensed agents will send it out as soon as possible.',
+      cta: 'Request',
+    },
+    {
+      title: 'Policy Change',
+      desc: 'Do you need to make any changes to your existing policy? Submit your request below and we will update your policy accordingly.',
+      cta: 'Request',
+    },
+    {
+      title: 'Update Contact Info',
+      desc: 'Request a policy update information on an existing policy below.',
+      cta: 'Request',
+    },
+    {
+      title: 'Report a Claim',
+      desc: 'Report a claim below. One of our licensed agents will contact you shortly to provide personalized service throughout the claim process.',
+      cta: 'Report',
+    },
+    {
+      title: 'Request a Call',
+      desc: 'Do you need further assistance? Request a call below and one of our licensed agents will reach out to you promptly.',
+      cta: 'Request',
+    },
+  ];
+
   return (
     <>
       <Header />
@@ -174,84 +207,46 @@ function Contact() {
         </div>
 
         {/* Service Request Cards Section */}
-        <div className="mt-20">
-          <div className="text-center mb-12">
-            <p className="inline-flex items-center px-4 py-1 rounded-full bg-blue-50 text-[#0077b6] text-xs font-semibold tracking-widest uppercase mb-4">
+        <section className="relative mt-20 overflow-hidden rounded-[2rem] bg-gradient-to-b from-[#f7fbff] to-white px-5 py-14 sm:px-8 sm:py-16">
+          <div className="pointer-events-none absolute -top-20 left-1/2 -translate-x-1/2 w-[620px] h-[240px] rounded-full bg-[#0077b6]/10 blur-3xl" />
+
+          <div className="relative text-center mb-12">
+            <p className="inline-flex items-center px-4 py-1.5 rounded-full bg-[#0077b6]/10 text-[#0077b6] text-xs font-semibold tracking-widest uppercase mb-4 border border-[#0077b6]/15">
               Quick Actions
             </p>
-            <h2 className="text-3xl md:text-4xl font-extrabold text-[#0a0a0a] tracking-tight">
+            <h2 className="text-3xl md:text-4xl font-extrabold text-[#0a0a0a] tracking-tight mb-3">
               How Can We Help You Today?
             </h2>
+            <p className="text-gray-600 max-w-2xl mx-auto leading-relaxed text-sm sm:text-base">
+              Pick a request below and our licensed team will respond as quickly as possible.
+            </p>
           </div>
 
-          <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-6">
-            {/* Personalized Consultation */}
-            <div className="glass-panel rounded-2xl p-8 shadow-lg shadow-blue-900/5 hover:shadow-xl hover:shadow-blue-900/10 transition-all hover:-translate-y-1 flex flex-col items-start">
-              <h3 className="text-xl font-bold text-[#0a0a0a] mb-3">Personalized Consultation</h3>
-              <p className="text-gray-600 text-sm leading-relaxed mb-6 flex-1 text-justify">
-                Do you need proper and affordable coverage? Request a consultation now to have a personalized insurance plan that fits your specific needs.
-              </p>
-              <button className="bg-[#0077b6] text-white px-6 py-2 rounded-full text-sm font-semibold hover:bg-blue-700 transition-colors">
-                Request
-              </button>
-            </div>
+          <div className="relative grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-6">
+            {requestCards.map((card, index) => (
+              <article
+                key={card.title}
+                className="group relative overflow-hidden rounded-2xl border border-[#0077b6]/10 bg-white/85 backdrop-blur-sm p-7 shadow-lg shadow-blue-900/5 hover:shadow-xl hover:shadow-blue-500/15 transition-all duration-300 hover:-translate-y-1 flex flex-col items-start"
+              >
+                <div className="pointer-events-none absolute inset-0 bg-gradient-to-br from-[#0077b6]/[0.03] via-transparent to-[#0077b6]/[0.06] opacity-0 group-hover:opacity-100 transition-opacity duration-300" />
 
-            {/* Request Proof of Insurance */}
-            <div className="glass-panel rounded-2xl p-8 shadow-lg shadow-blue-900/5 hover:shadow-xl hover:shadow-blue-900/10 transition-all hover:-translate-y-1 flex flex-col items-start">
-              <h3 className="text-xl font-bold text-[#0a0a0a] mb-3">Request Proof of Insurance</h3>
-              <p className="text-gray-600 text-sm leading-relaxed mb-6 flex-1 text-justify">
-                Request proof of insurance below! One of our licensed agents will send it out as soon as possible.
-              </p>
-              <button className="bg-[#0077b6] text-white px-6 py-2 rounded-full text-sm font-semibold hover:bg-blue-700 transition-colors">
-                Request
-              </button>
-            </div>
+                <div className="relative mb-4 inline-flex h-9 min-w-9 items-center justify-center rounded-full bg-[#0077b6]/10 text-[#0077b6] border border-[#0077b6]/20 px-3 text-xs font-black tracking-wide">
+                  {String(index + 1).padStart(2, '0')}
+                </div>
 
-            {/* Policy Change */}
-            <div className="glass-panel rounded-2xl p-8 shadow-lg shadow-blue-900/5 hover:shadow-xl hover:shadow-blue-900/10 transition-all hover:-translate-y-1 flex flex-col items-start">
-              <h3 className="text-xl font-bold text-[#0a0a0a] mb-3">Policy Change</h3>
-              <p className="text-gray-600 text-sm leading-relaxed mb-6 flex-1 text-justify">
-                Do you need to make any changes to your existing policy? Submit your request below and we will update your policy accordingly.
-              </p>
-              <button className="bg-[#0077b6] text-white px-6 py-2 rounded-full text-sm font-semibold hover:bg-blue-700 transition-colors">
-                Request
-              </button>
-            </div>
+                <h3 className="relative text-xl font-bold text-[#0a0a0a] mb-3">{card.title}</h3>
+                <p className="relative text-gray-600 text-sm leading-relaxed mb-6 flex-1 text-justify">
+                  {card.desc}
+                </p>
 
-            {/* Update Contact Info */}
-            <div className="glass-panel rounded-2xl p-8 shadow-lg shadow-blue-900/5 hover:shadow-xl hover:shadow-blue-900/10 transition-all hover:-translate-y-1 flex flex-col items-start">
-              <h3 className="text-xl font-bold text-[#0a0a0a] mb-3">Update Contact Info</h3>
-              <p className="text-gray-600 text-sm leading-relaxed mb-6 flex-1 text-justify">
-                Request a policy update information on an existing policy below.
-              </p>
-              <button className="bg-[#0077b6] text-white px-6 py-2 rounded-full text-sm font-semibold hover:bg-blue-700 transition-colors">
-                Request
-              </button>
-            </div>
-
-            {/* Report a Claim */}
-            <div className="glass-panel rounded-2xl p-8 shadow-lg shadow-blue-900/5 hover:shadow-xl hover:shadow-blue-900/10 transition-all hover:-translate-y-1 flex flex-col items-start">
-              <h3 className="text-xl font-bold text-[#0a0a0a] mb-3">Report a Claim</h3>
-              <p className="text-gray-600 text-sm leading-relaxed mb-6 flex-1 text-justify">
-                Report a claim below. One of our licensed agents will contact you shortly to provide personalized service throughout the claim process.
-              </p>
-              <button className="bg-[#0077b6] text-white px-6 py-2 rounded-full text-sm font-semibold hover:bg-blue-700 transition-colors">
-                Report
-              </button>
-            </div>
-
-            {/* Request a Call */}
-            <div className="glass-panel rounded-2xl p-8 shadow-lg shadow-blue-900/5 hover:shadow-xl hover:shadow-blue-900/10 transition-all hover:-translate-y-1 flex flex-col items-start">
-              <h3 className="text-xl font-bold text-[#0a0a0a] mb-3">Request a Call</h3>
-              <p className="text-gray-600 text-sm leading-relaxed mb-6 flex-1 text-justify">
-                Do you need further assistance? Request a call below and one of our licensed agents will reach out to you promptly.
-              </p>
-              <button className="bg-[#0077b6] text-white px-6 py-2 rounded-full text-sm font-semibold hover:bg-blue-700 transition-colors">
-                Request
-              </button>
-            </div>
+                <button className="relative inline-flex items-center justify-center gap-2 bg-[#0077b6] text-white px-6 py-2.5 rounded-full text-sm font-semibold shadow-md shadow-blue-500/20 hover:bg-blue-700 transition-all hover:-translate-y-0.5">
+                  {card.cta}
+                  <span aria-hidden="true">→</span>
+                </button>
+              </article>
+            ))}
           </div>
-        </div>
+        </section>
       </main>
 
       {/* Render ContactInfo below the form instead of side-by-side to preserve its existing layout since it acts as a full section */}
