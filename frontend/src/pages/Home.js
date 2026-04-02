@@ -8,6 +8,7 @@ import WhyChooseUs from '../components/WhyChooseUs';
 import OfficeHours from '../components/OfficeHours';
 import ContactInfo from '../components/ContactInfo';
 import Footer from '../components/Footer';
+import MapLocation from '../components/MapLocation';
 
 function Home() {
   return (
@@ -52,6 +53,7 @@ function Home() {
       <WhyChooseUs />
       <OfficeHours />
       <ContactInfo />
+      <MapLocation className="pt-0 -mt-10" />
       <Footer />
     </>
   );

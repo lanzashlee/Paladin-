@@ -1,5 +1,5 @@
 import React from 'react';
-import { MapPin, Phone, Printer, Mail, Clock, Shield } from 'lucide-react';
+import { MapPin, Phone, Printer, Mail } from 'lucide-react';
 
 function ContactInfo() {
   return (
@@ -23,8 +23,7 @@ function ContactInfo() {
             <div className="flex items-start gap-4">
               <MapPin className="w-6 h-6 text-[#0077b6] shrink-0 mt-0.5" />
               <div>
-                <p className="font-semibold text-gray-900">Address</p>
-                <p className="text-gray-600 mt-1 hover:text-[#0077b6] transition-colors"><a href="https://maps.google.com" target="_blank" rel="noreferrer">3787 Transport ST Suite A7 Box #5<br/>Ventura, CA 93003</a></p>
+                <p className="text-gray-600 font-medium mt-1 hover:text-[#0077b6] transition-colors"><a href="https://maps.google.com" target="_blank" rel="noreferrer">3787 Transport ST Suite A7 Box #5<br/>Ventura, CA 93003</a></p>
               </div>
             </div>
             
@@ -43,14 +42,31 @@ function ContactInfo() {
               <p className="text-gray-600 font-medium"><a href="mailto:support@paladinbusinessservices.net" className="hover:text-[#0077b6] transition-colors">support@paladinbusinessservices.net</a></p>
             </div>
 
-            <div className="flex items-center gap-4 mt-8 pt-6 border-t border-gray-200/60">
-              <Shield className="w-6 h-6 text-[#0077b6]" />
-              <p className="text-gray-600 text-sm">Licensed in CA, AZ, ID, IL, IN, NV, NC, OH and TX</p>
-            </div>
-            
             <div className="flex items-center gap-4">
-              <Clock className="w-6 h-6 text-[#0077b6]" />
-              <p className="text-gray-600 text-sm">Mon-Fri 09:00 am – 05:00 pm</p>
+              <span className="text-[#0077b6]" aria-hidden="true">
+                <svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 24 24" fill="currentColor" className="w-6 h-6">
+                  <path d="M22 12.06C22 6.488 17.523 2 12 2 6.477 2 2 6.488 2 12.06c0 5.026 3.657 9.197 8.438 9.944v-7.031H8.078v-2.913h2.36V9.845c0-2.335 1.388-3.626 3.514-3.626.999 0 2.043.178 2.043.178v2.27h-1.151c-1.135 0-1.489.708-1.489 1.434v1.72h2.533l-.405 2.913h-2.128v7.031C18.343 21.257 22 17.086 22 12.06Z" />
+                </svg>
+              </span>
+              <p className="text-gray-600 font-medium"><a href="#" className="hover:text-[#0077b6] transition-colors">Paladin Professional Insurance Solutions</a></p>
+            </div>
+
+            <div className="flex items-center gap-4">
+              <span className="text-[#0077b6]" aria-hidden="true">
+                <svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 24 24" fill="currentColor" className="w-6 h-6">
+                  <path d="M7 2h10a5 5 0 0 1 5 5v10a5 5 0 0 1-5 5H7a5 5 0 0 1-5-5V7a5 5 0 0 1 5-5Zm10 2H7a3 3 0 0 0-3 3v10a3 3 0 0 0 3 3h10a3 3 0 0 0 3-3V7a3 3 0 0 0-3-3Zm-5 3.5A4.5 4.5 0 1 1 7.5 12 4.5 4.5 0 0 1 12 7.5Zm0 2A2.5 2.5 0 1 0 14.5 12 2.5 2.5 0 0 0 12 9.5Zm5.25-2.75a.75.75 0 1 1-.75.75.75.75 0 0 1 .75-.75Z" />
+                </svg>
+              </span>
+              <p className="text-gray-600 font-medium"><a href="#" className="hover:text-[#0077b6] transition-colors">@paladin.insurance</a></p>
+            </div>
+
+            <div className="flex items-center gap-4">
+              <span className="text-[#0077b6]" aria-hidden="true">
+                <svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 24 24" fill="currentColor" className="w-6 h-6">
+                  <path d="M19 3H5a2 2 0 0 0-2 2v14a2 2 0 0 0 2 2h14a2 2 0 0 0 2-2V5a2 2 0 0 0-2-2ZM8.339 17.338H6.169V10h2.17Zm-1.085-8.274a1.258 1.258 0 1 1 1.257-1.258 1.257 1.257 0 0 1-1.257 1.258Zm10.079 8.274h-2.169v-3.6c0-.86-.015-1.967-1.198-1.967-1.2 0-1.384.936-1.384 1.905v3.662H10.313V10h2.083v1.005h.03a2.284 2.284 0 0 1 2.058-1.133c2.2 0 2.606 1.448 2.606 3.33Z" />
+                </svg>
+              </span>
+              <p className="text-gray-600 font-medium"><a href="#" className="hover:text-[#0077b6] transition-colors">Paladin Professional Insurance Solutions</a></p>
             </div>
           </div>
         </div>
@@ -58,8 +74,8 @@ function ContactInfo() {
         {/* Right side: Action block */}
         <div className="flex-1 flex flex-col justify-center items-start lg:items-end text-left lg:text-right relative z-10">
           <div className="bg-[#0a0a0a] text-white rounded-3xl p-10 w-full max-w-sm shadow-xl">
-            <h3 className="text-2xl font-bold mb-2 text-center lg:text-right">Quick Payments</h3>
-            <p className="text-gray-400 text-sm mb-8 text-center lg:text-right">Securely manage your policies and bills right from our portal.</p>
+            <h3 className="text-2xl font-bold mb-2 text-center lg:text-center">Quick Payments</h3>
+            <p className="text-gray-400 text-sm mb-8 text-center lg:text-center">Securely manage your policies and bills right from our portal.</p>
             
             <div className="flex flex-col gap-4">
               <a href="#" className="w-full text-center bg-[#0077b6] text-white py-3.5 rounded-full font-bold hover:bg-blue-600 transition-colors">
