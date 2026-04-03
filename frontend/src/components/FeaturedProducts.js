@@ -69,60 +69,62 @@ const products = [
 
 function FeaturedProducts() {
   return (
-    <section className="relative py-24 px-6 sm:px-8 max-w-7xl mx-auto w-full overflow-hidden" id="coverage-offerings">
-      <div className="pointer-events-none absolute -top-16 left-1/2 -translate-x-1/2 w-[760px] h-[300px] rounded-full bg-[#0077b6]/10 blur-3xl" />
-      <div className="pointer-events-none absolute -bottom-24 right-0 w-[360px] h-[360px] rounded-full bg-sky-200/60 blur-3xl" />
+    <section className="relative py-24 overflow-hidden bg-white w-full" id="coverage-offerings">
+      <div className="pointer-events-none absolute -top-16 left-1/2 -translate-x-1/2 w-[760px] h-[300px] rounded-full bg-[#002DB5]/10 blur-3xl" />
+      <div className="pointer-events-none absolute -bottom-24 right-0 w-[360px] h-[360px] rounded-full bg-[#F7F4EF] blur-3xl" />
 
-      <div className="relative z-10 text-center mb-16">
-        <p className="inline-flex items-center px-4 py-1.5 rounded-full bg-[#0077b6]/10 text-[#0077b6] text-xs font-semibold tracking-widest uppercase mb-5 border border-[#0077b6]/20">
+      <div className="relative z-10 max-w-7xl mx-auto px-6 sm:px-8 w-full">
+        <div className="text-center mb-16">
+        <p className="inline-flex items-center px-4 py-1.5 rounded-full bg-[#F7F4EF] text-[#002DB5] text-xs font-semibold tracking-widest uppercase mb-5 border border-[#d8cbb8] shadow-sm">
           Coverage Portfolio
         </p>
-        <h2 className="text-4xl sm:text-5xl font-extrabold text-[#0a0a0a] tracking-tight mb-4">
+        <h2 className="text-4xl sm:text-5xl font-extrabold text-[#012E72] tracking-tight mb-4">
           Our Coverage Offerings
         </h2>
-        <p className="text-base sm:text-lg text-gray-600 max-w-3xl mx-auto leading-relaxed">
+        <p className="text-base sm:text-lg text-[#010407]/75 max-w-3xl mx-auto leading-relaxed">
           Explore a curated suite of protection options for businesses, property owners, and
           families, each designed to match real-world risk and long-term peace of mind.
         </p>
       </div>
 
-      <div className="relative z-10 grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-6">
+        <div className="relative z-10 grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-6">
         {products.map((p) => (
           <article
             key={p.num}
-            className="relative overflow-hidden rounded-3xl border border-white/20 p-7 sm:p-8 flex flex-col gap-4 group min-h-[340px] hover:-translate-y-1.5 hover:shadow-xl hover:shadow-blue-500/15 transition-all duration-300"
+            className="relative overflow-hidden rounded-3xl border border-[#e7dccb] p-7 sm:p-8 flex flex-col gap-4 group min-h-[340px] hover:-translate-y-1.5 hover:shadow-xl hover:shadow-[#002DB5]/10 transition-all duration-300 bg-white shadow-lg shadow-[#012E72]/5"
           >
             <div
-              className="absolute inset-0 bg-cover bg-center opacity-80 transition-transform duration-300 group-hover:scale-105"
+              className="absolute inset-0 bg-cover bg-center opacity-22 transition-transform duration-300 group-hover:scale-105"
               style={{ backgroundImage: `url(${p.image})` }}
               aria-hidden="true"
             />
-            <div className="absolute inset-0 bg-gradient-to-b from-[#0a0a0a]/30 via-[#0a0a0a]/45 to-[#0a0a0a]/65" aria-hidden="true" />
+            <div className="absolute inset-0 bg-gradient-to-b from-white/20 via-white/45 to-[#F7F4EF]/90" aria-hidden="true" />
 
             <div className="relative z-10 flex items-center justify-between">
-              <div className="w-12 h-12 rounded-2xl bg-white/15 backdrop-blur-sm border border-white/20 flex items-center justify-center shadow-md shadow-blue-500/20 shrink-0">
-                <span className="text-white text-base font-black">{p.num}</span>
+              <div className="w-12 h-12 rounded-2xl bg-[#F7F4EF] border border-[#d8cbb8] flex items-center justify-center shadow-md shadow-[#012E72]/10 shrink-0">
+                <span className="text-[#012E72] text-base font-black">{p.num}</span>
               </div>
-              <span className="text-[11px] uppercase tracking-[0.2em] text-white/80 font-semibold">Featured</span>
+              <span className="text-[11px] uppercase tracking-[0.2em] text-[#002DB5] font-semibold">Featured</span>
             </div>
 
-            <h3 className="relative z-10 text-xl font-bold text-white drop-shadow-sm group-hover:text-[#7dd3fc] transition-colors">
+            <h3 className="relative z-10 text-xl font-bold text-[#012E72] group-hover:text-[#002DB5] transition-colors">
               {p.title}
             </h3>
-            <p className="relative z-10 text-white/95 text-sm leading-relaxed text-justify drop-shadow-sm flex-1">
+            <p className="relative z-10 text-[#010407]/75 text-sm leading-relaxed text-justify flex-1">
               {p.desc}
             </p>
           </article>
         ))}
-      </div>
+        </div>
 
-      <div className="relative z-10 mt-12 flex justify-center">
-        <Link
-          to="/service"
-          className="inline-flex items-center gap-2 bg-[#0077b6] text-white px-8 py-3 rounded-full font-bold shadow-lg shadow-blue-500/20 hover:bg-[#00639a] transition-all hover:-translate-y-0.5"
-        >
-          Explore All Services
-        </Link>
+        <div className="relative z-10 mt-12 flex justify-center">
+          <Link
+            to="/service"
+            className="inline-flex items-center gap-2 bg-[#012E72] text-white px-8 py-3 rounded-full font-bold shadow-lg shadow-[#012E72]/20 hover:bg-[#002DB5] transition-all hover:-translate-y-0.5"
+          >
+            Explore All Services
+          </Link>
+        </div>
       </div>
     </section>
   );

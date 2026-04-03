@@ -12,13 +12,13 @@ function MapLocation({
 
 	return (
 		<section className={`py-16 px-8 max-w-7xl mx-auto w-full ${className}`}>
-			<div className="glass-panel rounded-3xl p-6 md:p-8 shadow-xl shadow-blue-900/5 border border-white/60">
+			<div className="rounded-3xl p-6 md:p-8 shadow-xl shadow-[#012E72]/5 border border-[#e7dccb] bg-white">
 				<div className="mb-5">
-					<h3 className="text-2xl font-bold text-[#0a0a0a]">Find Us</h3>
-					<p className="text-gray-600 mt-2">{address}</p>
+					<h3 className="text-2xl font-bold text-[#012E72]">Find Us</h3>
+					<p className="text-[#010407]/75 mt-2">{address}</p>
 				</div>
 
-				<div className={`w-full overflow-hidden rounded-2xl border border-gray-200/80 ${heightClass}`}>
+				<div className={`w-full overflow-hidden rounded-2xl border border-[#d8cbb8] ${heightClass}`}>
 					<iframe
 						title={title}
 						src={embedUrl}
@@ -34,7 +34,7 @@ function MapLocation({
 						href={mapsUrl}
 						target="_blank"
 						rel="noreferrer"
-						className="text-sm font-semibold text-[#0077b6] hover:text-blue-700 transition-colors"
+						className="text-sm font-semibold text-[#002DB5] hover:text-[#012E72] transition-colors"
 					>
 						Open in Google Maps
 					</a>
