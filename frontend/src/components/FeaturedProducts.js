@@ -91,28 +91,32 @@ function FeaturedProducts() {
         {products.map((p) => (
           <article
             key={p.num}
-            className="relative overflow-hidden rounded-3xl border border-[#e7dccb] p-7 sm:p-8 flex flex-col gap-4 group min-h-[340px] hover:-translate-y-1.5 hover:shadow-xl hover:shadow-[#002DB5]/10 transition-all duration-300 bg-white shadow-lg shadow-[#012E72]/5"
+            className="relative overflow-hidden rounded-3xl border border-[#e7dccb] bg-white group min-h-[340px] hover:-translate-y-1.5 hover:shadow-xl hover:shadow-[#002DB5]/10 transition-all duration-300 shadow-lg shadow-[#012E72]/5"
           >
-            <div
-              className="absolute inset-0 bg-cover bg-center opacity-22 transition-transform duration-300 group-hover:scale-105"
-              style={{ backgroundImage: `url(${p.image})` }}
-              aria-hidden="true"
-            />
-            <div className="absolute inset-0 bg-gradient-to-b from-white/20 via-white/45 to-[#F7F4EF]/90" aria-hidden="true" />
-
-            <div className="relative z-10 flex items-center justify-between">
-              <div className="w-12 h-12 rounded-2xl bg-[#F7F4EF] border border-[#d8cbb8] flex items-center justify-center shadow-md shadow-[#012E72]/10 shrink-0">
+            <div className="relative h-44 overflow-hidden">
+              <div
+                className="absolute inset-0 bg-cover bg-center transition-transform duration-300 group-hover:scale-105"
+                style={{ backgroundImage: `url(${p.image})` }}
+                aria-hidden="true"
+              />
+              <div className="absolute inset-0 bg-gradient-to-b from-[#012E72]/15 via-transparent to-[#F7F4EF]/70" aria-hidden="true" />
+              <div className="absolute top-4 left-4 w-12 h-12 rounded-2xl bg-white border border-[#d8cbb8] flex items-center justify-center shadow-md shadow-[#012E72]/10 shrink-0">
                 <span className="text-[#012E72] text-base font-black">{p.num}</span>
               </div>
-              <span className="text-[11px] uppercase tracking-[0.2em] text-[#002DB5] font-semibold">Featured</span>
             </div>
 
-            <h3 className="relative z-10 text-xl font-bold text-[#012E72] group-hover:text-[#002DB5] transition-colors">
-              {p.title}
-            </h3>
-            <p className="relative z-10 text-[#010407]/75 text-sm leading-relaxed text-justify flex-1">
-              {p.desc}
-            </p>
+            <div className="relative z-10 p-7 sm:p-8 pt-6 flex flex-col gap-4 min-h-[180px] bg-white">
+              <div className="flex items-center justify-end">
+                <span className="text-[11px] uppercase tracking-[0.2em] text-[#002DB5] font-semibold">Featured</span>
+              </div>
+
+              <h3 className="text-xl font-bold text-[#012E72] group-hover:text-[#002DB5] transition-colors">
+                {p.title}
+              </h3>
+              <p className="text-[#010407]/75 text-sm leading-relaxed text-justify flex-1">
+                {p.desc}
+              </p>
+            </div>
           </article>
         ))}
         </div>
