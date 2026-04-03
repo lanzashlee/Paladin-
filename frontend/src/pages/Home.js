@@ -10,6 +10,7 @@ import OfficeHours from '../components/OfficeHours';
 import ContactInfo from '../components/ContactInfo';
 import Footer from '../components/Footer';
 import MapLocation from '../components/MapLocation';
+import Carriers from '../components/Carriers';
 
 function Home() {
   return (
@@ -18,6 +19,7 @@ function Home() {
       <Hero />
       <AboutSection />
       <InsuranceLines />
+      <Carriers />
       <FeaturedProducts />
       <WhyChooseUs />
       <OfficeHours />

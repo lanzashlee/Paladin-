@@ -56,7 +56,7 @@ function PartnersSection() {
   };
 
   return (
-    <section className="py-24 px-6 bg-[#F7F4EF] border-t border-[#e7dccb]">
+    <section className="py-24 px-6 bg-[#F7F4EF] border-t border-[#e7dccb]" id="partners-carriers">
       <div className="max-w-7xl mx-auto">
         <div className="text-center mb-12">
           <p className="inline-flex items-center px-4 py-1 rounded-full bg-white text-[#002DB5] text-xs font-semibold tracking-wide uppercase mb-4 border border-[#d8cbb8] shadow-sm">
