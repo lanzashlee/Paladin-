@@ -42,20 +42,20 @@ const lines = [
 
 function InsuranceLines() {
   return (
-    <section className="py-24 bg-[#0a0a0a] relative overflow-hidden" id="insurance-lines">
+    <section className="py-24 bg-[#F7F4EF] relative overflow-hidden" id="insurance-lines">
       {/* Subtle gradient glow */}
-      <div className="absolute top-0 left-1/2 -translate-x-1/2 w-[800px] h-[300px] bg-[#0077b6]/10 rounded-full blur-3xl pointer-events-none" />
+      <div className="absolute top-0 left-1/2 -translate-x-1/2 w-[800px] h-[300px] bg-[#002DB5]/10 rounded-full blur-3xl pointer-events-none" />
 
       <div className="relative z-10 max-w-7xl mx-auto px-8 w-full">
         {/* Header */}
         <div className="mb-16 text-center">
-          <p className="inline-flex items-center px-4 py-1 rounded-full bg-white/5 text-[#0077b6] text-xs font-semibold tracking-widest uppercase mb-4 border border-white/10">
+          <p className="inline-flex items-center px-4 py-1 rounded-full bg-white text-[#002DB5] text-xs font-semibold tracking-widest uppercase mb-4 border border-[#d8cbb8] shadow-sm">
             What We Cover
           </p>
-          <h2 className="text-4xl font-extrabold text-white tracking-tight mb-4">
+          <h2 className="text-4xl font-extrabold text-[#012E72] tracking-tight mb-4">
             Our Insurance Lines
           </h2>
-          <p className="text-gray-400 text-lg max-w-2xl leading-relaxed align-middle mx-auto">
+          <p className="text-[#010407]/75 text-lg max-w-2xl leading-relaxed align-middle mx-auto">
             Paladin serves a wide range of clients across multiple insurance lines. Whether you are a
             business owner, landlord, contractor, or individual, we have a solution built for you.
           </p>
@@ -66,25 +66,25 @@ function InsuranceLines() {
           {lines.map((line, i) => (
             <div
               key={i}
-              className="relative overflow-hidden rounded-3xl border border-white/10 p-8 flex flex-col gap-4 min-h-[330px] hover:-translate-y-1 transition-all duration-300 group"
+              className="relative overflow-hidden rounded-3xl border border-[#e7dccb] bg-white hover:-translate-y-1 transition-all duration-300 group shadow-lg shadow-[#012E72]/5"
             >
-              <div
-                className="absolute inset-0 bg-cover bg-center opacity-50 transition-transform duration-300 group-hover:scale-105"
-                style={{ backgroundImage: `url(${line.image})` }}
-                aria-hidden="true"
-              />
-              <div className="absolute inset-0 bg-[#0a0a0a]/70" aria-hidden="true" />
-
-              <div className="relative z-10 flex flex-col gap-4 h-full">
-              {/* Badge */}
-                <div className="w-14 h-14 rounded-2xl bg-white/10 backdrop-blur-sm border border-white/10 flex items-center justify-center shadow-lg shadow-blue-500/20 shrink-0">
-                  <span className="text-white text-lg font-black">{line.badge}</span>
+              <div className="relative h-52 overflow-hidden">
+                <div
+                  className="absolute inset-0 bg-cover bg-center transition-transform duration-300 group-hover:scale-105"
+                  style={{ backgroundImage: `url(${line.image})` }}
+                  aria-hidden="true"
+                />
+                <div className="absolute inset-0 bg-gradient-to-b from-[#012E72]/15 via-transparent to-[#F7F4EF]/70" aria-hidden="true" />
+                <div className="absolute top-4 left-4 w-14 h-14 rounded-2xl bg-white border border-[#d8cbb8] flex items-center justify-center shadow-lg shadow-[#012E72]/10">
+                  <span className="text-[#012E72] text-lg font-black">{line.badge}</span>
                 </div>
+              </div>
 
-                <h3 className="text-xl font-bold text-white group-hover:text-[#7dd3fc] transition-colors">
+              <div className="relative z-10 p-8 pt-6 flex flex-col gap-4 min-h-[155px] bg-white">
+                <h3 className="text-xl font-bold text-[#012E72] group-hover:text-[#002DB5] transition-colors">
                   {line.title}
                 </h3>
-                <p className="text-white/80 text-sm leading-relaxed flex-1 text-justify">{line.desc}</p>
+                <p className="text-[#010407]/75 text-sm leading-relaxed flex-1 text-justify">{line.desc}</p>
               </div>
             </div>
           ))}
@@ -94,7 +94,7 @@ function InsuranceLines() {
         <div className="mt-14 align-middle text-center">
           <Link
             to="/service"
-            className="inline-flex items-center gap-2 bg-[#0077b6] text-white px-10 py-3.5 rounded-full font-bold shadow-lg shadow-blue-500/20 hover:bg-blue-600 transition-all hover:-translate-y-0.5"
+            className="inline-flex items-center gap-2 bg-[#012E72] text-white px-10 py-3.5 rounded-full font-bold shadow-lg shadow-[#012E72]/20 hover:bg-[#002DB5] transition-all hover:-translate-y-0.5"
           >
             Explore All Services
           </Link>

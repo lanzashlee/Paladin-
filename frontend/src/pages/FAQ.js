@@ -167,20 +167,20 @@ export default function FAQ() {
   );
 
   return (
-    <div className="min-h-screen bg-[#f8fafc] flex flex-col">
+    <div className="min-h-screen bg-white flex flex-col text-[#010407]">
       <Header />
 
       <main className="flex-1">
         {/* Intro Section */}
-        <section className="py-14 md:py-16 px-6 bg-white border-b border-gray-100">
+        <section className="py-14 md:py-16 px-6 bg-[#F7F4EF] border-b border-[#e7dccb]">
           <div className="max-w-5xl mx-auto text-center">
-            <p className="inline-flex items-center px-4 py-1 rounded-full bg-blue-50 text-[#0077b6] text-xs font-semibold tracking-wide uppercase mb-3">
+            <p className="inline-flex items-center px-4 py-1 rounded-full bg-white text-[#012E72] text-xs font-semibold tracking-wide uppercase mb-3 border border-[#002DB5]/15 shadow-sm">
               Help Center
             </p>
-            <h1 className="text-3xl md:text-4xl font-extrabold text-[#0a0a0a] mb-3">
+            <h1 className="text-3xl md:text-4xl font-extrabold text-[#012E72] mb-3">
               Frequently Asked Questions
             </h1>
-            <p className="text-base md:text-lg text-gray-600 max-w-3xl mx-auto leading-relaxed">
+            <p className="text-base md:text-lg text-[#010407]/80 max-w-3xl mx-auto leading-relaxed">
               Got questions? We’ve got answers. Here’s a list of common questions our clients ask
               before working with us.
             </p>
@@ -193,11 +193,11 @@ export default function FAQ() {
                   value={query}
                   onChange={(e) => setQuery(e.target.value)}
                   placeholder="Search questions (e.g. claims, consultation, office hours)"
-                  className="w-full rounded-full border border-gray-200 px-5 py-3.5 text-sm md:text-base shadow-sm focus:outline-none focus:ring-2 focus:ring-[#0077b6] focus:border-transparent"
+                  className="w-full rounded-full bg-white border border-[#d8cbb8] px-5 py-3.5 text-sm md:text-base shadow-sm placeholder:text-[#010407]/45 focus:outline-none focus:ring-2 focus:ring-[#002DB5] focus:border-[#002DB5]"
                 />
               </div>
               {query && (
-                <p className="mt-2 text-xs text-gray-500">
+                <p className="mt-2 text-xs text-[#010407]/65">
                   Showing {totalResults} result{totalResults === 1 ? '' : 's'} for "{query}".
                 </p>
               )}
@@ -206,31 +206,31 @@ export default function FAQ() {
         </section>
 
         {/* FAQ List */}
-        <section className="py-14 md:py-16 px-6">
+        <section className="py-14 md:py-16 px-6 bg-white">
           <div className="max-w-4xl mx-auto space-y-12">
             {filteredSections.map((section, sectionIndex) => (
               <div key={section.title}>
-                <h2 className="text-xs font-bold tracking-widest text-[#0077b6] mb-4">
+                <h2 className="text-xs font-bold tracking-[0.2em] text-[#002DB5] mb-4 uppercase">
                   {section.title}
                 </h2>
                 <div className="space-y-5">
                   {section.items.map((item, itemIndex) => (
                     <details
                       key={`${section.title}-${item.question}`}
-                      className="group bg-white border border-gray-100 rounded-2xl px-5 py-4 md:px-6 md:py-5 shadow-sm hover:shadow-md transition-shadow"
+                      className="group bg-[#F7F4EF]/40 border border-[#e7dccb] rounded-2xl px-5 py-4 md:px-6 md:py-5 shadow-sm hover:shadow-md transition-shadow"
                       open={sectionIndex === 0 && itemIndex === 0 && !query}
                     >
-                        <summary className="flex items-center justify-between cursor-pointer list-none">
-                          <h3 className="text-sm md:text-base font-semibold text-[#0a0a0a] pr-4">
-                            {item.question}
-                          </h3>
-                          <span className="ml-4 flex h-7 w-7 items-center justify-center rounded-full border border-gray-300 text-gray-500 text-xs group-open:rotate-45 transition-transform">
-                            +
-                          </span>
-                        </summary>
-                        <div className="mt-2 text-xs md:text-sm text-gray-600 leading-relaxed text-justify">
-                          {item.answer}
-                        </div>
+                      <summary className="flex items-center justify-between cursor-pointer list-none">
+                        <h3 className="text-sm md:text-base font-semibold text-[#012E72] pr-4">
+                          {item.question}
+                        </h3>
+                        <span className="ml-4 flex h-7 w-7 items-center justify-center rounded-full border border-[#002DB5]/25 text-[#002DB5] text-xs group-open:rotate-45 transition-transform bg-white">
+                          +
+                        </span>
+                      </summary>
+                      <div className="mt-2 text-xs md:text-sm text-[#010407]/80 leading-relaxed text-justify">
+                        {item.answer}
+                      </div>
                     </details>
                   ))}
                 </div>
@@ -238,7 +238,7 @@ export default function FAQ() {
             ))}
 
             {totalResults === 0 && (
-              <p className="text-center text-gray-500 text-xs md:text-sm mt-5">
+              <p className="text-center text-[#010407]/65 text-xs md:text-sm mt-5">
                 No questions matched your search. Try different keywords or browse the full list.
               </p>
             )}
@@ -246,17 +246,17 @@ export default function FAQ() {
         </section>
 
         {/* CTA Section */}
-        <section className="py-14 md:py-16 px-6 bg-gradient-to-r from-[#0077b6] to-[#023e8a] text-white">
+        <section className="py-14 md:py-16 px-6 bg-[#012E72] text-white">
           <div className="max-w-3xl mx-auto text-center space-y-5">
             <h2 className="text-2xl md:text-3xl font-extrabold">Still have questions?</h2>
-            <p className="text-base md:text-lg text-blue-100 max-w-2xl mx-auto leading-relaxed">
+            <p className="text-base md:text-lg text-[#F7F4EF] max-w-2xl mx-auto leading-relaxed">
               If you didn’t find the answer you were looking for, we’re here to help.
             </p>
 
             <div className="flex flex-col sm:flex-row items-center justify-center gap-3 mt-3">
               <Link
                 to="/quote"
-                className="bg-white text-[#0077b6] px-7 py-2.5 rounded-full font-bold text-xs md:text-sm shadow-md hover:bg-gray-100 transition-colors"
+                className="bg-white text-[#012E72] px-7 py-2.5 rounded-full font-bold text-xs md:text-sm shadow-md hover:bg-[#F7F4EF] transition-colors"
               >
                 Request a Quote
               </Link>
