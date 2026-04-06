@@ -24,7 +24,7 @@ const reasons = [
 
 function WhyChooseUs() {
   return (
-    <section className="py-24 relative overflow-hidden">
+    <section id="why-choose-paladin" className="py-24 relative overflow-hidden">
       <div className="absolute inset-0 bg-[#012E72] -skew-y-3 origin-bottom-left z-0"></div>
 
       <div className="relative z-10 max-w-7xl mx-auto px-8 w-full">

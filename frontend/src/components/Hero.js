@@ -4,7 +4,7 @@ import heroImage from '../assets/hero-image.png';
 
 function Hero() {
   return (
-    <section className="relative w-full overflow-hidden min-h-[500px] sm:min-h-[580px] lg:min-h-[640px] flex items-center bg-white">
+    <section id="hero" className="relative w-full overflow-hidden min-h-[500px] sm:min-h-[580px] lg:min-h-[640px] flex items-center bg-white">
       {/* Full hero background image */}
       <div className="absolute inset-0 hidden lg:block pointer-events-none">
         <img
@@ -71,7 +71,7 @@ function Hero() {
 
           <div className="flex flex-col sm:flex-row gap-3 mb-8 sm:mb-10">
             <a
-              href="#contact"
+              href="#contact-location"
               className="inline-flex items-center justify-center bg-[#012E72] text-white px-6 py-3 rounded-full font-bold text-sm sm:text-base shadow-lg shadow-[#012E72]/20 hover:bg-[#002DB5] transition-all hover:-translate-y-0.5"
             >
               Get Free Quote

@@ -327,7 +327,7 @@ function Service() {
       <Header />
 
       <main className="bg-white">
-        <section className="relative bg-[#F7F4EF] py-20 md:py-24 overflow-hidden border-y border-[#e7dccb]">
+        <section id="insurance-lines" className="relative bg-[#F7F4EF] py-20 md:py-24 overflow-hidden border-y border-[#e7dccb]">
           <div className="absolute inset-0 pointer-events-none">
             <div className="absolute top-0 left-1/2 -translate-x-1/2 w-[800px] h-[300px] bg-[#002DB5]/10 rounded-full blur-3xl" />
           </div>

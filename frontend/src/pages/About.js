@@ -149,7 +149,7 @@ export default function About() {
       <Header />
 
       {/* Company Overview Section */}
-      <section className="py-16 md:py-20 px-6 max-w-7xl mx-auto">
+      <section id="company-overview" className="py-16 md:py-20 px-6 max-w-7xl mx-auto">
         <div className="flex flex-col md:flex-row gap-16 items-center">
           <div className="md:w-1/2">
             <div className="inline-flex items-center gap-2 px-4 py-2 rounded-full bg-[#F7F4EF] text-[#002DB5] text-sm font-bold mb-6 border border-[#d8cbb8]">
@@ -181,7 +181,7 @@ export default function About() {
       </section>
 
       {/* Mission & Vision Section */}
-      <section className="bg-[#F7F4EF] py-16 px-6 border-y border-[#e7dccb]">
+      <section id="mission-promise" className="bg-[#F7F4EF] py-16 px-6 border-y border-[#e7dccb]">
         <div className="max-w-6xl mx-auto">
           <div className="text-center mb-10">
             <p className="inline-flex items-center px-4 py-1 rounded-full bg-white text-[#002DB5] text-xs font-semibold tracking-wide uppercase mb-3 border border-[#d8cbb8] shadow-sm">
@@ -234,7 +234,7 @@ export default function About() {
       <WhyChooseUs />
 
       {/* The Team Section */}
-      <section className="py-16 md:py-20 px-6 bg-white">
+      <section id="meet-the-team" className="py-16 md:py-20 px-6 bg-white">
         <div className="max-w-7xl mx-auto">
           <div className="text-center mb-10">
             <h2 className="text-3xl md:text-4xl font-extrabold text-[#012E72] mb-3">Meet The Team</h2>

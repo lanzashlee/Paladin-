@@ -15,7 +15,7 @@ const todayIndex = new Date().getDay();
 
 function OfficeHours() {
   return (
-    <section className="py-24 px-8" id="hours">
+    <section className="py-24 px-8" id="office-hours">
       <div className="max-w-3xl mx-auto">
         {/* Header */}
         <div className="text-center mb-12">

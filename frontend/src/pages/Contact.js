@@ -60,7 +60,7 @@ function Contact() {
       cta: 'Request',
     },
     {
-      title: 'Request Proof of Insurance',
+      title: 'Request Proof of Insurance or Other Documents',
       desc: 'Request proof of insurance below! One of our licensed agents will send it out as soon as possible.',
       cta: 'Request',
     },
@@ -70,7 +70,7 @@ function Contact() {
       cta: 'Request',
     },
     {
-      title: 'Update Contact Info',
+      title: 'Update Contact Info or Other Insured Items',
       desc: 'Request a policy update information on an existing policy below.',
       cta: 'Request',
     },
@@ -90,7 +90,7 @@ function Contact() {
     <>
       <Header />
       
-      <main className="pt-16 pb-24 px-8 max-w-7xl mx-auto w-full text-[#010407]">
+      <main id="get-in-touch" className="pt-16 pb-24 px-8 max-w-7xl mx-auto w-full text-[#010407]">
         {/* Page Header */}
         <div className="text-center mb-16">
           <p className="inline-flex items-center px-4 py-1 rounded-full bg-[#F7F4EF] text-[#012E72] text-xs font-semibold tracking-widest uppercase mb-4 border border-[#e7dccb] shadow-sm">
@@ -207,7 +207,7 @@ function Contact() {
         </div>
 
         {/* Service Request Cards Section */}
-        <section className="relative mt-20 left-1/2 w-screen -translate-x-1/2 overflow-hidden bg-[#F7F4EF] px-5 py-14 sm:px-8 sm:py-16 border-y border-[#e7dccb]">
+        <section id="quick-actions" className="relative mt-20 left-1/2 w-screen -translate-x-1/2 overflow-hidden bg-[#F7F4EF] px-5 py-14 sm:px-8 sm:py-16 border-y border-[#e7dccb]">
           <div className="pointer-events-none absolute -top-20 left-1/2 -translate-x-1/2 w-[620px] h-[240px] rounded-full bg-[#002DB5]/10 blur-3xl" />
 
           <div className="relative z-10 max-w-7xl mx-auto w-full">
