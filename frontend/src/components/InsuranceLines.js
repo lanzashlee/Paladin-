@@ -1,44 +1,6 @@
 import React from 'react';
 import { Link } from 'react-router-dom';
-
-const lines = [
-  {
-    image: 'https://images.unsplash.com/photo-1556740749-887f6717d7e4?auto=format&fit=crop&w=1200&q=80',
-    badge: 'P',
-    title: 'Professional Insurance',
-    desc: 'Designed for licensed professionals, consultants, and service providers. Professional Liability (Errors & Omissions) protects you from claims of negligence, mistakes, or failure to deliver services as promised. Ideal for doctors, lawyers, accountants, real estate agents, IT professionals, and more.',
-  },
-  {
-    image: 'https://images.unsplash.com/photo-1486406146926-c627a92ad1ab?auto=format&fit=crop&w=1200&q=80',
-    badge: 'C',
-    title: 'Commercial Insurance',
-    desc: 'A comprehensive category of coverage built for businesses of all sizes. Commercial insurance bundles essential protections — including property, liability, and business interruption — into tailored policies that keep your operations running even when the unexpected happens.',
-  },
-  {
-    image: 'https://images.unsplash.com/photo-1560518883-ce09059eeffa?auto=format&fit=crop&w=1200&q=80',
-    badge: 'L',
-    title: 'Landlord Insurance',
-    desc: 'Purpose-built for property owners who rent out residential or commercial spaces. Covers your building structure, loss of rental income, liability for tenant injuries, and damages caused by tenants — giving you confidence to lease your properties without worry.',
-  },
-  {
-    image: 'https://images.unsplash.com/photo-1504307651254-35680f356dfd?auto=format&fit=crop&w=1200&q=80',
-    badge: 'Co',
-    title: 'Contractors Insurance',
-    desc: "Contractors face unique on-site risks every day. Our contractors insurance covers general liability, tools and equipment, completed operations, and workers' compensation — protecting both your crew and your business from accidents, property damage, or third-party claims on the job.",
-  },
-  {
-    image: 'https://images.unsplash.com/photo-1569263979104-865ab7cd8d13?auto=format&fit=crop&w=1200&q=80',
-    badge: 'W',
-    title: 'Watercraft Insurance',
-    desc: 'Whether you own a fishing boat, a personal watercraft, or a luxury yacht, watercraft insurance provides protection on and off the water. Coverage typically includes physical damage to the vessel, liability for injuries or property damage, fuel spill liability, and storage or transit coverage.',
-  },
-  {
-    image: 'https://images.unsplash.com/photo-1550355291-bbee04a92027?auto=format&fit=crop&w=1200&q=80',
-    badge: 'A',
-    title: 'Auto Insurance',
-    desc: 'From personal vehicles to full commercial fleets, our auto insurance solutions are designed to fit your driving needs. Coverage options include liability, collision, comprehensive, uninsured motorist, and medical payments — ensuring you and your passengers are protected on every journey.',
-  },
-];
+import { insuranceLines } from '../data/insuranceContent';
 
 function InsuranceLines() {
   return (
@@ -63,7 +25,7 @@ function InsuranceLines() {
 
         {/* Cards grid */}
         <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-6">
-          {lines.map((line, i) => (
+          {insuranceLines.map((line, i) => (
             <div
               key={i}
               className="relative overflow-hidden rounded-3xl border border-[#e7dccb] bg-white hover:-translate-y-1 transition-all duration-300 group shadow-lg shadow-[#012E72]/5"
@@ -84,7 +46,7 @@ function InsuranceLines() {
                 <h3 className="text-xl font-bold text-[#012E72] group-hover:text-[#002DB5] transition-colors">
                   {line.title}
                 </h3>
-                <p className="text-[#010407]/75 text-sm leading-relaxed flex-1 text-justify">{line.desc}</p>
+                <p className="text-[#010407]/75 text-sm leading-relaxed flex-1 text-justify">{line.description}</p>
               </div>
             </div>
           ))}
