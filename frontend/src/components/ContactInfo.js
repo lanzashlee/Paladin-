@@ -3,7 +3,7 @@ import { MapPin, Phone, Printer, Mail } from 'lucide-react';
 
 function ContactInfo() {
   return (
-    <section className="py-24 px-8 max-w-7xl mx-auto w-full" id="contact">
+    <section className="py-24 px-8 max-w-7xl mx-auto w-full" id="contact-location">
       <div className="rounded-[3rem] p-12 lg:p-16 flex flex-col lg:flex-row gap-16 relative overflow-hidden bg-white border border-[#e7dccb] shadow-2xl shadow-[#012E72]/5">
         
         {/* Decorative circle graphic */}

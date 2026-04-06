@@ -140,6 +140,13 @@ const faqSections = [
   },
 ];
 
+const faqSectionAnchors = {
+  'ABOUT PALADIN': 'about-paladin',
+  'CONSULTATIONS & REQUESTS': 'consultations-requests',
+  'WORKING WITH US': 'working-with-us',
+  'CONTACT & OFFICE': 'contact-office',
+};
+
 function matchesQuery(item, q) {
   const inQuestion = item.question.toLowerCase().includes(q);
   const inAnswer = item.answer.toLowerCase().includes(q);
@@ -209,7 +216,7 @@ export default function FAQ() {
         <section className="py-14 md:py-16 px-6 bg-white">
           <div className="max-w-4xl mx-auto space-y-12">
             {filteredSections.map((section, sectionIndex) => (
-              <div key={section.title}>
+              <div key={section.title} id={faqSectionAnchors[section.title]}>
                 <h2 className="text-xs font-bold tracking-[0.2em] text-[#002DB5] mb-4 uppercase">
                   {section.title}
                 </h2>
