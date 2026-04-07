@@ -53,9 +53,9 @@ function App() {
       <ScrollManager />
       <Routes>
         <Route path="/" element={<Home />} />
-        <Route path="/service" element={<Service />} />
         <Route path="/quote" element={<QuoteRequest />} />
         <Route path="/policies" element={<PolicyManagement />} />
+        <Route path="/service" element={<Service />} />
         <Route path="/about" element={<About />} />
         <Route path="/faq" element={<FAQ />} />
         <Route path="/blog" element={<Blog />} />
@@ -66,4 +66,4 @@ function App() {
   );
 }
 
-export default App; 
+export default App;
