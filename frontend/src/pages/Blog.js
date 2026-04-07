@@ -231,29 +231,29 @@ function Blog() {
               </div>
             </article>
 
-            <section className="grid gap-5 md:gap-6 sm:grid-cols-2 lg:grid-cols-3">
+            <section className="grid items-stretch gap-5 md:gap-6 sm:grid-cols-2 lg:grid-cols-3">
               {paginatedPosts.map((post) => (
                 <article
                   key={post.title}
-                  className="bg-white rounded-[18px] p-3 pb-4 text-[#012E72] shadow-sm hover:shadow-md hover:-translate-y-0.5 transition-all"
+                  className="group h-full bg-white rounded-[18px] p-3 pb-4 text-[#012E72] shadow-sm hover:shadow-lg hover:-translate-y-1 transition-all duration-300"
                 >
                   <div className="overflow-hidden rounded-[14px]">
                     <img
                       src={post.image}
                       alt={post.title}
-                      className="h-[165px] w-full object-cover"
+                      className="h-[165px] w-full object-cover transition-transform duration-500 group-hover:scale-[1.03]"
                     />
                   </div>
-                  <div className="mt-3 space-y-2.5 px-1">
+                  <div className="mt-3 h-[calc(100%-165px)] min-h-[230px] px-1 flex flex-col">
                     <div className="flex items-center gap-2 text-[11px] text-[#010407]/60">
                       <span>{post.date}</span>
                       <span className="inline-flex rounded-full bg-[#F7F4EF] border border-[#d8cbb8] px-2 py-0.5 font-semibold text-[10px] uppercase tracking-wide text-[#002DB5]">
                         {post.category}
                       </span>
                     </div>
-                    <h3 className="text-xl font-bold leading-tight text-[#012E72]">{post.title}</h3>
-                    <p className="text-sm text-[#010407]/75 leading-relaxed font-medium">{post.excerpt}</p>
-                    <div className="flex items-center gap-2.5 pt-1.5">
+                    <h3 className="mt-2 text-xl font-bold leading-tight text-[#012E72]">{post.title}</h3>
+                    <p className="mt-2 text-sm text-[#010407]/75 leading-relaxed font-medium">{post.excerpt}</p>
+                    <div className="mt-auto flex items-center gap-2.5 pt-4">
                       <span className="h-8 w-8 rounded-full bg-[#012E72] text-white flex items-center justify-center font-bold text-xs">
                         {initialFromName(post.author)}
                       </span>
