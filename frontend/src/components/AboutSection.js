@@ -4,7 +4,7 @@ import { Target, ShieldCheck } from 'lucide-react';
 
 function AboutSection() {
   return (
-    <section className="py-24 bg-white w-full" id="about">
+    <section className="py-24 bg-white w-full" id="who-we-are">
       <div className="max-w-7xl mx-auto px-8 w-full">
         {/* Section heading */}
         <div className="text-center mb-16">

@@ -31,7 +31,7 @@ const partnerCarriers = [
 
 function Carriers() {
 	return (
-		<section className="py-24 px-6 bg-white border-t border-[#e7dccb]">
+		<section id="partners-carriers" className="py-24 px-6 bg-white border-t border-[#e7dccb]">
 			<div className="max-w-7xl mx-auto">
 				<div className="text-center mb-12 md:mb-16">
 					<p className="inline-flex items-center px-4 py-1 rounded-full bg-white text-[#002DB5] text-xs font-semibold tracking-wide uppercase mb-4 border border-[#d8cbb8] shadow-sm">

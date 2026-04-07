@@ -41,25 +41,25 @@ function Footer() {
             <div className="grid gap-4 sm:grid-cols-2 text-sm text-[#010407]/80">
               <div className="space-y-1">
                 <p className="font-semibold text-[#012E72]">Address</p>
-                <Link to="/contact" className="text-[#010407]/75 hover:text-[#002DB5] transition-colors block">
+                <Link to="/contact#find-us" className="text-[#010407]/75 hover:text-[#002DB5] transition-colors block">
                   3787 Transport ST Suite A7 Box #5, Ventura, CA 93003
                 </Link>
               </div>
               <div className="space-y-1">
                 <p className="font-semibold text-[#012E72]">Phone</p>
-                <Link to="/contact" className="text-[#010407]/75 hover:text-[#002DB5] transition-colors block">
+                <Link to="/contact#contact-location" className="text-[#010407]/75 hover:text-[#002DB5] transition-colors block">
                   805-692-6900
                 </Link>
               </div>
               <div className="space-y-1">
                 <p className="font-semibold text-[#012E72]">Fax</p>
-                <Link to="/contact" className="text-[#010407]/75 hover:text-[#002DB5] transition-colors block">
+                <Link to="/contact#contact-location" className="text-[#010407]/75 hover:text-[#002DB5] transition-colors block">
                   805-830-1680
                 </Link>
               </div>
               <div className="space-y-1">
                 <p className="font-semibold text-[#012E72]">Email</p>
-                <Link to="/contact" className="text-[#010407]/75 hover:text-[#002DB5] transition-colors block">
+                <Link to="/contact#contact-location" className="text-[#010407]/75 hover:text-[#002DB5] transition-colors block">
                   support@paladinbusinessservices.net
                 </Link>
               </div>

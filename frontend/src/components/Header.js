@@ -8,6 +8,65 @@ function Header() {
 
   const linkBaseClasses = 'transition-colors relative';
 
+  const navItems = [
+    {
+      label: 'Home',
+      to: '/',
+      sections: [
+        { label: 'Hero', anchor: '#hero' },
+        { label: 'Who We Are', anchor: '#who-we-are' },
+        { label: 'Insurance Lines', anchor: '#insurance-lines' },
+        { label: 'Partners & Carriers', anchor: '#partners-carriers' },
+        { label: 'Coverage Offerings', anchor: '#coverage-offerings' },
+        { label: 'Why Choose Paladin', anchor: '#why-choose-paladin' },
+        { label: 'Office Hours', anchor: '#office-hours' },
+        { label: 'Contact & Location', anchor: '#contact-location' },
+        { label: 'Find Us', anchor: '#find-us' },
+      ],
+    },
+    {
+      label: 'Our service',
+      to: '/service',
+      sections: [
+        { label: 'Insurance Lines', anchor: '#insurance-lines' },
+        { label: 'Coverage Offerings', anchor: '#coverage-offerings' },
+      ],
+    },
+    {
+      label: 'FAQ',
+      to: '/faq',
+      sections: [
+        { label: 'About Paladin', anchor: '#about-paladin' },
+        { label: 'Consultations & Requests', anchor: '#consultations-requests' },
+        { label: 'Working With Us', anchor: '#working-with-us' },
+        { label: 'Contact & Office', anchor: '#contact-office' },
+      ],
+    },
+    { label: 'Blog', to: '/blog' },
+    {
+      label: 'About Us',
+      to: '/about',
+      sections: [
+        { label: 'Company Overview', anchor: '#company-overview' },
+        { label: 'Our Mission & Our Promise', anchor: '#mission-promise' },
+        { label: 'Why Choose Paladin?', anchor: '#why-choose-paladin' },
+        { label: 'Meet The Team', anchor: '#meet-the-team' },
+        { label: 'Partners & Carriers', anchor: '#partners-carriers' },
+        { label: 'Find Us', anchor: '#find-us' },
+      ],
+    },
+    {
+      label: 'Contact Us',
+      to: '/contact',
+      sections: [
+        { label: 'Get In Touch', anchor: '#get-in-touch' },
+        { label: 'Service Requests', anchor: '#quick-actions' },
+        { label: 'Contact & Location', anchor: '#contact-location' },
+        { label: 'Find Us', anchor: '#find-us' },
+      ],
+    },
+  ];
+
   const getNavLinkClasses = (to) => {
     const isActive = to === '/'
       ? pathname === '/'
@@ -17,6 +76,12 @@ function Header() {
       linkBaseClasses,
       isActive ? 'text-[#002DB5]' : 'text-[#010407]/75 hover:text-[#002DB5]'
     ].join(' ');
+  };
+
+  const handlePrimaryNavClick = (to) => {
+    if (pathname === to) {
+      window.scrollTo({ top: 0, left: 0, behavior: 'smooth' });
+    }
   };
 
   return (
@@ -35,12 +100,43 @@ function Header() {
         </div>
 
         <nav className="hidden md:flex items-center gap-8 text-sm font-medium">
-          <Link to="/" className={getNavLinkClasses('/')}>Home</Link>
-          <Link to="/service" className={getNavLinkClasses('/service')}>Our service</Link>
-          <Link to="/faq" className={getNavLinkClasses('/faq')}>FAQ</Link>
-          <Link to="/blog" className={getNavLinkClasses('/blog')}>Blog</Link>
-          <Link to="/about" className={getNavLinkClasses('/about')}>About Us</Link>
-          <Link to="/contact" className={getNavLinkClasses('/contact')}>Contact Us</Link>
+          {navItems.map((item) => {
+            const hasDropdown = Array.isArray(item.sections) && item.sections.length > 0;
+
+            return (
+              <div key={item.to} className="relative group">
+                <Link
+                  to={item.to}
+                  onClick={() => handlePrimaryNavClick(item.to)}
+                  className={getNavLinkClasses(item.to)}
+                >
+                  {item.label}
+                </Link>
+
+                {hasDropdown && (
+                  <div className="absolute left-1/2 -translate-x-1/2 top-full pt-3 opacity-0 translate-y-1 pointer-events-none transition-all duration-200 group-hover:opacity-100 group-hover:translate-y-0 group-hover:pointer-events-auto group-focus-within:opacity-100 group-focus-within:translate-y-0 group-focus-within:pointer-events-auto">
+                    <div className="relative w-[420px] max-w-[78vw] rounded-2xl border border-[#e7dccb] bg-white p-2.5 shadow-2xl shadow-[#012E72]/15">
+                      <span
+                        aria-hidden="true"
+                        className="absolute -top-1.5 left-1/2 h-3 w-3 -translate-x-1/2 rotate-45 border-l border-t border-[#e7dccb] bg-white"
+                      />
+                      <div className={`grid gap-1.5 ${item.sections.length <= 2 ? 'grid-cols-1' : 'grid-cols-2'}`}>
+                        {item.sections.map((section) => (
+                          <Link
+                            key={section.anchor}
+                            to={pathname === item.to ? section.anchor : `${item.to}${section.anchor}`}
+                            className="rounded-lg px-3 py-2 text-[13px] font-medium text-[#010407]/80 hover:bg-[#F7F4EF] hover:text-[#002DB5] transition-colors"
+                          >
+                            {section.label}
+                          </Link>
+                        ))}
+                      </div>
+                    </div>
+                  </div>
+                )}
+              </div>
+            );
+          })}
         </nav>
 
         <div className="flex items-center gap-6 text-sm font-medium">

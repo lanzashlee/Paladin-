@@ -21,8 +21,8 @@ const reasons = [
 
 function WhyChooseUs() {
   return (
-    <section className="py-24 relative overflow-hidden">
-      <div className="absolute inset-0 bg-[#0a0a0a] -skew-y-3 origin-bottom-left z-0"></div>
+    <section id="why-choose-paladin" className="py-24 relative overflow-hidden">
+      <div className="absolute inset-0 bg-[#012E72] -skew-y-3 origin-bottom-left z-0"></div>
       <div className="relative z-10 max-w-7xl mx-auto px-8 w-full">
         <div className="text-center mb-16 mt-8">
           <h2 className="text-4xl font-extrabold text-white tracking-tight">Why Choose Paladin?</h2>

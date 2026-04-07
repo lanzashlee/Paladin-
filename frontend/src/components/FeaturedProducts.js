@@ -1,71 +1,6 @@
 import React from 'react';
 import { Link } from 'react-router-dom';
-
-const products = [
-  {
-    num: '1',
-    title: 'General Liability',
-    image:
-      'https://images.unsplash.com/photo-1454165804606-c3d57bc86b40?auto=format&fit=crop&w=1200&q=80',
-    desc: 'Protects businesses from financial loss due to third-party claims for bodily injury, property damage, and personal injury. Our policies offer broad coverage and 24/7 assistance.',
-  },
-  {
-    num: '2',
-    title: 'Renters Insurance',
-    image:
-      'https://images.unsplash.com/photo-1560518883-ce09059eeffa?auto=format&fit=crop&w=1200&q=80',
-    desc: 'Protect your belongings and liability as a renter. Our policies cover theft, fire, water damage, and more - tailored to your specific rental situation.',
-  },
-  {
-    num: '3',
-    title: 'Umbrella Insurance',
-    image:
-      'https://images.unsplash.com/photo-1521791136064-7986c2920216?auto=format&fit=crop&w=1200&q=80',
-    desc: "Get additional liability coverage beyond your existing policies. Our umbrella insurance provides extra protection for your assets and peace of mind when standard limits aren't enough.",
-  },
-  {
-    num: '4',
-    title: "Workers' Compensation",
-    image:
-      'https://images.unsplash.com/photo-1581092583537-20d51b4b4f1b?auto=format&fit=crop&w=1200&q=80',
-    desc: 'Provides financial support and medical benefits to employees injured or ill due to their job - covering medical expenses, lost wages, rehabilitation costs, and death benefits for dependents.',
-  },
-  {
-    num: '5',
-    title: 'Flood Insurance',
-    image:
-      'https://images.unsplash.com/photo-1547683905-f686c993aae5?auto=format&fit=crop&w=1200&q=80',
-    desc: 'Protect your home and belongings from flood damage caused by natural disasters, burst pipes, and other water-related incidents. We help identify your flood risk and find the right level of coverage.',
-  },
-  {
-    num: '6',
-    title: 'Commercial Auto Insurance',
-    image:
-      'https://images.unsplash.com/photo-1616422285623-13ff0162193c?auto=format&fit=crop&w=1200&q=80',
-    desc: 'Protects against financial losses from accidents, property damage, and liability claims involving business vehicles - including bodily injury, property damage, theft, vandalism, and legal costs.',
-  },
-  {
-    num: '7',
-    title: 'Cyber Liability Insurance',
-    image:
-      'https://images.unsplash.com/photo-1518770660439-4636190af475?auto=format&fit=crop&w=1200&q=80',
-    desc: 'Designed to protect businesses from financial losses stemming from cyberattacks and data breaches - covering data recovery, legal fees, and notification expenses required by data protection laws.',
-  },
-  {
-    num: '8',
-    title: 'Earthquake Insurance',
-    image:
-      'https://images.unsplash.com/photo-1506466010722-395aa2bef877?auto=format&fit=crop&w=1200&q=80',
-    desc: 'A specialized form of property coverage designed to protect against the financial impact of earthquake damage - filling the gap left by standard homeowners or commercial policies that exclude seismic events.',
-  },
-  {
-    num: '9',
-    title: 'Commercial Insurance',
-    image:
-      'https://images.unsplash.com/photo-1486406146926-c627a92ad1ab?auto=format&fit=crop&w=1200&q=80',
-    desc: 'A broad safeguard for businesses offering protection against liabilities, property damage, employee injuries, and other potential losses arising from everyday operations. Custom-tailored for your industry.',
-  },
-];
+import { coverageOfferings } from '../data/insuranceContent';
 
 function FeaturedProducts() {
   return (
@@ -88,9 +23,9 @@ function FeaturedProducts() {
       </div>
 
         <div className="relative z-10 grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-6">
-        {products.map((p) => (
+        {coverageOfferings.map((p) => (
           <article
-            key={p.num}
+            key={p.number}
             className="relative overflow-hidden rounded-3xl border border-[#e7dccb] bg-white group min-h-[340px] hover:-translate-y-1.5 hover:shadow-xl hover:shadow-[#002DB5]/10 transition-all duration-300 shadow-lg shadow-[#012E72]/5"
           >
             <div className="relative h-44 overflow-hidden">
@@ -101,7 +36,7 @@ function FeaturedProducts() {
               />
               <div className="absolute inset-0 bg-gradient-to-b from-[#012E72]/15 via-transparent to-[#F7F4EF]/70" aria-hidden="true" />
               <div className="absolute top-4 left-4 w-12 h-12 rounded-2xl bg-white border border-[#d8cbb8] flex items-center justify-center shadow-md shadow-[#012E72]/10 shrink-0">
-                <span className="text-[#012E72] text-base font-black">{p.num}</span>
+                <span className="text-[#012E72] text-base font-black">{p.number}</span>
               </div>
             </div>
 
@@ -114,7 +49,7 @@ function FeaturedProducts() {
                 {p.title}
               </h3>
               <p className="text-[#010407]/75 text-sm leading-relaxed text-justify flex-1">
-                {p.desc}
+                {p.description}
               </p>
             </div>
           </article>
