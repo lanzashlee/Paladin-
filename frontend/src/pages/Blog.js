@@ -1,10 +1,13 @@
-import React, { useMemo, useState } from 'react';
+import React, { useEffect, useMemo, useState } from 'react';
 import Header from '../components/Header';
 import Footer from '../components/Footer';
 import corporateMeetingImage from '../assets/corporate-meeting.jpg';
 
 function Blog() {
   const [currentPage, setCurrentPage] = useState(1);
+  const [selectedCategory, setSelectedCategory] = useState('All categories');
+  const [selectedTag, setSelectedTag] = useState('All tags');
+  const [sortOption, setSortOption] = useState('newest');
   const postsPerPage = 6;
 
   const featuredPost = {
@@ -24,6 +27,8 @@ function Blog() {
       title: 'Creating Better Renewal Workflows',
       date: 'Feb 12, 2026',
       category: 'Commercial',
+      tags: ['Business', 'Process'],
+      popularity: 82,
       excerpt:
         'A practical checklist to simplify renewals and avoid policy gaps during your busiest seasons.',
       author: 'Emily Johnson',
@@ -35,6 +40,8 @@ function Blog() {
       title: 'The Power of Confident Risk Planning',
       date: 'Mar 22, 2026',
       category: 'Liability',
+      tags: ['Business', 'Strategy'],
+      popularity: 88,
       excerpt:
         'Use this framework to identify business exposures and align your policy strategy.',
       author: 'Michael Brown',
@@ -46,6 +53,8 @@ function Blog() {
       title: 'Smart Coverage For Growing Teams',
       date: 'Apr 01, 2026',
       category: 'Employer',
+      tags: ['People', 'Growth'],
+      popularity: 76,
       excerpt:
         'How expanding organizations can protect people, operations, and long-term goals.',
       author: 'Sarah Williams',
@@ -57,6 +66,8 @@ function Blog() {
       title: 'Measuring Policy Performance',
       date: 'May 15, 2026',
       category: 'Policy Review',
+      tags: ['Analytics', 'Technology'],
+      popularity: 93,
       excerpt:
         'Track key coverage metrics and turn renewal data into actionable decisions.',
       author: 'David Anderson',
@@ -68,6 +79,8 @@ function Blog() {
       title: 'Maximizing ROI In Insurance Programs',
       date: 'Jun 10, 2026',
       category: 'Risk Finance',
+      tags: ['Business', 'Finance'],
+      popularity: 85,
       excerpt:
         'Balance premium costs with stronger coverage outcomes using focused planning.',
       author: 'Laura Davis',
@@ -79,6 +92,8 @@ function Blog() {
       title: 'Coverage Trends To Watch In 2026',
       date: 'Jul 18, 2026',
       category: 'Industry',
+      tags: ['Industry', 'Technology'],
+      popularity: 96,
       excerpt:
         'The latest shifts in business insurance and what they may mean for your company.',
       author: 'Richard Wilson',
@@ -90,6 +105,8 @@ function Blog() {
       title: 'Contractor Liability Gaps You Can Prevent',
       date: 'Aug 05, 2026',
       category: 'Contractors',
+      tags: ['Construction', 'Liability'],
+      popularity: 91,
       excerpt:
         'Common blind spots in contractor policies and how to close them before projects begin.',
       author: 'Natalie Brooks',
@@ -101,6 +118,8 @@ function Blog() {
       title: 'How Landlord Policies Differ From Homeowners',
       date: 'Aug 19, 2026',
       category: 'Landlord',
+      tags: ['Property', 'Personal Lines'],
+      popularity: 74,
       excerpt:
         'A quick breakdown of coverage differences for rental property owners.',
       author: 'Steven Patel',
@@ -112,6 +131,8 @@ function Blog() {
       title: 'Commercial Auto Coverage For Expanding Fleets',
       date: 'Sep 02, 2026',
       category: 'Commercial Auto',
+      tags: ['Transportation', 'Operations'],
+      popularity: 80,
       excerpt:
         'What to review when adding vehicles, drivers, and routes to your policy.',
       author: 'Angela Rivera',
@@ -123,6 +144,8 @@ function Blog() {
       title: 'Workers Compensation Tips For Small Businesses',
       date: 'Sep 16, 2026',
       category: 'Workers Comp',
+      tags: ['Compliance', 'People'],
+      popularity: 84,
       excerpt:
         'Practical ways to improve compliance and reduce claim-related disruptions.',
       author: 'Carlos Bennett',
@@ -134,6 +157,8 @@ function Blog() {
       title: 'Choosing Umbrella Coverage With Confidence',
       date: 'Oct 01, 2026',
       category: 'Umbrella',
+      tags: ['Strategy', 'Risk'],
+      popularity: 77,
       excerpt:
         'How to evaluate limits and make sure excess liability aligns with your exposure.',
       author: 'Monica Hayes',
@@ -145,6 +170,8 @@ function Blog() {
       title: 'Annual Insurance Checklist For Business Owners',
       date: 'Oct 20, 2026',
       category: 'Checklist',
+      tags: ['Business', 'Planning'],
+      popularity: 89,
       excerpt:
         'Use this annual review process to keep your coverage aligned with operational changes.',
       author: 'Brandon Lee',
@@ -162,12 +189,64 @@ function Blog() {
       .slice(0, 2)
       .toUpperCase();
 
-  const totalPages = Math.ceil(blogPosts.length / postsPerPage);
+  const categoryOptions = useMemo(
+    () => ['All categories', ...new Set(blogPosts.map((post) => post.category))],
+    [blogPosts]
+  );
+
+  const tagOptions = useMemo(
+    () => ['All tags', ...new Set(blogPosts.flatMap((post) => post.tags))],
+    [blogPosts]
+  );
+
+  const filteredAndSortedPosts = useMemo(() => {
+    const filteredPosts = blogPosts.filter((post) => {
+      const categoryMatch =
+        selectedCategory === 'All categories' || post.category === selectedCategory;
+      const tagMatch = selectedTag === 'All tags' || post.tags.includes(selectedTag);
+
+      return categoryMatch && tagMatch;
+    });
+
+    return [...filteredPosts].sort((a, b) => {
+      if (sortOption === 'mostPopular') {
+        return b.popularity - a.popularity;
+      }
+
+      if (sortOption === 'oldest') {
+        return new Date(a.date) - new Date(b.date);
+      }
+
+      if (sortOption === 'title') {
+        return a.title.localeCompare(b.title);
+      }
+
+      return new Date(b.date) - new Date(a.date);
+    });
+  }, [blogPosts, selectedCategory, selectedTag, sortOption]);
+
+  const totalPages = Math.max(1, Math.ceil(filteredAndSortedPosts.length / postsPerPage));
+
+  useEffect(() => {
+    setCurrentPage(1);
+  }, [selectedCategory, selectedTag, sortOption]);
+
+  useEffect(() => {
+    if (currentPage > totalPages) {
+      setCurrentPage(totalPages);
+    }
+  }, [currentPage, totalPages]);
 
   const paginatedPosts = useMemo(() => {
     const startIndex = (currentPage - 1) * postsPerPage;
-    return blogPosts.slice(startIndex, startIndex + postsPerPage);
-  }, [blogPosts, currentPage]);
+    return filteredAndSortedPosts.slice(startIndex, startIndex + postsPerPage);
+  }, [filteredAndSortedPosts, currentPage]);
+
+  const clearFilters = () => {
+    setSelectedCategory('All categories');
+    setSelectedTag('All tags');
+    setSortOption('newest');
+  };
 
   const goToPage = (page) => {
     if (page < 1 || page > totalPages) return;
@@ -177,8 +256,11 @@ function Blog() {
   return (
     <>
       <Header />
-      <main className="bg-white pb-10 md:pb-14">
-        <section className="w-full space-y-10 md:space-y-12">
+      <main className="relative overflow-hidden bg-[radial-gradient(circle_at_top,#eaf0ff_0%,#ffffff_48%,#f8f3ec_100%)] pb-12 md:pb-16">
+        <div className="pointer-events-none absolute left-0 top-24 h-56 w-56 rounded-full bg-[#c8d8ff]/40 blur-3xl" />
+        <div className="pointer-events-none absolute right-0 top-[28rem] h-64 w-64 rounded-full bg-[#f0dfc7]/45 blur-3xl" />
+
+        <section className="relative z-10 w-full space-y-10 md:space-y-12">
           <div
             className="relative overflow-hidden min-h-[250px] md:min-h-[320px] flex items-center justify-center text-center px-6"
             style={{
@@ -196,13 +278,13 @@ function Blog() {
           </div>
 
           <div className="w-full px-4 md:px-6 lg:px-8 space-y-10 md:space-y-12">
-            <article className="rounded-[24px] bg-[#F7F4EF] p-4 md:p-8 shadow-sm">
+            <article className="rounded-[26px] bg-gradient-to-br from-[#fbf7f1] to-[#f3ece2] p-4 md:p-8 shadow-[0_14px_34px_rgba(1,46,114,0.12)] ring-1 ring-white/70">
               <div className="grid gap-6 md:gap-10 md:grid-cols-[1.05fr,1fr] items-center">
                 <div className="overflow-hidden rounded-[20px]">
                   <img
                     src={featuredPost.image}
                     alt={featuredPost.title}
-                    className="h-[240px] md:h-[320px] w-full object-cover"
+                    className="h-[240px] md:h-[320px] w-full object-cover transition-transform duration-700 hover:scale-[1.02]"
                   />
                 </div>
                 <div className="space-y-4 md:space-y-5 text-[#012E72]">
@@ -224,92 +306,191 @@ function Blog() {
                     </span>
                     <div className="leading-tight">
                       <p className="font-semibold text-sm text-[#012E72]">{featuredPost.author}</p>
-                      <p className="text-xs text-[#010407]/65">{featuredPost.role}</p>
+                      <p className="mt-1 mb-3 text-xs text-[#010407]/65">{featuredPost.role}</p>
                     </div>
                   </div>
                 </div>
               </div>
             </article>
 
-            <section className="grid items-stretch gap-5 md:gap-6 sm:grid-cols-2 lg:grid-cols-3">
-              {paginatedPosts.map((post) => (
-                <article
-                  key={post.title}
-                  className="group h-full bg-white rounded-[18px] p-3 pb-4 text-[#012E72] shadow-sm hover:shadow-lg hover:-translate-y-1 transition-all duration-300"
+            <section className="-mx-4 md:-mx-6 lg:-mx-8 bg-gradient-to-r from-[#f6f1e8] via-[#f4f7ff] to-[#edf4ff] px-4 py-5 md:px-6 md:py-6 lg:px-8 shadow-[0_10px_24px_rgba(1,46,114,0.08)]">
+              <div className="mb-4 flex flex-wrap items-center justify-between gap-2">
+                <h3 className="text-lg md:text-xl font-extrabold tracking-tight text-[#012E72]">Find The Right Insight Faster</h3>
+                <p className="text-xs md:text-sm text-[#010407]/70">
+                  Showing {filteredAndSortedPosts.length} post
+                  {filteredAndSortedPosts.length === 1 ? '' : 's'}
+                </p>
+              </div>
+
+              <div className="grid gap-3 md:grid-cols-4 md:items-end">
+                <label className="flex flex-col gap-1.5 text-sm text-[#012E72] font-semibold">
+                  Category
+                  <select
+                    value={selectedCategory}
+                    onChange={(event) => setSelectedCategory(event.target.value)}
+                    className="h-10 rounded-xl bg-white/95 px-3 text-sm text-[#012E72] shadow-sm outline-none ring-1 ring-[#d6def2] transition focus:ring-2 focus:ring-[#335fbf]"
+                    aria-label="Filter posts by category"
+                  >
+                    {categoryOptions.map((category) => (
+                      <option key={category} value={category}>
+                        {category}
+                      </option>
+                    ))}
+                  </select>
+                </label>
+
+                <label className="flex flex-col gap-1.5 text-sm text-[#012E72] font-semibold">
+                  Tag
+                  <select
+                    value={selectedTag}
+                    onChange={(event) => setSelectedTag(event.target.value)}
+                    className="h-10 rounded-xl bg-white/95 px-3 text-sm text-[#012E72] shadow-sm outline-none ring-1 ring-[#d6def2] transition focus:ring-2 focus:ring-[#335fbf]"
+                    aria-label="Filter posts by tag"
+                  >
+                    {tagOptions.map((tag) => (
+                      <option key={tag} value={tag}>
+                        {tag}
+                      </option>
+                    ))}
+                  </select>
+                </label>
+
+                <label className="flex flex-col gap-1.5 text-sm text-[#012E72] font-semibold">
+                  Sort by
+                  <select
+                    value={sortOption}
+                    onChange={(event) => setSortOption(event.target.value)}
+                    className="h-10 rounded-xl bg-white/95 px-3 text-sm text-[#012E72] shadow-sm outline-none ring-1 ring-[#d6def2] transition focus:ring-2 focus:ring-[#335fbf]"
+                    aria-label="Sort posts"
+                  >
+                    <option value="newest">Newest first</option>
+                    <option value="oldest">Oldest first</option>
+                    <option value="mostPopular">Most popular</option>
+                    <option value="title">Title A-Z</option>
+                  </select>
+                </label>
+
+                <button
+                  type="button"
+                  onClick={clearFilters}
+                  disabled={
+                    selectedCategory === 'All categories' &&
+                    selectedTag === 'All tags' &&
+                    sortOption === 'newest'
+                  }
+                  className="h-10 rounded-xl bg-[#012E72] px-4 text-sm font-semibold text-white hover:bg-[#1a4c9f] transition-colors disabled:opacity-50 disabled:cursor-not-allowed"
                 >
-                  <div className="overflow-hidden rounded-[14px]">
-                    <img
-                      src={post.image}
-                      alt={post.title}
-                      className="h-[165px] w-full object-cover transition-transform duration-500 group-hover:scale-[1.03]"
-                    />
-                  </div>
-                  <div className="mt-3 h-[calc(100%-165px)] min-h-[230px] px-1 flex flex-col">
-                    <div className="flex items-center gap-2 text-[11px] text-[#010407]/60">
-                      <span>{post.date}</span>
-                      <span className="inline-flex rounded-full bg-[#F7F4EF] border border-[#d8cbb8] px-2 py-0.5 font-semibold text-[10px] uppercase tracking-wide text-[#002DB5]">
-                        {post.category}
-                      </span>
-                    </div>
-                    <h3 className="mt-2 text-xl font-bold leading-tight text-[#012E72]">{post.title}</h3>
-                    <p className="mt-2 text-sm text-[#010407]/75 leading-relaxed font-medium">{post.excerpt}</p>
-                    <div className="mt-auto flex items-center gap-2.5 pt-4">
-                      <span className="h-8 w-8 rounded-full bg-[#012E72] text-white flex items-center justify-center font-bold text-xs">
-                        {initialFromName(post.author)}
-                      </span>
-                      <div className="leading-tight">
-                        <p className="text-xs font-semibold text-[#012E72]">{post.author}</p>
-                        <p className="text-[11px] text-[#010407]/65">{post.role}</p>
-                      </div>
-                    </div>
-                  </div>
-                </article>
-              ))}
+                  Reset filters
+                </button>
+              </div>
             </section>
 
-            <div className="flex items-center justify-center gap-2 pb-2">
-              <button
-                type="button"
-                onClick={() => goToPage(currentPage - 1)}
-                disabled={currentPage === 1}
-                className="h-8 w-8 rounded-full border border-[#d8cbb8] text-[#012E72] hover:bg-[#F7F4EF] transition-colors disabled:opacity-40 disabled:cursor-not-allowed"
-                aria-label="Previous page"
-              >
-                {'<'}
-              </button>
+            <section className="-mx-4 bg-white px-4 py-6 md:-mx-6 md:px-6 md:py-8 lg:-mx-8 lg:px-8">
+              <div className="flex items-center justify-between gap-3">
+                <h3 className="text-2xl md:text-3xl font-extrabold tracking-tight text-[#012E72]">Blogs & Articles</h3>
+              </div>
 
-              {Array.from({ length: totalPages }, (_, idx) => {
-                const page = idx + 1;
-                const isActive = page === currentPage;
+              <section className="mt-6 grid items-stretch gap-5 md:gap-6 sm:grid-cols-2 lg:grid-cols-3">
+                {paginatedPosts.length ? (
+                  paginatedPosts.map((post) => (
+                    <article
+                      key={post.title}
+                      className="group h-full bg-white/95 rounded-[18px] p-3 pb-4 text-[#012E72] ring-1 ring-[#e5eaf8] shadow-[0_6px_22px_rgba(1,46,114,0.08)] hover:shadow-[0_14px_28px_rgba(1,46,114,0.14)] hover:-translate-y-1 transition-all duration-300"
+                    >
+                      <div className="overflow-hidden rounded-[14px]">
+                        <img
+                          src={post.image}
+                          alt={post.title}
+                          className="h-[165px] w-full object-cover transition-transform duration-500 group-hover:scale-[1.03]"
+                        />
+                      </div>
+                      <div className="mt-3 h-[calc(100%-165px)] min-h-[230px] px-1 flex flex-col">
+                        <div className="flex items-center gap-2 text-[11px] text-[#010407]/60">
+                          <span>{post.date}</span>
+                          <span className="inline-flex rounded-full bg-[#F7F4EF] border border-[#d8cbb8] px-2 py-0.5 font-semibold text-[10px] uppercase tracking-wide text-[#002DB5]">
+                            {post.category}
+                          </span>
+                        </div>
+                        <h3 className="mt-2 text-xl font-bold leading-tight text-[#012E72]">{post.title}</h3>
+                        <p className="mt-2 text-sm text-[#010407]/75 leading-relaxed font-medium">{post.excerpt}</p>
 
-                return (
-                  <button
-                    key={page}
-                    type="button"
-                    onClick={() => goToPage(page)}
-                    className={`h-8 w-8 rounded-full font-semibold transition-colors ${
-                      isActive
-                        ? 'bg-[#002DB5] text-white shadow-sm'
-                        : 'border border-[#d8cbb8] text-[#012E72] hover:bg-[#F7F4EF]'
-                    }`}
-                    aria-current={isActive ? 'page' : undefined}
-                    aria-label={`Go to page ${page}`}
-                  >
-                    {page}
-                  </button>
-                );
-              })}
+                        <div className="mt-3 flex flex-wrap gap-1.5">
+                          {post.tags.map((tag) => (
+                            <span
+                              key={`${post.title}-${tag}`}
+                              className="rounded-full bg-gradient-to-r from-[#e8eefc] to-[#dfe8ff] px-2 py-0.5 text-[10px] font-semibold uppercase tracking-wide text-[#012E72]"
+                            >
+                              {tag}
+                            </span>
+                          ))}
+                        </div>
 
-              <button
-                type="button"
-                onClick={() => goToPage(currentPage + 1)}
-                disabled={currentPage === totalPages}
-                className="h-8 w-8 rounded-full border border-[#d8cbb8] text-[#012E72] hover:bg-[#F7F4EF] transition-colors disabled:opacity-40 disabled:cursor-not-allowed"
-                aria-label="Next page"
-              >
-                {'>'}
-              </button>
-            </div>
+                        <div className="mt-auto flex items-center gap-2.5 pt-4">
+                          <span className="h-8 w-8 rounded-full bg-[#012E72] text-white flex items-center justify-center font-bold text-xs">
+                            {initialFromName(post.author)}
+                          </span>
+                          <div className="leading-tight">
+                            <p className="text-xs font-semibold text-[#012E72]">{post.author}</p>
+                            <p className="mt-1 mb-3 text-[11px] text-[#010407]/65">{post.role}</p>
+                          </div>
+                        </div>
+                      </div>
+                    </article>
+                  ))
+                ) : (
+                  <div className="sm:col-span-2 lg:col-span-3 rounded-[18px] border border-dashed border-[#d8cbb8] bg-[#F7F4EF] px-6 py-10 text-center text-[#012E72]">
+                    <p className="text-lg font-bold">No posts match your current filters.</p>
+                    <p className="mt-2 text-sm text-[#010407]/70">
+                      Try a different category, tag, or sorting option.
+                    </p>
+                  </div>
+                )}
+              </section>
+
+              <div className="flex items-center justify-center gap-2 pb-2 pt-6">
+                <button
+                  type="button"
+                  onClick={() => goToPage(currentPage - 1)}
+                  disabled={currentPage === 1 || !paginatedPosts.length}
+                  className="h-9 w-9 rounded-full bg-white text-[#012E72] ring-1 ring-[#d8cbb8] hover:bg-[#F7F4EF] transition-colors disabled:opacity-40 disabled:cursor-not-allowed"
+                  aria-label="Previous page"
+                >
+                  {'<'}
+                </button>
+
+                {Array.from({ length: totalPages }, (_, idx) => {
+                  const page = idx + 1;
+                  const isActive = page === currentPage;
+
+                  return (
+                    <button
+                      key={page}
+                      type="button"
+                      onClick={() => goToPage(page)}
+                      className={`h-9 w-9 rounded-full font-semibold transition-colors ${
+                        isActive
+                          ? 'bg-[#002DB5] text-white shadow-[0_6px_14px_rgba(0,45,181,0.35)]'
+                          : 'bg-white ring-1 ring-[#d8cbb8] text-[#012E72] hover:bg-[#F7F4EF]'
+                      }`}
+                      aria-current={isActive ? 'page' : undefined}
+                      aria-label={`Go to page ${page}`}
+                    >
+                      {page}
+                    </button>
+                  );
+                })}
+
+                <button
+                  type="button"
+                  onClick={() => goToPage(currentPage + 1)}
+                  disabled={currentPage === totalPages || !paginatedPosts.length}
+                  className="h-9 w-9 rounded-full bg-white text-[#012E72] ring-1 ring-[#d8cbb8] hover:bg-[#F7F4EF] transition-colors disabled:opacity-40 disabled:cursor-not-allowed"
+                  aria-label="Next page"
+                >
+                  {'>'}
+                </button>
+              </div>
+            </section>
           </div>
         </section>
       </main>
