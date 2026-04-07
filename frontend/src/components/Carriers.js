@@ -1,35 +1,44 @@
-import React from 'react';
-import aonEdgeLogo from '../assets/AonEdge.jpg';
-import attuneLogo from '../assets/Attune.png';
-import annexRiskLogo from '../assets/Annex Risk.png';
-import bridgerLogo from '../assets/Bridger.png';
-import bristolWestLogo from '../assets/BristolWest.png';
-import burnsWilcoxLogo from '../assets/Burns and Wilcox.jpg';
-import collectiblesInsuranceServicesLogo from '../assets/Collectibles Insurance Services (CIS).webp';
-import cowbellLogo from '../assets/cowbell.png';
-import deductibleDefenderLogo from '../assets/DEDUCTIBLE+DEFENDER+LOGO.webp';
-import delosLogo from '../assets/Delos.jpg';
-import employersLogo from '../assets/Employers.png';
-import epremiumLogo from '../assets/epremium.jpg';
-import ahoyLogo from '../assets/images.png';
+import React, { useMemo, useState } from 'react';
 
-const partnerCarriers = [
-	{ name: 'AonEdge Private Flood Insurance', logo: aonEdgeLogo },
-	{ name: 'Attune', logo: attuneLogo },
-	{ name: 'Annex Risk', logo: annexRiskLogo },
-	{ name: 'Bridger Insurance', logo: bridgerLogo },
-	{ name: 'Bristol West', logo: bristolWestLogo },
-	{ name: 'Burns & Wilcox', logo: burnsWilcoxLogo },
-	{ name: 'Collectibles Insurance Services', logo: collectiblesInsuranceServicesLogo },
-	{ name: 'Cowbell', logo: cowbellLogo },
-	{ name: 'Deductible Defender', logo: deductibleDefenderLogo },
-	{ name: 'Delos', logo: delosLogo },
-	{ name: 'Employers', logo: employersLogo },
-	{ name: 'ePremium', logo: epremiumLogo },
-	{ name: 'Ahoy!', logo: ahoyLogo },
-];
+const partnerLogoContext = require.context('../assets/partners', false, /\.(png|jpe?g|webp|svg)$/i);
+
+const partnerCarriers = partnerLogoContext
+	.keys()
+	.sort()
+	.map((file) => {
+		const baseName = file.replace('./', '').replace(/\.[^/.]+$/, '');
+		const prettyName = baseName
+			.replace(/[-_]+/g, ' ')
+			.replace(/\s+/g, ' ')
+			.trim();
+
+		return {
+			name: prettyName,
+			logo: partnerLogoContext(file),
+		};
+	});
 
 function Carriers() {
+	const [page, setPage] = useState(1);
+	const pageSize = 12;
+
+	const { totalPages, currentItems } = useMemo(() => {
+		const totalPagesCalc = Math.max(1, Math.ceil(partnerCarriers.length / pageSize));
+		const safePage = Math.min(page, totalPagesCalc);
+		const start = (safePage - 1) * pageSize;
+		const end = start + pageSize;
+
+		return {
+			totalPages: totalPagesCalc,
+			currentItems: partnerCarriers.slice(start, end),
+		};
+	}, [page]);
+
+	const goToPage = (newPage) => {
+		if (newPage < 1 || newPage > totalPages) return;
+		setPage(newPage);
+	};
+
 	return (
 		<section id="partners-carriers" className="py-24 px-6 bg-white border-t border-[#e7dccb]">
 			<div className="max-w-7xl mx-auto">
@@ -49,7 +58,7 @@ function Carriers() {
 				</div>
 
 				<div className="grid grid-cols-2 sm:grid-cols-3 lg:grid-cols-4 gap-4 md:gap-6 items-stretch">
-					{partnerCarriers.map(({ name, logo }) => (
+					{currentItems.map(({ name, logo }) => (
 						<div
 							key={name}
 							className="group flex items-center justify-center bg-white border border-[#e7dccb] rounded-2xl p-4 md:p-6 h-28 md:h-32 shadow-sm hover:shadow-md transition-all hover:-translate-y-1 duration-200"
@@ -63,6 +72,58 @@ function Carriers() {
 						</div>
 					))}
 				</div>
+
+				{totalPages > 1 && (
+					<div className="mt-10 flex flex-col items-center gap-4">
+						<div className="flex items-center gap-3">
+							<button
+								type="button"
+								onClick={() => goToPage(page - 1)}
+								disabled={page === 1}
+								className={`px-3 py-1.5 rounded-full text-xs font-semibold border ${
+									page === 1
+										? 'border-[#e7dccb] text-[#010407]/35 cursor-not-allowed'
+										: 'border-[#d8cbb8] text-[#012E72] hover:bg-white'
+								}`}
+							>
+								Previous
+							</button>
+							<span className="text-xs text-[#010407]/60">
+								Page {page} of {totalPages}
+							</span>
+							<button
+								type="button"
+								onClick={() => goToPage(page + 1)}
+								disabled={page === totalPages}
+								className={`px-3 py-1.5 rounded-full text-xs font-semibold border ${
+									page === totalPages
+										? 'border-[#e7dccb] text-[#010407]/35 cursor-not-allowed'
+										: 'border-[#d8cbb8] text-[#012E72] hover:bg-white'
+								}`}
+							>
+								Next
+							</button>
+						</div>
+
+						<div className="flex flex-wrap justify-center gap-1">
+							{Array.from({ length: totalPages }).map((_, idx) => {
+								const p = idx + 1;
+								const isActive = p === page;
+								return (
+									<button
+										key={p}
+										type="button"
+										onClick={() => goToPage(p)}
+										className={`h-2.5 w-2.5 rounded-full ${
+											isActive ? 'bg-[#002DB5]' : 'bg-[#d8cbb8] hover:bg-[#c7b39b]'
+										}`}
+										aria-label={`Go to page ${p}`}
+									/>
+								);
+							})}
+						</div>
+					</div>
+				)}
 			</div>
 		</section>
 	);
