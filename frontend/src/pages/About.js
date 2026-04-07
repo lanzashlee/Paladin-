@@ -9,29 +9,18 @@ import MapLocation from '../components/MapLocation';
 import TeamMember1 from '../assets/team_member_1_1774940222890.png';
 import TeamMember2 from '../assets/team_member_2_1774940252257.png';
 import TeamMember3 from '../assets/team_member_3_1774940454549.png';
+import SuperiorFloodLogo from '../assets/partners/Screenshot 2026-04-07 171833.png';
+import KwSpecialtyLogo from '../assets/partners/Screenshot 2026-04-07 165433.png';
+import SayataLogo from '../assets/partners/Screenshot 2026-04-07 165421.png';
+import LightspeedLogo from '../assets/partners/Screenshot 2026-04-07 170358.png';
+import TowerHillLogo from '../assets/partners/Screenshot 2026-04-07 165409.png';
 
-const partnerNames = [
-  'Partner One',
-  'Partner Two',
-  'Partner Three',
-  'Partner Four',
-  'Partner Five',
-  'Partner Six',
-  'Partner Seven',
-  'Partner Eight',
-  'Partner Nine',
-  'Partner Ten',
-  'Partner Eleven',
-  'Partner Twelve',
-  'Partner Thirteen',
-  'Partner Fourteen',
-  'Partner Fifteen',
-  'Partner Sixteen',
-  'Partner Seventeen',
-  'Partner Eighteen',
-  'Partner Nineteen',
-  'Partner Twenty',
-  // ...when you have real data, extend or replace this list
+const partnerLogos = [
+  { name: 'Superior Flood Inc.', src: SuperiorFloodLogo },
+  { name: 'KW Specialty Insurance Company', src: KwSpecialtyLogo },
+  { name: 'Sayata', src: SayataLogo },
+  { name: 'Lightspeed Specialty Insurance Solutions', src: LightspeedLogo },
+  { name: 'Tower Hill Insurance', src: TowerHillLogo },
 ];
 
 function PartnersSection() {
@@ -39,14 +28,14 @@ function PartnersSection() {
   const pageSize = 12; // number of logos per page
 
   const { totalPages, currentItems } = useMemo(() => {
-    const totalPagesCalc = Math.max(1, Math.ceil(partnerNames.length / pageSize));
+    const totalPagesCalc = Math.max(1, Math.ceil(partnerLogos.length / pageSize));
     const safePage = Math.min(page, totalPagesCalc);
     const start = (safePage - 1) * pageSize;
     const end = start + pageSize;
 
     return {
       totalPages: totalPagesCalc,
-      currentItems: partnerNames.slice(start, end),
+      currentItems: partnerLogos.slice(start, end),
     };
   }, [page, pageSize]);
 
@@ -71,14 +60,17 @@ function PartnersSection() {
         </div>
 
         <div className="grid grid-cols-2 sm:grid-cols-3 md:grid-cols-4 gap-6 md:gap-8 items-center">
-          {currentItems.map((name) => (
+          {currentItems.map((partner) => (
             <div
-              key={name}
+              key={partner.name}
               className="flex items-center justify-center bg-white border border-[#e7dccb] rounded-2xl h-24 md:h-28 shadow-sm hover:shadow-md transition-shadow hover:-translate-y-1 duration-200"
             >
-              <span className="text-xs md:text-sm font-semibold tracking-wide text-[#012E72]/75 uppercase text-center px-3">
-                {name}
-              </span>
+              <img
+                src={partner.src}
+                alt={partner.name}
+                className="max-h-14 md:max-h-16 w-auto object-contain px-4"
+                loading="lazy"
+              />
             </div>
           ))}
         </div>
