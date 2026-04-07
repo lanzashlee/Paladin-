@@ -1,147 +1,15 @@
-import React, { useState, useMemo } from 'react';
+import React from 'react';
 import { Link } from 'react-router-dom';
 import { Target, ShieldCheck, Building2 } from 'lucide-react';
 import Header from '../components/Header';
 import Footer from '../components/Footer';
 import WhyChooseUs from '../components/WhyChooseUs';
 import MapLocation from '../components/MapLocation';
+import Carriers from '../components/Carriers';
 
 import TeamMember1 from '../assets/team_member_1_1774940222890.png';
 import TeamMember2 from '../assets/team_member_2_1774940252257.png';
 import TeamMember3 from '../assets/team_member_3_1774940454549.png';
-
-const partnerNames = [
-  'Partner One',
-  'Partner Two',
-  'Partner Three',
-  'Partner Four',
-  'Partner Five',
-  'Partner Six',
-  'Partner Seven',
-  'Partner Eight',
-  'Partner Nine',
-  'Partner Ten',
-  'Partner Eleven',
-  'Partner Twelve',
-  'Partner Thirteen',
-  'Partner Fourteen',
-  'Partner Fifteen',
-  'Partner Sixteen',
-  'Partner Seventeen',
-  'Partner Eighteen',
-  'Partner Nineteen',
-  'Partner Twenty',
-  // ...when you have real data, extend or replace this list
-];
-
-function PartnersSection() {
-  const [page, setPage] = useState(1);
-  const pageSize = 12; // number of logos per page
-
-  const { totalPages, currentItems } = useMemo(() => {
-    const totalPagesCalc = Math.max(1, Math.ceil(partnerNames.length / pageSize));
-    const safePage = Math.min(page, totalPagesCalc);
-    const start = (safePage - 1) * pageSize;
-    const end = start + pageSize;
-
-    return {
-      totalPages: totalPagesCalc,
-      currentItems: partnerNames.slice(start, end),
-    };
-  }, [page, pageSize]);
-
-  const goToPage = (newPage) => {
-    if (newPage < 1 || newPage > totalPages) return;
-    setPage(newPage);
-  };
-
-  return (
-    <section className="py-24 px-6 bg-[#F7F4EF] border-t border-[#e7dccb]" id="partners-carriers">
-      <div className="max-w-7xl mx-auto">
-        <div className="text-center mb-12">
-          <p className="inline-flex items-center px-4 py-1 rounded-full bg-white text-[#002DB5] text-xs font-semibold tracking-wide uppercase mb-4 border border-[#d8cbb8] shadow-sm">
-            Our Network
-          </p>
-          <h2 className="text-3xl md:text-4xl font-extrabold text-[#012E72] mb-4">
-            Our Trusted Partners &amp; Carriers
-          </h2>
-          <p className="text-lg md:text-xl text-[#010407]/75 max-w-3xl mx-auto leading-relaxed text-justify">
-            At Paladin Business Services, we collaborate with a network of trusted partners and carriers to offer the highest-quality solutions tailored to your business needs. Our partnerships with industry leaders enable us to deliver unmatched services and support to all our clients.
-          </p>
-        </div>
-
-        <div className="grid grid-cols-2 sm:grid-cols-3 md:grid-cols-4 gap-6 md:gap-8 items-center">
-          {currentItems.map((name) => (
-            <div
-              key={name}
-              className="flex items-center justify-center bg-white border border-[#e7dccb] rounded-2xl h-24 md:h-28 shadow-sm hover:shadow-md transition-shadow hover:-translate-y-1 duration-200"
-            >
-              <span className="text-xs md:text-sm font-semibold tracking-wide text-[#012E72]/75 uppercase text-center px-3">
-                {name}
-              </span>
-            </div>
-          ))}
-        </div>
-
-        {totalPages > 1 && (
-          <div className="mt-10 flex flex-col items-center gap-4">
-            <div className="flex items-center gap-3">
-              <button
-                type="button"
-                onClick={() => goToPage(page - 1)}
-                disabled={page === 1}
-                className={`px-3 py-1.5 rounded-full text-xs font-semibold border ${
-                  page === 1
-                    ? 'border-[#e7dccb] text-[#010407]/35 cursor-not-allowed'
-                    : 'border-[#d8cbb8] text-[#012E72] hover:bg-white'
-                }`}
-              >
-                Previous
-              </button>
-              <span className="text-xs text-[#010407]/60">
-                Page {page} of {totalPages}
-              </span>
-              <button
-                type="button"
-                onClick={() => goToPage(page + 1)}
-                disabled={page === totalPages}
-                className={`px-3 py-1.5 rounded-full text-xs font-semibold border ${
-                  page === totalPages
-                    ? 'border-[#e7dccb] text-[#010407]/35 cursor-not-allowed'
-                    : 'border-[#d8cbb8] text-[#012E72] hover:bg-white'
-                }`}
-              >
-                Next
-              </button>
-            </div>
-
-            <div className="flex flex-wrap justify-center gap-1">
-              {Array.from({ length: totalPages }).map((_, idx) => {
-                const p = idx + 1;
-                const isActive = p === page;
-                return (
-                  <button
-                    key={p}
-                    type="button"
-                    onClick={() => goToPage(p)}
-                    className={`h-2.5 w-2.5 rounded-full ${
-                      isActive ? 'bg-[#002DB5]' : 'bg-[#d8cbb8] hover:bg-[#c7b39b]'
-                    }`}
-                    aria-label={`Go to page ${p}`}
-                  />
-                );
-              })}
-            </div>
-          </div>
-        )}
-
-        <p className="mt-10 text-sm text-[#010407]/60 text-center max-w-2xl mx-auto">
-          We are continually expanding our partner network to bring even more value and coverage options to our clients.
-        </p>
-      </div>
-    </section>
-  );
-}
 
 export default function About() {
   return (
@@ -264,7 +132,7 @@ export default function About() {
       </section>
 
       {/* Partners & Carriers Section */}
-      <PartnersSection />
+      <Carriers />
 
       <MapLocation className="pt-8 mt-0" />
 
