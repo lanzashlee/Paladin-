@@ -9,19 +9,14 @@ import MapLocation from '../components/MapLocation';
 import TeamMember1 from '../assets/team_member_1_1774940222890.png';
 import TeamMember2 from '../assets/team_member_2_1774940252257.png';
 import TeamMember3 from '../assets/team_member_3_1774940454549.png';
-import SuperiorFloodLogo from '../assets/partners/Screenshot 2026-04-07 171833.png';
-import KwSpecialtyLogo from '../assets/partners/Screenshot 2026-04-07 165433.png';
-import SayataLogo from '../assets/partners/Screenshot 2026-04-07 165421.png';
-import LightspeedLogo from '../assets/partners/Screenshot 2026-04-07 170358.png';
-import TowerHillLogo from '../assets/partners/Screenshot 2026-04-07 165409.png';
-
-const partnerLogos = [
-  { name: 'Superior Flood Inc.', src: SuperiorFloodLogo },
-  { name: 'KW Specialty Insurance Company', src: KwSpecialtyLogo },
-  { name: 'Sayata', src: SayataLogo },
-  { name: 'Lightspeed Specialty Insurance Solutions', src: LightspeedLogo },
-  { name: 'Tower Hill Insurance', src: TowerHillLogo },
-];
+const partnerLogoContext = require.context('../assets/partners', false, /\.(png|jpe?g|webp|svg)$/i);
+const partnerLogos = partnerLogoContext
+  .keys()
+  .sort()
+  .map((file) => ({
+    name: file.replace('./', '').replace(/\.[^/.]+$/, '').replace(/[-_]/g, ' '),
+    src: partnerLogoContext(file),
+  }));
 
 function PartnersSection() {
   const [page, setPage] = useState(1);
