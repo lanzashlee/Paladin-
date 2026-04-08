@@ -1,16 +1,63 @@
-import React, { useMemo, useState } from 'react';
+import React, { useEffect, useMemo, useState } from 'react';
+import { Link } from 'react-router-dom';
 
 const partnerLogoContext = require.context('../assets/partners', false, /\.(png|jpe?g|webp|svg)$/i);
 
+const featuredPartnerOrder = [
+	'american-modern.png',
+	'biBerk.jpg',
+	'bamboo.png',
+	'ergo-next.png',
+	'foremost.png',
+	'hiscox.png',
+	'kw-specialty-insurance-company.png',
+	'the-hartford.png',
+	'california-fair-plan-property-insurance.png',
+	'seaview-insurance-company.png',
+	'spinnaker-insurance-company.png',
+	'state-national.png',
+	'travelers.png',
+	'ucs-your-surety-solution.png',
+	'westchester.png',
+];
+
+const featuredPartnerNames = new Set([
+	'american modern',
+	'biberk',
+	'bamboo',
+	'ergo next',
+	'foremost',
+	'hiscox',
+	'kw specialty insurance company',
+	'the hartford',
+	'california fair plan property insurance',
+	'seaview insurance company',
+	'spinnaker insurance company',
+	'state national',
+	'travelers',
+]);
+
+const featuredOrderMap = new Map(featuredPartnerOrder.map((fileName, index) => [fileName, index]));
+
 const partnerCarriers = partnerLogoContext
 	.keys()
-	.sort()
+	.sort((left, right) => {
+		const leftName = left.replace('./', '').toLowerCase();
+		const rightName = right.replace('./', '').toLowerCase();
+		const leftRank = featuredOrderMap.has(leftName) ? featuredOrderMap.get(leftName) : Number.MAX_SAFE_INTEGER;
+		const rightRank = featuredOrderMap.has(rightName) ? featuredOrderMap.get(rightName) : Number.MAX_SAFE_INTEGER;
+
+		if (leftRank !== rightRank) {
+			return leftRank - rightRank;
+		}
+
+		const leftBase = leftName.replace(/\.[^/.]+$/, '');
+		const rightBase = rightName.replace(/\.[^/.]+$/, '');
+		return leftBase.localeCompare(rightBase);
+	})
 	.map((file) => {
 		const baseName = file.replace('./', '').replace(/\.[^/.]+$/, '');
-		const prettyName = baseName
-			.replace(/[-_]+/g, ' ')
-			.replace(/\s+/g, ' ')
-			.trim();
+		const prettyName = baseName.replace(/[-_]+/g, ' ').replace(/\s+/g, ' ').trim();
 
 		return {
 			name: prettyName,
@@ -18,26 +65,63 @@ const partnerCarriers = partnerLogoContext
 		};
 	});
 
-function Carriers() {
+function Carriers({ showViewPartnersButton = false, featuredOnly = false } = {}) {
 	const [page, setPage] = useState(1);
+	const [slideIndex, setSlideIndex] = useState(0);
 	const pageSize = 12;
+	const visibleCarriers = featuredOnly
+		? partnerCarriers.filter(({ name }) => featuredPartnerNames.has(name.toLowerCase()))
+		: partnerCarriers;
+	const featuredSlides = useMemo(() => {
+		if (!featuredOnly) return [];
+
+		const slides = [];
+		for (let index = 0; index < visibleCarriers.length; index += 3) {
+			slides.push(visibleCarriers.slice(index, index + 3));
+		}
+
+		if (slides.length > 1) {
+			slides.push(slides[0]);
+		}
+
+		return slides;
+	}, [featuredOnly, visibleCarriers]);
 
 	const { totalPages, currentItems } = useMemo(() => {
-		const totalPagesCalc = Math.max(1, Math.ceil(partnerCarriers.length / pageSize));
+		const totalPagesCalc = Math.max(1, Math.ceil(visibleCarriers.length / pageSize));
 		const safePage = Math.min(page, totalPagesCalc);
 		const start = (safePage - 1) * pageSize;
 		const end = start + pageSize;
 
 		return {
 			totalPages: totalPagesCalc,
-			currentItems: partnerCarriers.slice(start, end),
+			currentItems: visibleCarriers.slice(start, end),
 		};
-	}, [page]);
+	}, [page, visibleCarriers]);
 
 	const goToPage = (newPage) => {
 		if (newPage < 1 || newPage > totalPages) return;
 		setPage(newPage);
 	};
+
+	useEffect(() => {
+		if (!featuredOnly || featuredSlides.length <= 1) return undefined;
+
+		const intervalId = window.setInterval(() => {
+			setSlideIndex((currentIndex) => {
+				const nextIndex = currentIndex + 1;
+				return nextIndex >= featuredSlides.length ? 0 : nextIndex;
+			});
+		}, 4000);
+
+		return () => window.clearInterval(intervalId);
+	}, [featuredOnly, featuredSlides.length]);
+
+	useEffect(() => {
+		if (slideIndex >= featuredSlides.length && featuredSlides.length > 0) {
+			setSlideIndex(0);
+		}
+	}, [slideIndex, featuredSlides.length]);
 
 	return (
 		<section id="partners-carriers" className="py-24 px-6 bg-white border-t border-[#e7dccb]">
@@ -57,23 +141,71 @@ function Carriers() {
 					</p>
 				</div>
 
-				<div className="grid grid-cols-2 sm:grid-cols-3 lg:grid-cols-4 gap-4 md:gap-6 items-stretch">
-					{currentItems.map(({ name, logo }) => (
-						<div
-							key={name}
-							className="group flex items-center justify-center bg-white border border-[#e7dccb] rounded-2xl p-4 md:p-6 h-28 md:h-32 shadow-sm hover:shadow-md transition-all hover:-translate-y-1 duration-200"
-						>
-							<img
-								src={logo}
-								alt={name}
-								loading="lazy"
-								className="max-h-16 md:max-h-20 w-full object-contain transition-transform duration-200 group-hover:scale-[1.02]"
-							/>
+				<div className={featuredOnly ? 'w-full flex justify-center' : 'grid grid-cols-2 sm:grid-cols-3 lg:grid-cols-4 gap-4 md:gap-6 items-stretch'}>
+					{featuredOnly ? (
+						<div className="w-full max-w-7xl overflow-hidden rounded-[2rem] border border-[#e7dccb] bg-[#F7F4EF] shadow-sm mx-auto">
+							<div
+								className="flex w-full transition-transform duration-700 ease-in-out"
+								style={{ transform: `translateX(-${slideIndex * 100}%)` }}
+							>
+								{featuredSlides.map((slide, slideNumber) => (
+									<div key={`slide-${slideNumber}`} className="w-full flex-shrink-0 p-4 md:p-6">
+										<div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-3 gap-4 md:gap-6">
+											{slide.map(({ name, logo }) => (
+												<div
+													key={name}
+													className="group flex items-center justify-center bg-white border border-[#e7dccb] rounded-[1.75rem] p-6 md:p-8 h-40 md:h-48 shadow-md hover:shadow-lg transition-all hover:-translate-y-1 duration-200"
+												>
+													<img
+														src={logo}
+														alt={name}
+														loading="lazy"
+														className="max-h-20 md:max-h-24 w-full object-contain transition-transform duration-200 group-hover:scale-[1.03]"
+													/>
+												</div>
+											))}
+										</div>
+									</div>
+								))}
+							</div>
+
+							{featuredSlides.length > 1 && (
+								<div className="pb-4 md:pb-6 flex justify-center gap-2">
+									{featuredSlides.slice(0, -1).map((_, slideNumber) => {
+										const isActive = slideNumber === slideIndex;
+										return (
+											<button
+												key={slideNumber}
+												type="button"
+												onClick={() => setSlideIndex(slideNumber)}
+												className={`h-2.5 w-2.5 rounded-full transition-colors ${
+													isActive ? 'bg-[#002DB5]' : 'bg-[#d8cbb8] hover:bg-[#c7b39b]'
+												}`}
+												aria-label={`Go to slide ${slideNumber + 1}`}
+											/>
+										);
+									})}
+								</div>
+							)}
 						</div>
-					))}
+					) : (
+						currentItems.map(({ name, logo }) => (
+							<div
+								key={name}
+								className="group flex items-center justify-center bg-white border border-[#e7dccb] rounded-2xl p-4 md:p-6 h-28 md:h-32 shadow-sm hover:shadow-md transition-all hover:-translate-y-1 duration-200"
+							>
+								<img
+									src={logo}
+									alt={name}
+									loading="lazy"
+									className="max-h-16 md:max-h-20 w-full object-contain transition-transform duration-200 group-hover:scale-[1.02]"
+								/>
+							</div>
+						))
+					)}
 				</div>
 
-				{totalPages > 1 && (
+				{!featuredOnly && totalPages > 1 && (
 					<div className="mt-10 flex flex-col items-center gap-4">
 						<div className="flex items-center gap-3">
 							<button
@@ -122,6 +254,17 @@ function Carriers() {
 								);
 							})}
 						</div>
+					</div>
+				)}
+
+				{featuredOnly && showViewPartnersButton && (
+					<div className="mt-10 flex justify-center">
+						<Link
+							to="/about#partners-carriers"
+							className="inline-flex items-center justify-center px-6 py-3 rounded-full bg-[#002DB5] text-white font-semibold text-sm md:text-base shadow-lg shadow-[#002DB5]/20 hover:bg-[#012E72] transition-colors"
+						>
+							View All Carriers and Partners
+						</Link>
 					</div>
 				)}
 			</div>
