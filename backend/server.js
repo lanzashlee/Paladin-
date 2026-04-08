@@ -15,15 +15,24 @@ app.get('/', (req, res) => {
 
 // Modular routes
 const contactRoutes = require('./routes/contactRoutes');
+const voiceChatRoutes = require('./routes/voiceChatRoutes');
+const agoraRoutes = require('./routes/agoraRoutes');
 app.use('/api', contactRoutes);
+app.use('/api', voiceChatRoutes);
+app.use('/api', agoraRoutes);
 
 const PORT = process.env.PORT || 5000;
 const MONGO_URI = process.env.MONGO_URI || 'mongodb://localhost:27017/paladin';
 
-mongoose.connect(MONGO_URI, { useNewUrlParser: true, useUnifiedTopology: true })
+app.listen(PORT, () => {
+  console.log(`Server running on port ${PORT}`);
+});
+
+mongoose
+  .connect(MONGO_URI, { useNewUrlParser: true, useUnifiedTopology: true })
   .then(() => {
-    app.listen(PORT, () => {
-      console.log(`Server running on port ${PORT}`);
-    });
+    console.log('MongoDB connected');
   })
-  .catch(err => console.error(err));
+  .catch((err) => {
+    console.error('MongoDB connection failed. Contact form persistence may be unavailable.', err.message);
+  });

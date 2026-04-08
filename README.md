@@ -30,11 +30,25 @@ frontend/
 2. Install dependencies: `npm install express mongoose cors dotenv`
 3. Start server: `node server.js`
 
+#### Voice AI configuration
+- The voice assistant works with Paladin's built-in knowledge responses even without an API key.
+- Add `OPENAI_API_KEY` to `backend/.env` to enable OpenAI-generated responses.
+- Optional: set `OPENAI_MODEL` (default: `gpt-4o-mini`).
+- API endpoint used by frontend widget: `POST /api/voice-chat` with JSON body `{ "message": "..." }`.
+
+#### Agora realtime voice configuration
+- Add `AGORA_APP_ID` and `AGORA_APP_CERTIFICATE` to `backend/.env`.
+- Backend token endpoint for frontend: `GET /api/agora/token?channel=paladin-voice&uid=<number>`.
+
 ### Frontend
 1. `cd frontend`
 2. Initialize React app if not already: `npx create-react-app .`
 3. Install dependencies: `npm install react-router-dom`
 4. Start app: `npm start`
+
+#### Frontend voice chat base URL
+- Optional: set `REACT_APP_API_BASE_URL` in `frontend/.env` (default: `http://localhost:5000`).
+- Optional: set `REACT_APP_AGORA_CHANNEL` in `frontend/.env` (default: `paladin-voice`).
 
 ---
 

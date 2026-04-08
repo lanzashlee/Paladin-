@@ -9,6 +9,7 @@ import Service from './pages/Service';
 import Contact from './pages/Contact';
 import Blog from './pages/Blog';
 import Testimonials from './pages/Testimonials';
+import VoiceChatWidget from './components/VoiceChatWidget';
 
 function ScrollManager() {
   const { pathname, hash } = useLocation();
@@ -64,6 +65,7 @@ function App() {
         <Route path="/contact" element={<Contact />} />
         {/* Add more routes here */}
       </Routes>
+      <VoiceChatWidget />
     </Router>
   );
 }
