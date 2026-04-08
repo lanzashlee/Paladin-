@@ -15,26 +15,26 @@ const todayIndex = new Date().getDay();
 
 function OfficeHours() {
   return (
-    <section className="py-24 px-8" id="office-hours">
+    <section className="py-24 px-8 bg-[#012E72]" id="office-hours">
       <div className="max-w-3xl mx-auto">
         {/* Header */}
         <div className="text-center mb-12">
-          <p className="inline-flex items-center px-4 py-1 rounded-full bg-[#F7F4EF] text-[#002DB5] text-xs font-semibold tracking-widest uppercase mb-4 border border-[#e7dccb] shadow-sm">
+          <p className="inline-flex items-center px-4 py-1 rounded-full bg-white/10 text-[#F7F4EF] text-xs font-semibold tracking-widest uppercase mb-4 border border-white/30 shadow-sm">
             When We're Here
           </p>
-          <h2 className="text-4xl font-extrabold text-[#012E72] tracking-tight mb-4">
+          <h2 className="text-4xl font-extrabold text-white tracking-tight mb-4">
             Office Hours
           </h2>
-          <p className="text-[#010407]/80 text-lg leading-relaxed">
+          <p className="text-[#F7F4EF] text-lg leading-relaxed">
             Our team is available Monday through Friday during standard business hours to assist you
             with all your insurance needs.
           </p>
         </div>
 
         {/* Hours table */}
-        <div className="rounded-3xl overflow-hidden shadow-xl shadow-[#012E72]/5 border border-[#e7dccb] bg-white">
+        <div className="rounded-3xl overflow-hidden shadow-xl shadow-[#010407]/20 border border-[#d8e2ff] bg-white/95 backdrop-blur">
           {/* Table header */}
-          <div className="grid grid-cols-[1fr_auto] bg-[#012E72] text-white text-sm font-bold px-8 py-4">
+          <div className="grid grid-cols-[1fr_auto] bg-[#001F5A] text-white text-sm font-bold px-8 py-4">
             <span>Day</span>
             <span>Hours</span>
           </div>
@@ -45,11 +45,11 @@ function OfficeHours() {
             return (
               <div
                 key={row.day}
-                className={`grid grid-cols-[1fr_auto] items-center px-8 py-4 border-b border-gray-100/80 last:border-none transition-colors
-                  ${isToday ? 'bg-[#F7F4EF]' : 'hover:bg-[#F7F4EF]/60'}`}
+                className={`grid grid-cols-[1fr_auto] items-center px-8 py-4 border-b border-[#dbe4fb] last:border-none transition-colors
+                  ${isToday ? 'bg-[#EAF0FF]' : 'hover:bg-[#F3F7FF]'}`}
               >
                 <div className="flex items-center gap-3">
-                  <span className={`text-sm font-semibold ${isToday ? 'text-[#002DB5]' : 'text-[#010407]/75'}`}>
+                  <span className={`text-sm font-semibold ${isToday ? 'text-[#002DB5]' : 'text-[#012E72]/80'}`}>
                     {row.day}
                   </span>
                 </div>
@@ -60,7 +60,7 @@ function OfficeHours() {
                       ? 'text-[#002DB5] font-semibold'
                       : isToday
                       ? 'text-[#012E72] font-semibold'
-                      : 'text-[#010407]/70'
+                      : 'text-[#012E72]/70'
                   }`}
                 >
                   {row.closed ? 'Closed' : `${row.open} – ${row.close}`}
@@ -70,11 +70,11 @@ function OfficeHours() {
           })}
         </div>
 
-        <p className="mt-6 text-center text-sm text-gray-500">
+        <p className="mt-6 text-center text-sm text-white/80">
           Outside of business hours? Email us at{' '}
           <a
             href="mailto:support@paladinbusinessservices.net"
-            className="text-[#002DB5] hover:underline font-medium"
+            className="text-[#F7F4EF] hover:text-white hover:underline font-medium"
           >
             support@paladinbusinessservices.net
           </a>

@@ -1,6 +1,8 @@
 import React, { useEffect, useMemo, useState } from 'react';
+import { Link } from 'react-router-dom';
 import Header from '../components/Header';
 import Footer from '../components/Footer';
+import TestimonialsPreview from '../components/TestimonialsPreview';
 import corporateMeetingImage from '../assets/corporate-meeting.jpg';
 
 function Blog() {
@@ -256,7 +258,7 @@ function Blog() {
   return (
     <>
       <Header />
-      <main className="relative overflow-hidden bg-[radial-gradient(circle_at_top,#eaf0ff_0%,#ffffff_48%,#f8f3ec_100%)] pb-12 md:pb-16">
+      <main className="relative overflow-hidden bg-[radial-gradient(circle_at_top,#eaf0ff_0%,#ffffff_48%,#f8f3ec_100%)]">
         <div className="pointer-events-none absolute left-0 top-24 h-56 w-56 rounded-full bg-[#c8d8ff]/40 blur-3xl" />
         <div className="pointer-events-none absolute right-0 top-[28rem] h-64 w-64 rounded-full bg-[#f0dfc7]/45 blur-3xl" />
 
@@ -385,7 +387,7 @@ function Blog() {
               </div>
             </section>
 
-            <section className="-mx-4 bg-white px-4 py-6 md:-mx-6 md:px-6 md:py-8 lg:-mx-8 lg:px-8">
+            <section id="blogs-articles" className="-mx-4 bg-white px-4 py-6 md:-mx-6 md:px-6 md:py-8 lg:-mx-8 lg:px-8">
               <div className="flex items-center justify-between gap-3">
                 <h3 className="text-2xl md:text-3xl font-extrabold tracking-tight text-[#012E72]">Blogs & Articles</h3>
               </div>
@@ -491,6 +493,31 @@ function Blog() {
                 </button>
               </div>
             </section>
+          </div>
+        </section>
+
+        <TestimonialsPreview />
+
+        <section className="py-14 md:py-16 px-6 bg-[#012E72]">
+          <div className="max-w-6xl mx-auto p-2 md:p-4 text-center">
+            <h2 className="text-2xl md:text-3xl font-extrabold text-white">Ready For A Better Insurance Experience?</h2>
+            <p className="mt-3 text-[#F7F4EF] max-w-3xl mx-auto">
+              We would love to learn about your goals and build a coverage strategy that fits your business, team, and long-term plans.
+            </p>
+            <div className="mt-7 flex flex-col sm:flex-row items-center justify-center gap-4">
+              <Link
+                to="/quote"
+                className="inline-flex items-center justify-center rounded-full bg-white px-7 py-3 text-sm font-bold text-[#012E72] shadow-lg shadow-[#010407]/20 hover:bg-[#F7F4EF] transition-colors"
+              >
+                Request A Quote
+              </Link>
+              <Link
+                to="/contact"
+                className="inline-flex items-center justify-center rounded-full border border-white px-7 py-3 text-sm font-bold text-white hover:bg-white/10 transition-colors"
+              >
+                Contact Our Team
+              </Link>
+            </div>
           </div>
         </section>
       </main>

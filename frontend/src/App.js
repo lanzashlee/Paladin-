@@ -8,6 +8,7 @@ import FAQ from './pages/FAQ';
 import Service from './pages/Service';
 import Contact from './pages/Contact';
 import Blog from './pages/Blog';
+import Testimonials from './pages/Testimonials';
 
 function ScrollManager() {
   const { pathname, hash } = useLocation();
@@ -59,6 +60,7 @@ function App() {
         <Route path="/about" element={<About />} />
         <Route path="/faq" element={<FAQ />} />
         <Route path="/blog" element={<Blog />} />
+        <Route path="/testimonials" element={<Testimonials />} />
         <Route path="/contact" element={<Contact />} />
         {/* Add more routes here */}
       </Routes>

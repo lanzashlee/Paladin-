@@ -19,13 +19,14 @@ function Header() {
         { label: 'Partners & Carriers', anchor: '#partners-carriers' },
         { label: 'Coverage Offerings', anchor: '#coverage-offerings' },
         { label: 'Why Choose Paladin', anchor: '#why-choose-paladin' },
+        { label: 'What Our Clients Say', anchor: '#what-our-clients-say' },
         { label: 'Office Hours', anchor: '#office-hours' },
         { label: 'Contact & Location', anchor: '#contact-location' },
         { label: 'Find Us', anchor: '#find-us' },
       ],
     },
     {
-      label: 'Our service',
+      label: 'Our Services',
       to: '/service',
       sections: [
         { label: 'Insurance Lines', anchor: '#insurance-lines' },
@@ -42,7 +43,15 @@ function Header() {
         { label: 'Contact & Office', anchor: '#contact-office' },
       ],
     },
-    { label: 'Blog', to: '/blog' },
+    {
+      label: 'Blog',
+      to: '/blog',
+      sections: [
+        { label: 'Blogs & Articles', anchor: '#blogs-articles' },
+        { label: 'What Our Clients Say', anchor: '#what-our-clients-say' },
+      ],
+    },
+    { label: 'Testimonials', to: '/testimonials' },
     {
       label: 'About Us',
       to: '/about',
@@ -82,6 +91,22 @@ function Header() {
     if (pathname === to) {
       window.scrollTo({ top: 0, left: 0, behavior: 'smooth' });
     }
+  };
+
+  const handleSectionNavClick = (routePath, anchor) => {
+    if (pathname !== routePath || window.location.hash !== anchor) {
+      return;
+    }
+
+    const sectionId = anchor.replace('#', '');
+    const section = document.getElementById(sectionId);
+    if (!section) {
+      return;
+    }
+
+    const headerOffset = 110;
+    const sectionY = section.getBoundingClientRect().top + window.pageYOffset;
+    window.scrollTo({ top: sectionY - headerOffset, behavior: 'smooth' });
   };
 
   return (
@@ -124,7 +149,8 @@ function Header() {
                         {item.sections.map((section) => (
                           <Link
                             key={section.anchor}
-                            to={pathname === item.to ? section.anchor : `${item.to}${section.anchor}`}
+                            to={`${item.to}${section.anchor}`}
+                            onClick={() => handleSectionNavClick(item.to, section.anchor)}
                             className="rounded-lg px-3 py-2 text-[13px] font-medium text-[#010407]/80 hover:bg-[#F7F4EF] hover:text-[#002DB5] transition-colors"
                           >
                             {section.label}
