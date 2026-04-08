@@ -10,6 +10,7 @@ import ContactInfo from '../components/ContactInfo';
 import Footer from '../components/Footer';
 import MapLocation from '../components/MapLocation';
 import Carriers from '../components/Carriers';
+import TestimonialsPreview from '../components/TestimonialsPreview';
 
 function Home() {
   return (
@@ -21,6 +22,7 @@ function Home() {
       <Carriers />
       <FeaturedProducts />
       <WhyChooseUs />
+      <TestimonialsPreview />
       <OfficeHours />
       <ContactInfo />
       <MapLocation className="pt-0 -mt-10" />
