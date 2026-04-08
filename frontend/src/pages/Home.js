@@ -19,7 +19,7 @@ function Home() {
       <Hero />
       <AboutSection />
       <InsuranceLines />
-      <Carriers />
+      <Carriers showViewPartnersButton featuredOnly />
       <FeaturedProducts />
       <WhyChooseUs />
       <TestimonialsPreview />
