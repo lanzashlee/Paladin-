@@ -2,24 +2,28 @@ import React, { useEffect, useMemo, useRef, useState } from 'react';
 
 const API_BASE_URL = process.env.REACT_APP_API_BASE_URL || 'http://localhost:5000';
 const AGORA_DEFAULT_CHANNEL = process.env.REACT_APP_AGORA_CHANNEL || 'paladin-voice';
+const VOICE_CHAT_STORAGE_KEY = 'paladin.voice-chat-widget.v1';
+const INITIAL_ASSISTANT_MESSAGE = {
+  role: 'assistant',
+  text: 'Hi, I am your Paladin voice assistant. Ask me anything about insurance support and services.',
+};
 
 function VoiceChatWidget() {
   const [isOpen, setIsOpen] = useState(false);
   const [isListening, setIsListening] = useState(false);
   const [isLoading, setIsLoading] = useState(false);
   const [isSpeaking, setIsSpeaking] = useState(false);
+  const [isVoiceMuted, setIsVoiceMuted] = useState(false);
   const [micEnabled, setMicEnabled] = useState(false);
   const [autoListen, setAutoListen] = useState(false);
+  const [unreadCount, setUnreadCount] = useState(0);
+  const [copiedReply, setCopiedReply] = useState(false);
+  const [feedbackByMessageIndex, setFeedbackByMessageIndex] = useState({});
   const [isAgoraConnected, setIsAgoraConnected] = useState(false);
   const [isAgoraConnecting, setIsAgoraConnecting] = useState(false);
   const [status, setStatus] = useState('Tap the mic and ask your question.');
   const [textInput, setTextInput] = useState('');
-  const [messages, setMessages] = useState([
-    {
-      role: 'assistant',
-      text: 'Hi, I am your Paladin voice assistant. Ask me anything about insurance support and services.',
-    },
-  ]);
+  const [messages, setMessages] = useState([INITIAL_ASSISTANT_MESSAGE]);
 
   const recognitionRef = useRef(null);
   const recognitionRestartTimerRef = useRef(null);
@@ -29,6 +33,10 @@ function VoiceChatWidget() {
   const lastVoiceMessageRef = useRef({ text: '', at: 0 });
   const speechVoicesRef = useRef([]);
   const preferredVoiceRef = useRef(null);
+  const previousMessageCountRef = useRef(messages.length);
+  const copyResetTimerRef = useRef(null);
+  const messagesEndRef = useRef(null);
+  const hasHydratedRef = useRef(false);
   const isOpenRef = useRef(false);
   const isLoadingRef = useRef(false);
   const isSpeakingRef = useRef(false);
@@ -55,9 +63,145 @@ function VoiceChatWidget() {
     []
   );
 
+  const isLowConfidenceReply = (text) => {
+    const value = String(text || '').toLowerCase();
+    if (!value) {
+      return false;
+    }
+
+    return /(not sure|i don't know|i do not know|can't|cannot|unable|issue|error|try again|contact support|human|agent)/i.test(
+      value
+    );
+  };
+
+  const openContactSupport = () => {
+    window.dispatchEvent(
+      new CustomEvent('paladin:open-contact-support', {
+        detail: {
+          source: 'voice-chat-widget',
+          reason: 'low-confidence-handoff',
+        },
+      })
+    );
+
+    if (window.location.pathname === '/contact') {
+      const target = document.getElementById('get-in-touch') || document.getElementById('quick-actions');
+      if (target) {
+        target.scrollIntoView({ behavior: 'smooth', block: 'start' });
+        return;
+      }
+    }
+
+    window.location.assign('/contact#get-in-touch');
+  };
+
+  useEffect(() => {
+    if (typeof window === 'undefined') {
+      return;
+    }
+
+    try {
+      const raw = window.localStorage.getItem(VOICE_CHAT_STORAGE_KEY);
+      if (!raw) {
+        hasHydratedRef.current = true;
+        return;
+      }
+
+      const parsed = JSON.parse(raw);
+      if (Array.isArray(parsed.messages) && parsed.messages.length > 0) {
+        setMessages(parsed.messages);
+      }
+      if (typeof parsed.autoListen === 'boolean') {
+        setAutoListen(parsed.autoListen);
+      }
+      if (typeof parsed.isVoiceMuted === 'boolean') {
+        setIsVoiceMuted(parsed.isVoiceMuted);
+      }
+      if (parsed.feedbackByMessageIndex && typeof parsed.feedbackByMessageIndex === 'object') {
+        setFeedbackByMessageIndex(parsed.feedbackByMessageIndex);
+      }
+    } catch (error) {
+      // Ignore invalid localStorage data and continue with defaults.
+    } finally {
+      hasHydratedRef.current = true;
+    }
+  }, []);
+
+  useEffect(() => {
+    if (!hasHydratedRef.current || typeof window === 'undefined') {
+      return;
+    }
+
+    const payload = {
+      messages,
+      autoListen,
+      isVoiceMuted,
+      feedbackByMessageIndex,
+    };
+
+    try {
+      window.localStorage.setItem(VOICE_CHAT_STORAGE_KEY, JSON.stringify(payload));
+    } catch (error) {
+      // Ignore persistence errors in private mode/quota limits.
+    }
+  }, [messages, autoListen, isVoiceMuted, feedbackByMessageIndex]);
+
   useEffect(() => {
     isOpenRef.current = isOpen;
+
+    if (isOpen) {
+      setUnreadCount(0);
+    }
   }, [isOpen]);
+
+  useEffect(() => {
+    if (!isOpen || !messagesEndRef.current) {
+      return;
+    }
+
+    messagesEndRef.current.scrollIntoView({ behavior: 'smooth', block: 'end' });
+  }, [messages, isOpen, isLoading]);
+
+  useEffect(() => {
+    const previousCount = previousMessageCountRef.current;
+    if (messages.length > previousCount) {
+      const newMessages = messages.slice(previousCount);
+      const assistantAdded = newMessages.filter((message) => message.role === 'assistant').length;
+
+      if (!isOpen && assistantAdded > 0) {
+        setUnreadCount((count) => count + assistantAdded);
+      }
+    }
+
+    previousMessageCountRef.current = messages.length;
+  }, [messages, isOpen]);
+
+  useEffect(() => {
+    const handleKeyDown = (event) => {
+      const isShortcut =
+        (event.ctrlKey || event.metaKey) &&
+        event.shiftKey &&
+        String(event.key || '').toLowerCase() === 'v';
+
+      if (isShortcut) {
+        event.preventDefault();
+        setIsOpen((prev) => !prev);
+        setUnreadCount(0);
+        return;
+      }
+
+      if (event.key === 'Escape' && isOpenRef.current) {
+        event.preventDefault();
+        setIsOpen(false);
+        disconnectAgoraVoice();
+      }
+    };
+
+    window.addEventListener('keydown', handleKeyDown);
+    return () => {
+      window.removeEventListener('keydown', handleKeyDown);
+    };
+  }, []);
 
   useEffect(() => {
     isLoadingRef.current = isLoading;
@@ -103,6 +247,11 @@ function VoiceChatWidget() {
       if (voiceFinalizeTimerRef.current) {
         clearTimeout(voiceFinalizeTimerRef.current);
         voiceFinalizeTimerRef.current = null;
+      }
+
+      if (copyResetTimerRef.current) {
+        clearTimeout(copyResetTimerRef.current);
+        copyResetTimerRef.current = null;
       }
 
       if ('speechSynthesis' in window) {
@@ -327,6 +476,10 @@ function VoiceChatWidget() {
       return Promise.resolve();
     }
 
+    if (isVoiceMuted) {
+      return Promise.resolve();
+    }
+
     return new Promise((resolve) => {
       setIsSpeaking(true);
       window.speechSynthesis.cancel();
@@ -541,72 +694,238 @@ function VoiceChatWidget() {
     sendMessage(textInput);
   };
 
+  const handleClearChat = () => {
+    setMessages([INITIAL_ASSISTANT_MESSAGE]);
+    setFeedbackByMessageIndex({});
+    setStatus('Conversation reset. Ask a new question.');
+    setUnreadCount(0);
+  };
+
+  const handleCopyLatestReply = async () => {
+    const latestAssistant = [...messages].reverse().find((message) => message.role === 'assistant')?.text;
+    if (!latestAssistant || !navigator?.clipboard?.writeText) {
+      setStatus('Copy is not available in this browser.');
+      return;
+    }
+
+    try {
+      await navigator.clipboard.writeText(latestAssistant);
+      setCopiedReply(true);
+      setStatus('Latest reply copied.');
+
+      if (copyResetTimerRef.current) {
+        clearTimeout(copyResetTimerRef.current);
+      }
+
+      copyResetTimerRef.current = setTimeout(() => {
+        setCopiedReply(false);
+        copyResetTimerRef.current = null;
+      }, 1800);
+    } catch (error) {
+      setStatus('Unable to copy the latest reply.');
+    }
+  };
+
+  const canUseMic = supportsSpeechRecognition && !isLoading && !isSpeaking;
+  const lastAssistantMessageIndex = useMemo(() => {
+    for (let index = messages.length - 1; index >= 0; index -= 1) {
+      if (messages[index]?.role === 'assistant') {
+        return index;
+      }
+    }
+    return -1;
+  }, [messages]);
+
   return (
-    <div className="fixed bottom-5 right-5 z-50">
+    <div className="fixed inset-x-2 bottom-2 z-50 flex flex-col items-end sm:inset-x-auto sm:bottom-6 sm:right-6">
       {isOpen && (
-        <section className="mb-3 w-[320px] max-w-[90vw] rounded-2xl border border-[#d8cbb8] bg-white shadow-xl">
-          <header className="flex items-center justify-between rounded-t-2xl bg-[#012E72] px-4 py-3 text-white">
-            <h2 className="text-sm font-semibold">Paladin Voice Assistant</h2>
-            <button
-              type="button"
-              onClick={() => setIsOpen(false)}
-              className="rounded-md px-2 py-1 text-xs hover:bg-white/20"
-            >
-              Close
-            </button>
+        <section className="mb-2 flex w-full max-w-[96vw] flex-col overflow-hidden rounded-3xl border border-[#e7dccb] bg-white shadow-2xl shadow-[#012E72]/15 sm:mb-3 sm:w-[360px] sm:max-w-[92vw] max-h-[calc(100vh-5.25rem)] sm:max-h-[calc(100vh-7rem)]">
+          <header className="relative overflow-hidden border-b border-[#e7dccb] bg-white px-4 py-4 text-[#012E72]">
+            <div className="pointer-events-none absolute -right-8 -top-8 h-20 w-20 rounded-full bg-[#002DB5]/10 blur-xl" />
+            <div className="pointer-events-none absolute -left-8 bottom-0 h-14 w-24 rounded-full bg-[#F7F4EF] blur-2xl" />
+            <div className="relative flex items-center justify-between gap-3">
+              <div>
+                <h2 className="text-sm font-semibold tracking-wide">Paladin Voice Assistant</h2>
+                <p className="mt-1 text-[11px] text-[#010407]/75">
+                  {isAgoraConnected
+                    ? 'Realtime channel connected'
+                    : isAgoraConnecting
+                    ? 'Connecting voice channel...'
+                    : 'Ask about claims, billing, policy updates, and more'}
+                </p>
+              </div>
+              <div className="flex items-center gap-2">
+                <span
+                  className={`h-2.5 w-2.5 rounded-full ${
+                    isListening ? 'animate-pulse bg-[#34d399]' : 'bg-white/70'
+                  }`}
+                  aria-hidden="true"
+                />
+                <button
+                  type="button"
+                  onClick={() => {
+                    setIsOpen(false);
+                    disconnectAgoraVoice();
+                  }}
+                  className="rounded-lg border border-[#d8cbb8] bg-white px-2.5 py-1 text-xs text-[#012E72] hover:border-[#002DB5] hover:text-[#002DB5]"
+                >
+                  Close
+                </button>
+              </div>
+            </div>
           </header>
 
-          <div className="h-64 space-y-2 overflow-y-auto px-3 py-3 text-sm">
-            {messages.map((msg, index) => (
-              <div
-                key={`${msg.role}-${index}`}
-                className={`max-w-[85%] rounded-xl px-3 py-2 ${
-                  msg.role === 'assistant'
-                    ? 'bg-[#f7f4ef] text-[#010407]'
-                    : 'ml-auto bg-[#012E72] text-white'
+          <div className="border-b border-[#e7dccb] bg-[#F7F4EF] px-4 py-2.5">
+            <div className="flex items-center justify-between text-[11px] font-medium text-[#012E72]">
+              <span className="max-w-[74%] truncate">{status}</span>
+              <span
+                className={`rounded-full px-2 py-0.5 text-[10px] font-semibold uppercase tracking-wide ${
+                  isLoading
+                    ? 'bg-[#fcd34d]/40 text-[#7c5200]'
+                    : isListening
+                    ? 'bg-[#86efac]/45 text-[#14532d]'
+                    : 'bg-[#dbeafe] text-[#012E72]'
                 }`}
               >
-                {msg.text}
-              </div>
-            ))}
+                {isLoading ? 'Thinking' : isListening ? 'Listening' : 'Ready'}
+              </span>
+            </div>
           </div>
 
-          <div className="border-t border-[#ece5da] px-3 py-3">
-            <p className="mb-2 text-xs text-[#012E72]">{status}</p>
-
-            <div className="mb-2 flex flex-wrap gap-2">
-              {sampleQuestions.map((question) => (
-                <button
-                  key={question}
-                  type="button"
-                  onClick={() => handleSampleQuestion(question)}
-                  disabled={isLoading}
-                  className="rounded-full border border-[#d8cbb8] px-3 py-1 text-xs text-[#012E72] hover:border-[#012E72] disabled:cursor-not-allowed disabled:opacity-50"
+          <div className="min-h-[170px] flex-1 space-y-3 overflow-y-auto bg-gradient-to-b from-white to-[#faf8f3] px-4 py-4 text-sm sm:min-h-[220px]">
+            {messages.map((msg, index) => (
+              <div key={`${msg.role}-${index}`} className={msg.role === 'assistant' ? 'max-w-[88%]' : 'ml-auto max-w-[88%]'}>
+                <div
+                  className={`rounded-2xl px-3.5 py-2.5 leading-relaxed shadow-sm ${
+                    msg.role === 'assistant'
+                      ? 'border border-[#e7dccb] bg-white text-[#010407]'
+                      : 'bg-gradient-to-br from-[#012E72] to-[#002DB5] text-white'
+                  }`}
                 >
-                  {question}
-                </button>
-              ))}
+                  {msg.text}
+                </div>
+
+                {msg.role === 'assistant' && (
+                  <div className="mt-1.5 flex flex-wrap items-center gap-2 pl-1">
+                    <button
+                      type="button"
+                      onClick={() =>
+                        setFeedbackByMessageIndex((prev) => ({
+                          ...prev,
+                          [index]: prev[index] === 'helpful' ? null : 'helpful',
+                        }))
+                      }
+                      className={`rounded-full border px-2.5 py-1 text-[10px] font-semibold uppercase tracking-wide ${
+                        feedbackByMessageIndex[index] === 'helpful'
+                          ? 'border-[#0f766e] bg-[#d1fae5] text-[#14532d]'
+                          : 'border-[#d8cbb8] bg-white text-[#012E72]'
+                      }`}
+                    >
+                      Helpful
+                    </button>
+                    <button
+                      type="button"
+                      onClick={() =>
+                        setFeedbackByMessageIndex((prev) => ({
+                          ...prev,
+                          [index]: prev[index] === 'not-helpful' ? null : 'not-helpful',
+                        }))
+                      }
+                      className={`rounded-full border px-2.5 py-1 text-[10px] font-semibold uppercase tracking-wide ${
+                        feedbackByMessageIndex[index] === 'not-helpful'
+                          ? 'border-[#b91c1c] bg-[#fee2e2] text-[#7f1d1d]'
+                          : 'border-[#d8cbb8] bg-white text-[#012E72]'
+                      }`}
+                    >
+                      Not Helpful
+                    </button>
+                    {index === lastAssistantMessageIndex && isLowConfidenceReply(msg.text) && (
+                      <button
+                        type="button"
+                        onClick={openContactSupport}
+                        className="rounded-full border border-[#002DB5] bg-[#002DB5] px-2.5 py-1 text-[10px] font-semibold uppercase tracking-wide text-white"
+                      >
+                        Contact Support
+                      </button>
+                    )}
+                  </div>
+                )}
+              </div>
+            ))}
+            <div ref={messagesEndRef} />
+          </div>
+
+          <div className="max-h-[42vh] overflow-y-auto border-t border-[#e7dccb] bg-white px-4 py-3 sm:max-h-[36vh]">
+            <div className="mb-3 flex flex-wrap gap-2">
+              <button
+                type="button"
+                onClick={() => setIsVoiceMuted((value) => !value)}
+                className={`rounded-full border px-3 py-1 text-[11px] font-semibold uppercase tracking-wide ${
+                  isVoiceMuted
+                    ? 'border-[#d8cbb8] bg-[#F7F4EF] text-[#012E72]'
+                    : 'border-[#002DB5] bg-[#002DB5] text-white'
+                }`}
+              >
+                {isVoiceMuted ? 'Voice Muted' : 'Voice On'}
+              </button>
+              <button
+                type="button"
+                onClick={handleCopyLatestReply}
+                className="rounded-full border border-[#d8cbb8] bg-white px-3 py-1 text-[11px] font-semibold uppercase tracking-wide text-[#012E72] hover:border-[#002DB5] hover:text-[#002DB5]"
+              >
+                {copiedReply ? 'Copied' : 'Copy Reply'}
+              </button>
+              <button
+                type="button"
+                onClick={handleClearChat}
+                className="rounded-full border border-[#d8cbb8] bg-white px-3 py-1 text-[11px] font-semibold uppercase tracking-wide text-[#012E72] hover:border-[#002DB5] hover:text-[#002DB5]"
+              >
+                Clear Chat
+              </button>
             </div>
 
-            <div className="mb-2 flex gap-2">
+            <div className="mb-3">
+              <p className="mb-2 text-[11px] font-semibold uppercase tracking-wide text-[#012E72]">Quick prompts</p>
+              <div className="flex gap-2 overflow-x-auto pb-1">
+                {sampleQuestions.map((question) => (
+                  <button
+                    key={question}
+                    type="button"
+                    onClick={() => handleSampleQuestion(question)}
+                    disabled={isLoading}
+                    className="whitespace-nowrap rounded-full border border-[#d8cbb8] bg-[#F7F4EF] px-3 py-1.5 text-xs font-medium text-[#012E72] hover:border-[#002DB5] hover:bg-white disabled:cursor-not-allowed disabled:opacity-50"
+                  >
+                    {question}
+                  </button>
+                ))}
+              </div>
+            </div>
+
+            <div className="mb-2 grid grid-cols-[1fr_auto] gap-2">
               <button
                 type="button"
                 onClick={handleMicToggle}
-                disabled={!supportsSpeechRecognition || isLoading || isSpeaking}
-                className="flex-1 rounded-lg bg-[#012E72] px-3 py-2 text-sm font-medium text-white disabled:cursor-not-allowed disabled:opacity-50"
+                disabled={!canUseMic}
+                className={`rounded-xl px-3 py-2.5 text-sm font-semibold text-white shadow-md transition ${
+                  isListening
+                    ? 'bg-gradient-to-r from-[#0f766e] to-[#0d9488]'
+                    : micEnabled
+                    ? 'bg-gradient-to-r from-[#002DB5] to-[#012E72]'
+                    : 'bg-gradient-to-r from-[#012E72] to-[#002DB5]'
+                } disabled:cursor-not-allowed disabled:opacity-50`}
               >
-                {isListening ? 'Listening...' : micEnabled ? 'Turn Mic Off' : 'Turn Mic On'}
+                {isListening ? 'Listening now...' : micEnabled ? 'Turn Mic Off' : 'Turn Mic On'}
               </button>
               <button
                 type="button"
                 onClick={() => setAutoListen((prev) => !prev)}
-                className={`rounded-lg border px-3 py-2 text-xs font-semibold ${
+                className={`rounded-xl border px-3 py-2 text-xs font-semibold uppercase tracking-wide ${
                   autoListen
                     ? 'border-[#012E72] bg-[#012E72] text-white'
-                    : 'border-[#012E72] text-[#012E72]'
+                    : 'border-[#d8cbb8] bg-[#F7F4EF] text-[#012E72]'
                 }`}
               >
-                {autoListen ? 'Auto-Listen On' : 'Auto-Listen Off'}
+                {autoListen ? 'Auto On' : 'Auto Off'}
               </button>
             </div>
 
@@ -615,13 +934,13 @@ function VoiceChatWidget() {
                 type="text"
                 value={textInput}
                 onChange={(event) => setTextInput(event.target.value)}
-                placeholder="Or type your question"
-                className="w-full rounded-lg border border-[#d8cbb8] px-3 py-2 text-sm outline-none focus:border-[#012E72]"
+                placeholder="Type your question"
+                className="w-full rounded-xl border border-[#d8cbb8] bg-white px-3 py-2 text-sm text-[#010407] outline-none focus:border-[#002DB5]"
               />
               <button
                 type="submit"
                 disabled={!textInput.trim() || isLoading}
-                className="rounded-lg border border-[#012E72] px-3 py-2 text-xs font-semibold text-[#012E72] disabled:cursor-not-allowed disabled:opacity-50"
+                className="rounded-xl bg-[#012E72] px-3 py-2 text-xs font-semibold uppercase tracking-wide text-white transition hover:bg-[#002DB5] disabled:cursor-not-allowed disabled:opacity-50"
               >
                 Send
               </button>
@@ -632,10 +951,24 @@ function VoiceChatWidget() {
 
       <button
         type="button"
-        onClick={() => setIsOpen((prev) => !prev)}
-        className="rounded-full bg-[#012E72] px-5 py-3 text-sm font-semibold text-white shadow-lg hover:bg-[#002DB5]"
+        onClick={() => {
+          setIsOpen((prev) => !prev);
+          setUnreadCount(0);
+        }}
+        className="group relative rounded-full bg-gradient-to-r from-[#012E72] to-[#002DB5] px-4 py-3 text-sm font-semibold text-white shadow-lg shadow-[#012E72]/25 transition hover:translate-y-[-1px] hover:from-[#002DB5] hover:to-[#012E72] sm:px-5"
       >
-        {isOpen ? 'Hide AI Chat' : 'Voice AI Chat'}
+        <span className="flex items-center gap-2">
+          <span
+            className={`h-2.5 w-2.5 rounded-full ${isListening ? 'animate-pulse bg-[#6ee7b7]' : 'bg-white/75'}`}
+            aria-hidden="true"
+          />
+          {isOpen ? 'Hide Voice Assistant' : 'Open Voice Assistant'}
+        </span>
+        {!isOpen && unreadCount > 0 && (
+          <span className="absolute -right-2 -top-2 inline-flex min-h-5 min-w-5 items-center justify-center rounded-full bg-[#ff7f11] px-1.5 text-[10px] font-bold text-white">
+            {unreadCount > 9 ? '9+' : unreadCount}
+          </span>
+        )}
       </button>
     </div>
   );
