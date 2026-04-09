@@ -4,8 +4,15 @@ import Footer from '../components/Footer';
 import ContactInfo from '../components/ContactInfo';
 import MapLocation from '../components/MapLocation';
 import { Send } from 'lucide-react';
+import ConsultationRequestForm from '../components/ConsultationRequestForm';
+import DocumentRequestForm from '../components/DocumentRequestForm';
+import PolicyChangeForm from '../components/PolicyChangeForm';
+import UpdateContactInfoForm from '../components/UpdateContactInfoForm';
+import ClaimReportForm from '../components/ClaimReportForm';
+import CallRequestForm from '../components/CallRequestForm';
 
 function Contact() {
+  const [activeRequest, setActiveRequest] = useState(null);
   const [formData, setFormData] = useState({
     name: '',
     email: '',
@@ -55,36 +62,51 @@ function Contact() {
 
   const requestCards = [
     {
+      id: 'consultation',
       title: 'Personalized Consultation',
       desc: 'Do you need proper and affordable coverage? Request a consultation now to have a personalized insurance plan that fits your specific needs.',
       cta: 'Request',
+      component: ConsultationRequestForm,
     },
     {
+      id: 'documents',
       title: 'Request Proof of Insurance or Other Documents',
       desc: 'Request proof of insurance below! One of our licensed agents will send it out as soon as possible.',
       cta: 'Request',
+      component: DocumentRequestForm,
     },
     {
+      id: 'policy-change',
       title: 'Policy Change',
       desc: 'Do you need to make any changes to your existing policy? Submit your request below and we will update your policy accordingly.',
       cta: 'Request',
+      component: PolicyChangeForm,
     },
     {
+      id: 'update-info',
       title: 'Update Contact Info or Other Insured Items',
       desc: 'Request a policy update information on an existing policy below.',
       cta: 'Request',
+      component: UpdateContactInfoForm,
     },
     {
+      id: 'claim',
       title: 'Report a Claim',
       desc: 'Report a claim below. One of our licensed agents will contact you shortly to provide personalized service throughout the claim process.',
       cta: 'Report',
+      component: ClaimReportForm,
     },
     {
+      id: 'call',
       title: 'Request a Call',
       desc: 'Do you need further assistance? Request a call below and one of our licensed agents will reach out to you promptly.',
       cta: 'Request',
+      component: CallRequestForm,
     },
   ];
+
+  const activeCard = requestCards.find((card) => card.id === activeRequest);
+  const ActiveRequestForm = activeCard?.component;
 
   return (
     <>
@@ -240,7 +262,11 @@ function Contact() {
                     {card.desc}
                   </p>
 
-                  <button className="relative inline-flex items-center justify-center gap-2 bg-[#012E72] text-white px-6 py-2.5 rounded-full text-sm font-semibold shadow-md shadow-[#012E72]/20 hover:bg-[#002DB5] transition-all hover:-translate-y-0.5">
+                  <button
+                    type="button"
+                    onClick={() => setActiveRequest(card.id)}
+                    className="relative inline-flex items-center justify-center gap-2 bg-[#012E72] text-white px-6 py-2.5 rounded-full text-sm font-semibold shadow-md shadow-[#012E72]/20 hover:bg-[#002DB5] transition-all hover:-translate-y-0.5"
+                  >
                     {card.cta}
                     <span aria-hidden="true">→</span>
                   </button>
@@ -259,6 +285,10 @@ function Contact() {
       <MapLocation className="pt-0 -mt-10" />
 
       <Footer />
+
+      {ActiveRequestForm && activeCard && (
+        <ActiveRequestForm onClose={() => setActiveRequest(null)} />
+      )}
     </>
   );
 }
