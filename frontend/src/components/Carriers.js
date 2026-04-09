@@ -150,17 +150,17 @@ function Carriers({ showViewPartnersButton = false, featuredOnly = false } = {})
 							>
 								{featuredSlides.map((slide, slideNumber) => (
 									<div key={`slide-${slideNumber}`} className="w-full flex-shrink-0 p-4 md:p-6">
-										<div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-3 gap-4 md:gap-6">
+										<div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-3 gap-5 md:gap-7">
 											{slide.map(({ name, logo }) => (
 												<div
 													key={name}
-													className="group flex items-center justify-center bg-white border border-[#e7dccb] rounded-[1.75rem] p-6 md:p-8 h-40 md:h-48 shadow-md hover:shadow-lg transition-all hover:-translate-y-1 duration-200"
+													className="group flex items-center justify-center bg-white border border-[#e7dccb] rounded-[1.75rem] p-7 md:p-10 h-44 md:h-52 shadow-md hover:shadow-lg transition-all hover:-translate-y-1 duration-200"
 												>
 													<img
 														src={logo}
 														alt={name}
 														loading="lazy"
-														className="max-h-20 md:max-h-24 w-full object-contain transition-transform duration-200 group-hover:scale-[1.03]"
+														className="max-h-24 md:max-h-28 w-full object-contain transition-transform duration-200 group-hover:scale-[1.05]"
 													/>
 												</div>
 											))}
@@ -192,13 +192,13 @@ function Carriers({ showViewPartnersButton = false, featuredOnly = false } = {})
 						currentItems.map(({ name, logo }) => (
 							<div
 								key={name}
-								className="group flex items-center justify-center bg-white border border-[#e7dccb] rounded-2xl p-4 md:p-6 h-28 md:h-32 shadow-sm hover:shadow-md transition-all hover:-translate-y-1 duration-200"
+								className="group flex items-center justify-center bg-white border border-[#d8cbb8] rounded-[1.75rem] p-6 md:p-8 h-36 md:h-40 shadow-md hover:shadow-lg transition-all hover:-translate-y-1 duration-200"
 							>
 								<img
 									src={logo}
 									alt={name}
 									loading="lazy"
-									className="max-h-16 md:max-h-20 w-full object-contain transition-transform duration-200 group-hover:scale-[1.02]"
+									className="max-h-20 md:max-h-24 w-full object-contain transition-transform duration-200 group-hover:scale-[1.05]"
 								/>
 							</div>
 						))
