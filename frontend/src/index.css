@@ -27,4 +27,23 @@
     display: flex;
     flex-direction: column;
   }
+
+  .partner-carousel-track {
+    animation: partner-carousel 34s linear infinite;
+    will-change: transform;
+  }
+
+  .partner-carousel-track:hover {
+    animation-play-state: paused;
+  }
+
+  @keyframes partner-carousel {
+    from {
+      transform: translateX(0);
+    }
+
+    to {
+      transform: translateX(-50%);
+    }
+  }
 }
