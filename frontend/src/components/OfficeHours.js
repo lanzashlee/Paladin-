@@ -1,13 +1,13 @@
 import React from 'react';
 
 const hours = [
-  { day: 'Sunday',    open: null,        close: null,       closed: true  },
-  { day: 'Monday',    open: '09:00 AM', close: '05:00 PM', closed: false },
-  { day: 'Tuesday',   open: '09:00 AM', close: '05:00 PM', closed: false },
-  { day: 'Wednesday', open: '09:00 AM', close: '05:00 PM', closed: false },
-  { day: 'Thursday',  open: '09:00 AM', close: '05:00 PM', closed: false },
-  { day: 'Friday',    open: '09:00 AM', close: '05:00 PM', closed: false },
-  { day: 'Saturday',  open: null,        close: null,       closed: true  },
+  { day: 'Sunday',    open: '06:00 AM', close: '12:00 AM', closed: false },
+  { day: 'Monday',    open: '06:00 AM', close: '12:00 AM', closed: false },
+  { day: 'Tuesday',   open: '06:00 AM', close: '12:00 AM', closed: false },
+  { day: 'Wednesday', open: '06:00 AM', close: '12:00 AM', closed: false },
+  { day: 'Thursday',  open: '06:00 AM', close: '12:00 AM', closed: false },
+  { day: 'Friday',    open: '06:00 AM', close: '12:00 AM', closed: false },
+  { day: 'Saturday',  open: '06:00 AM', close: '12:00 AM', closed: false },
 ];
 
 // getDay() returns 0=Sun,1=Mon...6=Sat. This matches our array index directly.
@@ -26,8 +26,8 @@ function OfficeHours() {
             Office Hours
           </h2>
           <p className="text-[#F7F4EF] text-lg leading-relaxed">
-            Our team is available Monday through Friday during standard business hours to assist you
-            with all your insurance needs.
+            Our team is available seven days a week from 6:00 AM to 12:00 AM to assist you with all
+            your insurance needs.
           </p>
         </div>
 
@@ -71,7 +71,7 @@ function OfficeHours() {
         </div>
 
         <p className="mt-6 text-center text-sm text-white/80">
-          Outside of business hours? Email us at{' '}
+          Need assistance? Email us at{' '}
           <a
             href="mailto:support@paladinbusinessservices.net"
             className="text-[#F7F4EF] hover:text-white hover:underline font-medium"
