@@ -47,6 +47,14 @@ frontend/
 - Optional: set `OPENAI_MODEL` (default: `gpt-4o-mini`).
 - API endpoint used by frontend widget: `POST /api/voice-chat` with JSON body `{ "message": "..." }`.
 
+#### ElevenLabs voice configuration
+- Add `ELEVENLABS_API_KEY` to `backend/.env` to enable ElevenLabs text-to-speech output.
+- Optional: set `ELEVENLABS_VOICE_ID` (default: `EXAVITQu4vr4xnSDxMaL`).
+- Optional: set `ELEVENLABS_MODEL_ID` (default: `eleven_multilingual_v2`).
+- Optional: set `ELEVENLABS_API_URL` (default: `https://api.elevenlabs.io/v1`).
+- Backend endpoint used by frontend widget: `POST /api/voice-chat/synthesize` with JSON body `{ "text": "..." }`.
+- Frontend fallback: if ElevenLabs fails, widget falls back to browser speech synthesis.
+
 #### Agora realtime voice configuration
 - Add `AGORA_APP_ID` and `AGORA_APP_CERTIFICATE` to `backend/.env`.
 - Backend token endpoint for frontend: `GET /api/agora/token?channel=paladin-voice&uid=<number>`.
@@ -60,6 +68,7 @@ frontend/
 #### Frontend voice chat base URL
 - Optional: set `REACT_APP_API_BASE_URL` in `frontend/.env` (default: `http://localhost:5000`).
 - Optional: set `REACT_APP_AGORA_CHANNEL` in `frontend/.env` (default: `paladin-voice`).
+- Optional: set `REACT_APP_USE_ELEVENLABS_TTS=false` to force browser voice only.
 
 ---
 

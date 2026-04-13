@@ -2,6 +2,8 @@ import React, { useEffect, useMemo, useRef, useState } from 'react';
 
 const API_BASE_URL = process.env.REACT_APP_API_BASE_URL || 'http://localhost:5000';
 const AGORA_DEFAULT_CHANNEL = process.env.REACT_APP_AGORA_CHANNEL || 'paladin-voice';
+const USE_ELEVENLABS_TTS = process.env.REACT_APP_USE_ELEVENLABS_TTS !== 'false';
+const ENABLE_AGORA = process.env.REACT_APP_ENABLE_AGORA === 'true';
 const VOICE_CHAT_STORAGE_KEY = 'paladin.voice-chat-widget.v1';
 const INITIAL_ASSISTANT_MESSAGE = {
   role: 'assistant',
@@ -33,6 +35,8 @@ function VoiceChatWidget() {
   const lastVoiceMessageRef = useRef({ text: '', at: 0 });
   const speechVoicesRef = useRef([]);
   const preferredVoiceRef = useRef(null);
+  const activeAudioRef = useRef(null);
+  const activeAudioObjectUrlRef = useRef(null);
   const previousMessageCountRef = useRef(messages.length);
   const copyResetTimerRef = useRef(null);
   const messagesEndRef = useRef(null);
@@ -193,7 +197,9 @@ function VoiceChatWidget() {
       if (event.key === 'Escape' && isOpenRef.current) {
         event.preventDefault();
         setIsOpen(false);
-        disconnectAgoraVoice();
+        if (ENABLE_AGORA) {
+          disconnectAgoraVoice();
+        }
       }
     };
 
@@ -220,7 +226,7 @@ function VoiceChatWidget() {
   }, [autoListen]);
 
   useEffect(() => {
-    if (!isOpen || isAgoraConnected || isAgoraConnecting) {
+    if (!ENABLE_AGORA || !isOpen || isAgoraConnected || isAgoraConnecting) {
       return;
     }
 
@@ -252,6 +258,16 @@ function VoiceChatWidget() {
       if (copyResetTimerRef.current) {
         clearTimeout(copyResetTimerRef.current);
         copyResetTimerRef.current = null;
+      }
+
+      if (activeAudioRef.current) {
+        activeAudioRef.current.pause();
+        activeAudioRef.current = null;
+      }
+
+      if (activeAudioObjectUrlRef.current) {
+        URL.revokeObjectURL(activeAudioObjectUrlRef.current);
+        activeAudioObjectUrlRef.current = null;
       }
 
       if ('speechSynthesis' in window) {
@@ -471,17 +487,12 @@ function VoiceChatWidget() {
     };
   }, [supportsSpeechRecognition]);
 
-  const speak = (text) => {
+  const speakWithBrowserVoice = (text) => {
     if (!('speechSynthesis' in window) || !text) {
       return Promise.resolve();
     }
 
-    if (isVoiceMuted) {
-      return Promise.resolve();
-    }
-
     return new Promise((resolve) => {
-      setIsSpeaking(true);
       window.speechSynthesis.cancel();
       const utterance = new SpeechSynthesisUtterance(text);
       utterance.rate = 0.95;
@@ -490,15 +501,95 @@ function VoiceChatWidget() {
         utterance.voice = preferredVoiceRef.current;
       }
 
-      const finalize = () => {
-        setIsSpeaking(false);
+      utterance.onend = () => resolve();
+      utterance.onerror = () => resolve();
+      window.speechSynthesis.speak(utterance);
+    });
+  };
+
+  const speakWithElevenLabs = async (text) => {
+    const response = await fetch(`${API_BASE_URL}/api/voice-chat/synthesize`, {
+      method: 'POST',
+      headers: {
+        'Content-Type': 'application/json',
+      },
+      body: JSON.stringify({ text }),
+    });
+
+    if (!response.ok) {
+      const errorBody = await response.text();
+      throw new Error(errorBody || 'ElevenLabs synthesis failed.');
+    }
+
+    const audioBlob = await response.blob();
+    const objectUrl = URL.createObjectURL(audioBlob);
+
+    if (activeAudioRef.current) {
+      activeAudioRef.current.pause();
+      activeAudioRef.current = null;
+    }
+
+    if (activeAudioObjectUrlRef.current) {
+      URL.revokeObjectURL(activeAudioObjectUrlRef.current);
+      activeAudioObjectUrlRef.current = null;
+    }
+
+    await new Promise((resolve, reject) => {
+      const audio = new Audio(objectUrl);
+      activeAudioRef.current = audio;
+      activeAudioObjectUrlRef.current = objectUrl;
+
+      audio.onended = () => {
+        if (activeAudioObjectUrlRef.current) {
+          URL.revokeObjectURL(activeAudioObjectUrlRef.current);
+          activeAudioObjectUrlRef.current = null;
+        }
+        activeAudioRef.current = null;
         resolve();
       };
 
-      utterance.onend = finalize;
-      utterance.onerror = finalize;
-      window.speechSynthesis.speak(utterance);
+      audio.onerror = () => {
+        if (activeAudioObjectUrlRef.current) {
+          URL.revokeObjectURL(activeAudioObjectUrlRef.current);
+          activeAudioObjectUrlRef.current = null;
+        }
+        activeAudioRef.current = null;
+        reject(new Error('Audio playback failed.'));
+      };
+
+      audio
+        .play()
+        .then(() => undefined)
+        .catch((error) => {
+          if (activeAudioObjectUrlRef.current) {
+            URL.revokeObjectURL(activeAudioObjectUrlRef.current);
+            activeAudioObjectUrlRef.current = null;
+          }
+          activeAudioRef.current = null;
+          reject(error);
+        });
     });
+  };
+
+  const speak = async (text) => {
+    if (!text || isVoiceMuted) {
+      return;
+    }
+
+    setIsSpeaking(true);
+
+    try {
+      if (USE_ELEVENLABS_TTS) {
+        await speakWithElevenLabs(text);
+      } else {
+        await speakWithBrowserVoice(text);
+      }
+    } catch (error) {
+      setStatus('ElevenLabs unavailable. Using browser voice fallback.');
+      await speakWithBrowserVoice(text);
+    } finally {
+      setIsSpeaking(false);
+    }
   };
 
   const sendMessage = async (rawMessage, options = {}) => {
@@ -746,13 +837,7 @@ function VoiceChatWidget() {
             <div className="relative flex items-center justify-between gap-3">
               <div>
                 <h2 className="text-sm font-semibold tracking-wide">Paladin Voice Assistant</h2>
-                <p className="mt-1 text-[11px] text-[#010407]/75">
-                  {isAgoraConnected
-                    ? 'Realtime channel connected'
-                    : isAgoraConnecting
-                    ? 'Connecting voice channel...'
-                    : 'Ask about claims, billing, policy updates, and more'}
-                </p>
+                <p className="mt-1 text-[11px] text-[#010407]/75">Ask about claims, billing, policy updates, and more</p>
               </div>
               <div className="flex items-center gap-2">
                 <span
@@ -765,7 +850,9 @@ function VoiceChatWidget() {
                   type="button"
                   onClick={() => {
                     setIsOpen(false);
-                    disconnectAgoraVoice();
+                    if (ENABLE_AGORA) {
+                      disconnectAgoraVoice();
+                    }
                   }}
                   className="rounded-lg border border-[#d8cbb8] bg-white px-2.5 py-1 text-xs text-[#012E72] hover:border-[#002DB5] hover:text-[#002DB5]"
                 >

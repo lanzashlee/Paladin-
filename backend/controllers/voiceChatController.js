@@ -1,5 +1,8 @@
 const OPENAI_API_URL = 'https://api.openai.com/v1/responses';
 const DEFAULT_MODEL = process.env.OPENAI_MODEL || 'gpt-4o-mini';
+const ELEVENLABS_API_BASE_URL = process.env.ELEVENLABS_API_URL || 'https://api.elevenlabs.io/v1';
+const ELEVENLABS_DEFAULT_VOICE_ID = process.env.ELEVENLABS_VOICE_ID || 'EXAVITQu4vr4xnSDxMaL';
+const ELEVENLABS_DEFAULT_MODEL_ID = process.env.ELEVENLABS_MODEL_ID || 'eleven_multilingual_v2';
 
 const SYSTEM_PROMPT =
   'You are Paladin Professional Insurance Solutions voice assistant. Keep answers clear, concise, and friendly. If asked for policy-specific legal advice, suggest contacting a licensed agent.';
@@ -172,6 +175,65 @@ const extractText = (payload) => {
   });
 
   return texts.join('\n').trim();
+};
+
+exports.synthesizeVoice = async (req, res) => {
+  const text = String(req.body?.text || '').trim();
+  const voiceId = String(req.body?.voiceId || ELEVENLABS_DEFAULT_VOICE_ID).trim();
+
+  if (!text) {
+    return res.status(400).json({ error: 'A non-empty text value is required.' });
+  }
+
+  if (!voiceId) {
+    return res.status(400).json({ error: 'A valid ElevenLabs voice ID is required.' });
+  }
+
+  if (!process.env.ELEVENLABS_API_KEY) {
+    return res.status(503).json({ error: 'ElevenLabs API key is not configured on the backend.' });
+  }
+
+  const controller = new AbortController();
+  const timeoutId = setTimeout(() => controller.abort(), 25000);
+
+  try {
+    const response = await fetch(`${ELEVENLABS_API_BASE_URL}/text-to-speech/${encodeURIComponent(voiceId)}`, {
+      method: 'POST',
+      headers: {
+        'Content-Type': 'application/json',
+        Accept: 'audio/mpeg',
+        'xi-api-key': process.env.ELEVENLABS_API_KEY,
+      },
+      body: JSON.stringify({
+        text,
+        model_id: ELEVENLABS_DEFAULT_MODEL_ID,
+      }),
+      signal: controller.signal,
+    });
+
+    clearTimeout(timeoutId);
+
+    if (!response.ok) {
+      const providerError = await response.text();
+      return res.status(response.status).json({
+        error: 'ElevenLabs synthesis failed.',
+        details: providerError,
+      });
+    }
+
+    const audioBuffer = Buffer.from(await response.arrayBuffer());
+    res.setHeader('Content-Type', response.headers.get('content-type') || 'audio/mpeg');
+    res.setHeader('Cache-Control', 'no-store');
+    return res.status(200).send(audioBuffer);
+  } catch (error) {
+    clearTimeout(timeoutId);
+
+    if (error.name === 'AbortError') {
+      return res.status(504).json({ error: 'ElevenLabs synthesis timed out.' });
+    }
+
+    return res.status(502).json({ error: 'Failed to synthesize audio with ElevenLabs.' });
+  }
 };
 
 exports.askVoiceAssistant = async (req, res) => {
