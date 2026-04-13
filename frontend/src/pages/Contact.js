@@ -11,6 +11,8 @@ import UpdateContactInfoForm from '../components/UpdateContactInfoForm';
 import ClaimReportForm from '../components/ClaimReportForm';
 import CallRequestForm from '../components/CallRequestForm';
 
+const API_BASE_URL = process.env.REACT_APP_API_BASE_URL || 'http://localhost:5000';
+
 function Contact() {
   const [activeRequest, setActiveRequest] = useState(null);
   const [formData, setFormData] = useState({
@@ -21,14 +23,33 @@ function Contact() {
   });
 
   const [errors, setErrors] = useState({});
+  const [isSubmitted, setIsSubmitted] = useState(false);
+  const [isSubmitting, setIsSubmitting] = useState(false);
+  const [submitError, setSubmitError] = useState('');
 
   const validateForm = () => {
     const newErrors = {};
+    const emailRegex = /^[^\s@]+@[^\s@]+\.[^\s@]+$/;
 
-    if (!formData.name.trim()) newErrors.name = 'Full Name is required.';
-    if (!formData.email.trim()) newErrors.email = 'Email Address is required.';
+    if (!formData.name.trim()) {
+      newErrors.name = 'Full Name is required.';
+    } else if (formData.name.trim().length < 2) {
+      newErrors.name = 'Please enter at least 2 characters.';
+    }
+
+    if (!formData.email.trim()) {
+      newErrors.email = 'Email Address is required.';
+    } else if (!emailRegex.test(formData.email.trim())) {
+      newErrors.email = 'Please enter a valid email address.';
+    }
+
     if (!formData.subject.trim()) newErrors.subject = 'Subject is required.';
-    if (!formData.message.trim()) newErrors.message = 'Message is required.';
+
+    if (!formData.message.trim()) {
+      newErrors.message = 'Message is required.';
+    } else if (formData.message.trim().length < 15) {
+      newErrors.message = 'Please provide a little more detail (min 15 characters).';
+    }
 
     return newErrors;
   };
@@ -41,6 +62,14 @@ function Contact() {
       [id]: value,
     }));
 
+    if (isSubmitted) {
+      setIsSubmitted(false);
+    }
+
+    if (submitError) {
+      setSubmitError('');
+    }
+
     if (errors[id]) {
       setErrors((prev) => ({
         ...prev,
@@ -49,15 +78,46 @@ function Contact() {
     }
   };
 
-  const handleSubmit = (e) => {
+  const handleSubmit = async (e) => {
     e.preventDefault();
+    setIsSubmitted(false);
+    setSubmitError('');
+
     const validationErrors = validateForm();
     setErrors(validationErrors);
 
     if (Object.keys(validationErrors).length > 0) return;
 
-    // Placeholder success flow until API integration is added.
-    setFormData({ name: '', email: '', subject: '', message: '' });
+    setIsSubmitting(true);
+
+    try {
+      const response = await fetch(`${API_BASE_URL}/api/contact`, {
+        method: 'POST',
+        headers: {
+          'Content-Type': 'application/json',
+        },
+        body: JSON.stringify({
+          name: formData.name.trim(),
+          email: formData.email.trim(),
+          subject: formData.subject.trim(),
+          message: formData.message.trim(),
+        }),
+      });
+
+      const payload = await response.json().catch(() => ({}));
+
+      if (!response.ok) {
+        throw new Error(payload.error || 'Unable to send message right now.');
+      }
+
+      setFormData({ name: '', email: '', subject: '', message: '' });
+      setErrors({});
+      setIsSubmitted(true);
+    } catch (error) {
+      setSubmitError(error.message || 'Unable to send message right now.');
+    } finally {
+      setIsSubmitting(false);
+    }
   };
 
   const requestCards = [
@@ -140,53 +200,58 @@ function Contact() {
           {/* Right: Contact Form */}
           <div className="flex-1 bg-white rounded-3xl p-8 border border-[#e7dccb] shadow-xl shadow-[#012E72]/5">
             <h2 className="text-2xl font-bold text-[#012E72] mb-6">Send us a Message</h2>
+
+            <div className="mb-5 rounded-xl border border-[#e7dccb] bg-[#F7F4EF]/70 px-4 py-3 text-sm text-[#010407]/75">
+              We typically respond within 1 business day. All fields marked with <span className="text-[#002DB5] font-semibold">*</span> are required.
+            </div>
+
             <form className="flex flex-col gap-4" onSubmit={handleSubmit} noValidate>
-              <div className="flex flex-col gap-2">
-                <label htmlFor="name" className="text-sm font-semibold text-[#010407]/80">
-                  Full Name <span className="text-[#002DB5]">*</span>
-                </label>
-                <input 
-                  type="text" 
-                  id="name"
-                  placeholder="John Doe"
-                  value={formData.name}
-                  onChange={handleChange}
-                  className={`px-4 py-3 rounded-xl border bg-[#F7F4EF]/40 focus:bg-white focus:outline-none focus:ring-2 transition-colors ${
-                    errors.name
-                      ? 'border-red-500 focus:ring-red-300 focus:border-red-500'
-                      : 'border-[#d8cbb8] focus:ring-[#002DB5]/40 focus:border-[#002DB5]'
-                  }`}
-                />
-                {errors.name && <p className="text-sm text-red-500">{errors.name}</p>}
-              </div>
-              
-              <div className="flex flex-col gap-2">
-                <label htmlFor="email" className="text-sm font-semibold text-[#010407]/80">
-                  Email Address <span className="text-[#002DB5]">*</span>
-                </label>
-                <input 
-                  type="email" 
-                  id="email"
-                  placeholder="john@example.com"
-                  value={formData.email}
-                  onChange={handleChange}
-                  className={`px-4 py-3 rounded-xl border bg-[#F7F4EF]/40 focus:bg-white focus:outline-none focus:ring-2 transition-colors ${
-                    errors.email
-                      ? 'border-red-500 focus:ring-red-300 focus:border-red-500'
-                      : 'border-[#d8cbb8] focus:ring-[#002DB5]/40 focus:border-[#002DB5]'
-                  }`}
-                />
-                {errors.email && <p className="text-sm text-red-500">{errors.email}</p>}
+              <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
+                <div className="flex flex-col gap-2">
+                  <label htmlFor="name" className="text-sm font-semibold text-[#010407]/80">
+                    Full Name <span className="text-[#002DB5]">*</span>
+                  </label>
+                  <input 
+                    type="text" 
+                    id="name"
+                    placeholder="John Doe"
+                    value={formData.name}
+                    onChange={handleChange}
+                    className={`px-4 py-3 rounded-xl border bg-[#F7F4EF]/40 focus:bg-white focus:outline-none focus:ring-2 transition-colors ${
+                      errors.name
+                        ? 'border-red-500 focus:ring-red-300 focus:border-red-500'
+                        : 'border-[#d8cbb8] focus:ring-[#002DB5]/40 focus:border-[#002DB5]'
+                    }`}
+                  />
+                  {errors.name && <p className="text-sm text-red-500">{errors.name}</p>}
+                </div>
+
+                <div className="flex flex-col gap-2">
+                  <label htmlFor="email" className="text-sm font-semibold text-[#010407]/80">
+                    Email Address <span className="text-[#002DB5]">*</span>
+                  </label>
+                  <input 
+                    type="email" 
+                    id="email"
+                    placeholder="john@example.com"
+                    value={formData.email}
+                    onChange={handleChange}
+                    className={`px-4 py-3 rounded-xl border bg-[#F7F4EF]/40 focus:bg-white focus:outline-none focus:ring-2 transition-colors ${
+                      errors.email
+                        ? 'border-red-500 focus:ring-red-300 focus:border-red-500'
+                        : 'border-[#d8cbb8] focus:ring-[#002DB5]/40 focus:border-[#002DB5]'
+                    }`}
+                  />
+                  {errors.email && <p className="text-sm text-red-500">{errors.email}</p>}
+                </div>
               </div>
 
               <div className="flex flex-col gap-2">
                 <label htmlFor="subject" className="text-sm font-semibold text-[#010407]/80">
                   Subject <span className="text-[#002DB5]">*</span>
                 </label>
-                <input 
-                  type="text" 
+                <select
                   id="subject"
-                  placeholder="How can we help?"
                   value={formData.subject}
                   onChange={handleChange}
                   className={`px-4 py-3 rounded-xl border bg-[#F7F4EF]/40 focus:bg-white focus:outline-none focus:ring-2 transition-colors ${
@@ -194,7 +259,18 @@ function Contact() {
                       ? 'border-red-500 focus:ring-red-300 focus:border-red-500'
                       : 'border-[#d8cbb8] focus:ring-[#002DB5]/40 focus:border-[#002DB5]'
                   }`}
-                />
+                >
+                  <option value="" disabled>
+                    Select a subject
+                  </option>
+                  <option value="contact details">Contact Details</option>
+                  <option value="claims">Claims</option>
+                  <option value="policy changes">Policy Changes</option>
+                  <option value="proof of insurance">Proof of Insurance</option>
+                  <option value="consultations">Consultations</option>
+                  <option value="paladin coverage options">Paladin Coverage Options</option>
+                </select>
+                <p className="text-xs text-[#010407]/55">Select a subject so we can route your message to the right team.</p>
                 {errors.subject && <p className="text-sm text-red-500">{errors.subject}</p>}
               </div>
 
@@ -204,7 +280,7 @@ function Contact() {
                 </label>
                 <textarea 
                   id="message"
-                  rows="5"
+                  rows="6"
                   placeholder="Type your message here..."
                   value={formData.message}
                   onChange={handleChange}
@@ -214,14 +290,28 @@ function Contact() {
                       : 'border-[#d8cbb8] focus:ring-[#002DB5]/40 focus:border-[#002DB5]'
                   }`}
                 ></textarea>
+                <div className="text-xs text-[#010407]/50 text-right">{formData.message.length} characters</div>
                 {errors.message && <p className="text-sm text-red-500">{errors.message}</p>}
               </div>
 
+              {isSubmitted && (
+                <div className="rounded-xl border border-emerald-200 bg-emerald-50 px-4 py-3 text-sm text-emerald-700 font-medium">
+                  Message sent successfully. Our team will get back to you soon.
+                </div>
+              )}
+
+              {submitError && (
+                <div className="rounded-xl border border-red-200 bg-red-50 px-4 py-3 text-sm text-red-700 font-medium">
+                  {submitError}
+                </div>
+              )}
+
               <button 
                 type="submit" 
-                className="mt-2 inline-flex items-center justify-center gap-2 bg-[#012E72] text-white px-8 py-4 rounded-xl font-bold shadow-lg shadow-[#012E72]/20 hover:bg-[#002DB5] transition-all hover:-translate-y-0.5"
+                disabled={isSubmitting}
+                className="mt-2 inline-flex items-center justify-center gap-2 bg-[#012E72] text-white px-8 py-4 rounded-xl font-bold shadow-lg shadow-[#012E72]/20 hover:bg-[#002DB5] transition-all hover:-translate-y-0.5 disabled:opacity-60 disabled:cursor-not-allowed disabled:hover:translate-y-0"
               >
-                Send Message
+                {isSubmitting ? 'Sending Message...' : 'Send Message'}
                 <Send className="w-4 h-4" />
               </button>
             </form>

@@ -27,8 +27,19 @@ frontend/
 
 ### Backend
 1. `cd backend`
-2. Install dependencies: `npm install express mongoose cors dotenv`
+2. Install dependencies: `npm install express mongoose cors dotenv nodemailer`
 3. Start server: `node server.js`
+
+#### Contact form email delivery
+- Add these variables to `backend/.env`:
+  - `PALADIN_CONTACT_EMAIL` (recipient inbox for contact form submissions)
+  - `SMTP_HOST`
+  - `SMTP_PORT`
+  - `SMTP_USER`
+  - `SMTP_PASS`
+  - `SMTP_SECURE` (`true` for SSL ports like 465, otherwise `false`)
+  - Optional: `EMAIL_FROM` (override sender address)
+- Contact API endpoint used by frontend form: `POST /api/contact`.
 
 #### Voice AI configuration
 - The voice assistant works with Paladin's built-in knowledge responses even without an API key.
