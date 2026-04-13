@@ -4,6 +4,7 @@ import FieldGroup, { inputClassName } from './RequestFormField';
 
 function PolicyChangeForm({ onClose }) {
   const [formData, setFormData] = useState({
+    formType: 'policy-change',
     fullName: '',
     email: '',
     policyNumber: '',
@@ -13,6 +14,8 @@ function PolicyChangeForm({ onClose }) {
   });
   const [errors, setErrors] = useState({});
   const [saved, setSaved] = useState(false);
+  const [loading, setLoading] = useState(false);
+  const [submitError, setSubmitError] = useState(null);
 
   const validateForm = () => {
     const newErrors = {};
@@ -34,6 +37,7 @@ function PolicyChangeForm({ onClose }) {
   const handleChange = (event) => {
     const { name, value } = event.target;
     setSaved(false);
+    setSubmitError(null);
     setFormData((current) => ({
       ...current,
       [name]: value,
@@ -47,7 +51,7 @@ function PolicyChangeForm({ onClose }) {
     }
   };
 
-  const handleSubmit = (event) => {
+  const handleSubmit = async (event) => {
     event.preventDefault();
     const validationErrors = validateForm();
     setErrors(validationErrors);
@@ -56,7 +60,38 @@ function PolicyChangeForm({ onClose }) {
       return;
     }
 
-    setSaved(true);
+    setLoading(true);
+    setSubmitError(null);
+
+    try {
+      const apiUrl = process.env.REACT_APP_API_BASE_URL || 'http://localhost:5000';
+      const response = await fetch(`${apiUrl}/api/contact`, {
+        method: 'POST',
+        headers: {
+          'Content-Type': 'application/json',
+        },
+        body: JSON.stringify(formData),
+      });
+
+      if (!response.ok) {
+        throw new Error('Failed to submit form');
+      }
+
+      setSaved(true);
+      setFormData({
+        formType: 'policy-change',
+        fullName: '',
+        email: '',
+        policyNumber: '',
+        changeType: 'coverage',
+        effectiveDate: '',
+        notes: '',
+      });
+    } catch (error) {
+      setSubmitError(error.message || 'Failed to submit your request. Please try again.');
+    } finally {
+      setLoading(false);
+    }
   };
 
   return (
@@ -77,6 +112,7 @@ function PolicyChangeForm({ onClose }) {
               onChange={handleChange}
               placeholder="John Doe"
               className={getFieldClass('fullName')}
+              disabled={loading}
             />
           </FieldGroup>
 
@@ -89,6 +125,7 @@ function PolicyChangeForm({ onClose }) {
               onChange={handleChange}
               placeholder="john@example.com"
               className={getFieldClass('email')}
+              disabled={loading}
             />
           </FieldGroup>
 
@@ -101,6 +138,7 @@ function PolicyChangeForm({ onClose }) {
               onChange={handleChange}
               placeholder="Policy number"
               className={getFieldClass('policyNumber')}
+              disabled={loading}
             />
           </FieldGroup>
 
@@ -112,6 +150,7 @@ function PolicyChangeForm({ onClose }) {
               value={formData.effectiveDate}
               onChange={handleChange}
               className={getFieldClass('effectiveDate')}
+              disabled={loading}
             />
           </FieldGroup>
 
@@ -122,6 +161,7 @@ function PolicyChangeForm({ onClose }) {
               value={formData.changeType}
               onChange={handleChange}
               className={getFieldClass('changeType')}
+              disabled={loading}
             >
               <option value="coverage">Coverage change</option>
               <option value="billing">Billing update</option>
@@ -142,12 +182,19 @@ function PolicyChangeForm({ onClose }) {
             onChange={handleChange}
             placeholder="Describe what needs to change and include any new details or dates."
             className={`${getFieldClass('notes')} resize-none`}
+            disabled={loading}
           />
         </FieldGroup>
 
         {saved && (
-          <div className="rounded-2xl border border-[#b7d4ff] bg-[#eef5ff] px-4 py-3 text-sm text-[#012E72]">
-            This is a UI-only draft. Nothing has been submitted.
+          <div className="rounded-2xl border border-green-300 bg-green-50 px-4 py-3 text-sm text-green-700">
+            Your policy change request has been submitted successfully! We will follow up soon.
+          </div>
+        )}
+
+        {submitError && (
+          <div className="rounded-2xl border border-red-300 bg-red-50 px-4 py-3 text-sm text-red-700">
+            Error: {submitError}
           </div>
         )}
 
@@ -155,15 +202,17 @@ function PolicyChangeForm({ onClose }) {
           <button
             type="button"
             onClick={onClose}
-            className="inline-flex items-center justify-center rounded-full border border-[#d8cbb8] px-6 py-3 text-sm font-semibold text-[#012E72] transition-colors hover:bg-[#F7F4EF]"
+            disabled={loading}
+            className="inline-flex items-center justify-center rounded-full border border-[#d8cbb8] px-6 py-3 text-sm font-semibold text-[#012E72] transition-colors hover:bg-[#F7F4EF] disabled:opacity-50 disabled:cursor-not-allowed"
           >
             Close
           </button>
           <button
             type="submit"
-            className="inline-flex items-center justify-center rounded-full bg-[#012E72] px-6 py-3 text-sm font-semibold text-white shadow-lg shadow-[#012E72]/15 transition-colors hover:bg-[#002DB5]"
+            disabled={loading}
+            className="inline-flex items-center justify-center rounded-full bg-[#012E72] px-6 py-3 text-sm font-semibold text-white shadow-lg shadow-[#012E72]/15 transition-colors hover:bg-[#002DB5] disabled:opacity-50 disabled:cursor-not-allowed"
           >
-            Save draft
+            {loading ? 'Submitting...' : 'Submit Request'}
           </button>
         </div>
       </form>
