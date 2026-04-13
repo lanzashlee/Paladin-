@@ -201,10 +201,6 @@ function Contact() {
           <div className="flex-1 bg-white rounded-3xl p-8 border border-[#e7dccb] shadow-xl shadow-[#012E72]/5">
             <h2 className="text-2xl font-bold text-[#012E72] mb-6">Send us a Message</h2>
 
-            <div className="mb-5 rounded-xl border border-[#e7dccb] bg-[#F7F4EF]/70 px-4 py-3 text-sm text-[#010407]/75">
-              We typically respond within 1 business day. All fields marked with <span className="text-[#002DB5] font-semibold">*</span> are required.
-            </div>
-
             <form className="flex flex-col gap-4" onSubmit={handleSubmit} noValidate>
               <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
                 <div className="flex flex-col gap-2">
@@ -250,8 +246,10 @@ function Contact() {
                 <label htmlFor="subject" className="text-sm font-semibold text-[#010407]/80">
                   Subject <span className="text-[#002DB5]">*</span>
                 </label>
-                <select
+                <input
+                  type="text"
                   id="subject"
+                  placeholder="How can we help you?"
                   value={formData.subject}
                   onChange={handleChange}
                   className={`px-4 py-3 rounded-xl border bg-[#F7F4EF]/40 focus:bg-white focus:outline-none focus:ring-2 transition-colors ${
@@ -259,18 +257,8 @@ function Contact() {
                       ? 'border-red-500 focus:ring-red-300 focus:border-red-500'
                       : 'border-[#d8cbb8] focus:ring-[#002DB5]/40 focus:border-[#002DB5]'
                   }`}
-                >
-                  <option value="" disabled>
-                    Select a subject
-                  </option>
-                  <option value="contact details">Contact Details</option>
-                  <option value="claims">Claims</option>
-                  <option value="policy changes">Policy Changes</option>
-                  <option value="proof of insurance">Proof of Insurance</option>
-                  <option value="consultations">Consultations</option>
-                  <option value="paladin coverage options">Paladin Coverage Options</option>
-                </select>
-                <p className="text-xs text-[#010407]/55">Select a subject so we can route your message to the right team.</p>
+                />
+                <p className="text-xs text-[#010407]/55">Enter a short subject so we can route your message to the right team.</p>
                 {errors.subject && <p className="text-sm text-red-500">{errors.subject}</p>}
               </div>
 
