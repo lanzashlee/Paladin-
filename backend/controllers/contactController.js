@@ -91,6 +91,16 @@ const sendEmail = async (contactData) => {
   const safeDocumentType = escapeHtml(formatLabel(documentType));
   const safeChangeType = escapeHtml(formatLabel(changeType));
   const safeTimeline = escapeHtml(timeline);
+  const hasEmail = Boolean(email && String(email).trim());
+  const emailRowHtml = hasEmail
+    ? `
+                <tr>
+                  <td style="padding:10px 0;border-bottom:1px solid #e5e7eb;width:38%;font-size:13px;color:#6b7280;">Email</td>
+                  <td style="padding:10px 0;border-bottom:1px solid #e5e7eb;font-size:14px;color:#111827;">${safeEmail}</td>
+                </tr>
+      `
+    : '';
+  const emailTextLine = hasEmail ? `Email: ${email}\n` : '';
 
   let emailTitle = 'Personalized Consultation';
   let subjectPrefix = 'Personalized Consultation';
@@ -154,6 +164,74 @@ const sendEmail = async (contactData) => {
   `;
   }
 
+  if (formType === 'update-contact-info') {
+    emailTitle = 'Update Contact Info or Other Insured Items';
+    subjectPrefix = 'Update Contact Info or Other Insured Items';
+    submittedFormLabel = 'account update';
+    detailRows = `
+                <tr>
+                  <td style="padding:10px 0;border-bottom:1px solid #e5e7eb;width:38%;font-size:13px;color:#6b7280;">Policy Number</td>
+                  <td style="padding:10px 0;border-bottom:1px solid #e5e7eb;font-size:14px;color:#111827;">${safePolicyNumber}</td>
+                </tr>
+                <tr>
+                  <td style="padding:10px 0;border-bottom:1px solid #e5e7eb;width:38%;font-size:13px;color:#6b7280;">Update Type</td>
+                  <td style="padding:10px 0;border-bottom:1px solid #e5e7eb;font-size:14px;color:#111827;">${escapeHtml(formatLabel(contactData.updateType || ''))}</td>
+                </tr>
+                <tr>
+                  <td style="padding:10px 0;border-bottom:1px solid #e5e7eb;width:38%;font-size:13px;color:#6b7280;">Updated Value</td>
+                  <td style="padding:10px 0;border-bottom:1px solid #e5e7eb;font-size:14px;color:#111827;">${escapeHtml(contactData.updatedValue || '')}</td>
+                </tr>
+    `;
+  }
+
+  if (formType === 'call-request') {
+    emailTitle = 'Request a Call';
+    subjectPrefix = 'Request a Call';
+    submittedFormLabel = 'call request';
+    detailRows = `
+                <tr>
+                  <td style="padding:10px 0;border-bottom:1px solid #e5e7eb;width:38%;font-size:13px;color:#6b7280;">Phone</td>
+                  <td style="padding:10px 0;border-bottom:1px solid #e5e7eb;font-size:14px;color:#111827;">${safePhone}</td>
+                </tr>
+                <tr>
+                  <td style="padding:10px 0;border-bottom:1px solid #e5e7eb;width:38%;font-size:13px;color:#6b7280;">Preferred Day</td>
+                  <td style="padding:10px 0;border-bottom:1px solid #e5e7eb;font-size:14px;color:#111827;">${escapeHtml(contactData.preferredDay || '')}</td>
+                </tr>
+                <tr>
+                  <td style="padding:10px 0;border-bottom:1px solid #e5e7eb;width:38%;font-size:13px;color:#6b7280;">Preferred Time</td>
+                  <td style="padding:10px 0;border-bottom:1px solid #e5e7eb;font-size:14px;color:#111827;">${escapeHtml(contactData.preferredTime || '')}</td>
+                </tr>
+                <tr>
+                  <td style="padding:10px 0;border-bottom:1px solid #e5e7eb;width:38%;font-size:13px;color:#6b7280;">Topic</td>
+                  <td style="padding:10px 0;border-bottom:1px solid #e5e7eb;font-size:14px;color:#111827;">${escapeHtml(formatLabel(contactData.topic || ''))}</td>
+                </tr>
+    `;
+  }
+
+  if (formType === 'claim-report') {
+    emailTitle = 'Report a Claim';
+    subjectPrefix = 'Report a Claim';
+    submittedFormLabel = 'claim report';
+    detailRows = `
+                <tr>
+                  <td style="padding:10px 0;border-bottom:1px solid #e5e7eb;width:38%;font-size:13px;color:#6b7280;">Policy Number</td>
+                  <td style="padding:10px 0;border-bottom:1px solid #e5e7eb;font-size:14px;color:#111827;">${safePolicyNumber}</td>
+                </tr>
+                <tr>
+                  <td style="padding:10px 0;border-bottom:1px solid #e5e7eb;width:38%;font-size:13px;color:#6b7280;">Incident Date</td>
+                  <td style="padding:10px 0;border-bottom:1px solid #e5e7eb;font-size:14px;color:#111827;">${escapeHtml(contactData.incidentDate || '')}</td>
+                </tr>
+                <tr>
+                  <td style="padding:10px 0;border-bottom:1px solid #e5e7eb;width:38%;font-size:13px;color:#6b7280;">Claim Type</td>
+                  <td style="padding:10px 0;border-bottom:1px solid #e5e7eb;font-size:14px;color:#111827;">${escapeHtml(formatLabel(contactData.claimType || ''))}</td>
+                </tr>
+                <tr>
+                  <td style="padding:10px 0;border-bottom:1px solid #e5e7eb;width:38%;font-size:13px;color:#6b7280;">Incident Location</td>
+                  <td style="padding:10px 0;border-bottom:1px solid #e5e7eb;font-size:14px;color:#111827;">${escapeHtml(contactData.incidentLocation || '')}</td>
+                </tr>
+    `;
+  }
+
   const logoAsset = getLogoAsset();
   const logoHtml = logoAsset
     ? '<img src="cid:paladin-logo" alt="Paladin logo" style="display:block;width:84px;height:auto;object-fit:contain;" />'
@@ -198,10 +276,7 @@ const sendEmail = async (contactData) => {
                   <td style="padding:10px 0;border-bottom:1px solid #e5e7eb;width:38%;font-size:13px;color:#6b7280;">Full Name</td>
                   <td style="padding:10px 0;border-bottom:1px solid #e5e7eb;font-size:14px;color:#111827;font-weight:600;">${safeFullName}</td>
                 </tr>
-                <tr>
-                  <td style="padding:10px 0;border-bottom:1px solid #e5e7eb;width:38%;font-size:13px;color:#6b7280;">Email</td>
-                  <td style="padding:10px 0;border-bottom:1px solid #e5e7eb;font-size:14px;color:#111827;">${safeEmail}</td>
-                </tr>
+                ${emailRowHtml}
                 ${detailRows}
               </table>
             </td>
@@ -216,7 +291,7 @@ const sendEmail = async (contactData) => {
           </tr>
           <tr>
             <td style="padding:14px 24px;background:#f8fafc;border-top:1px solid #e5e7eb;font-size:12px;color:#6b7280;">
-              Submitted from the website consultation form.
+              Submitted from the website ${submittedFormLabel} form.
             </td>
           </tr>
         </table>
@@ -226,7 +301,7 @@ const sendEmail = async (contactData) => {
   ${emailTitle}
 
 Full Name: ${fullName}
-Email: ${email}
+${emailTextLine}
   Phone: ${phone || 'N/A'}
   Policy Number: ${policyNumber || 'N/A'}
   Coverage Focus: ${formatLabel(coverageType || '') || 'N/A'}

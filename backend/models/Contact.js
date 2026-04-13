@@ -13,7 +13,11 @@ const contactSchema = new mongoose.Schema({
   changeType: { type: String },
   timeline: { type: String },
   notes: { type: String },
-  formType: { type: String, default: 'consultation', enum: ['consultation', 'document-request', 'policy-change'] },
+  formType: {
+    type: String,
+    default: 'consultation',
+    enum: ['consultation', 'document-request', 'policy-change', 'update-contact-info', 'call-request', 'claim-report'],
+  },
   createdAt: { type: Date, default: Date.now }
 });
 
