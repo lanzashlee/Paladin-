@@ -37,7 +37,6 @@ const featuredPartnerNames = new Set([
 	'american modern',
 	'kw specialty',
 	'the hartford',
-	'the hatford',
 	'cali fair plan',
 	'mount vernon',
 	'seaview insurance company',
