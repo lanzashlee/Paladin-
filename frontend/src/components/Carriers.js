@@ -7,6 +7,11 @@ const featuredPartnerOrder = [
 	'aegis.png',
 	'biBerk.jpg',
 	'BristolWest.png',
+	'American Builders Insurance Company.png',
+	'American National Lloyds Insurance Company.png',
+	'Certain Underwriters at LLOYDS.png',
+	'Coast Natl Ins Co.png',
+	'FIREMANS FUND IND CORP.png',
 	'foremost-real.png',
 	'ergo-next.png',
 	'pie-insurance.png',
@@ -20,7 +25,9 @@ const featuredPartnerOrder = [
 	'mount-vernon.png',
 	'seaview-insurance-company.png',
 	'spinnaker-insurance-company.png',
+	'Sierra Specialty Insurance Company.png',
 	'state-national.png',
+	'WKFC Property Consortium.png',
 	'travelers.png',
 ];
 
@@ -35,28 +42,43 @@ const featuredPartnerNames = new Set([
 	'bamboo',
 	'hiscox',
 	'american modern',
+	'american builders',
+	'american national lloyds',
+	'certain underwriters at lloyds',
+	'coast natl ins co',
 	'kw specialty',
+	"fireman's fund",
 	'the hartford',
 	'cali fair plan',
 	'mount vernon',
+	'sierra specialty',
 	'seaview insurance company',
 	'spinnaker insurance company',
 	'state national',
+	'wkfc property consortium',
 	'travelers',
 ]);
 
 const displayNameMap = new Map([
 	['bristolwest', 'Bristol West'],
+	['american builders insurance company', 'American Builders'],
+	['american national lloyds insurance company', 'American National Lloyds'],
+	['certain underwriters at lloyds', 'Certain Underwriters at Lloyds'],
+	['coast natl ins co', 'Coast Natl Ins Co'],
+	['firemans fund ind corp', "Fireman's Fund"],
 	['foremost real', 'Foremost'],
 	['kw specialty insurance company', 'KW Specialty'],
 	['california fair plan property insurance', 'Cali Fair Plan'],
+	['sierra specialty insurance company', 'Sierra Specialty'],
 	['three', 'THREE'],
+	['wkfc property consortium', 'WKFC Property Consortium'],
 ]);
 
 const featuredOrderMap = new Map(featuredPartnerOrder.map((fileName, index) => [fileName, index]));
 
 const partnerCarriers = partnerLogoContext
 	.keys()
+	.filter((file) => file !== './obie-2.png')
 	.sort((left, right) => {
 		const leftName = left.replace('./', '').toLowerCase();
 		const rightName = right.replace('./', '').toLowerCase();
