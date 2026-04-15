@@ -39,7 +39,7 @@ function ContactInfo() {
 
             <div className="flex items-center gap-4">
               <Mail className="w-6 h-6 text-[#002DB5]" />
-              <p className="text-[#010407]/75 font-medium"><a href="mailto:support@paladinbusinessservices.net" className="hover:text-[#002DB5] transition-colors">support@paladinbusinessservices.net</a></p>
+              <p className="text-[#010407]/75 font-medium"><a href="mailto:admin@paladinbusinessservices.net" className="hover:text-[#002DB5] transition-colors">admin@paladinbusinessservices.net</a></p>
             </div>
 
             <div className="flex items-center gap-4">
