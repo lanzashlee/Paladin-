@@ -319,7 +319,9 @@ function Contact() {
                 How Can We Help You Today?
               </h2>
               <p className="text-[#010407]/75 max-w-2xl mx-auto leading-relaxed text-sm sm:text-base">
-                Pick a request below and our licensed team will respond as quickly as possible.
+                Complete the applicable form below and submit it to our office via email, fax, or in person. Our team
+                will review your request and respond within 1-2 business days. Fields marked with an asterisk (*) are
+                required.
               </p>
             </div>
 

@@ -72,7 +72,7 @@ function Footer() {
               <div className="space-y-1">
                 <p className="font-semibold text-[#012E72]">Email</p>
                 <Link to="/contact#contact-location" className="text-[#010407]/75 hover:text-[#002DB5] transition-colors block">
-                  support@paladinbusinessservices.net
+                  admin@paladinbusinessservices.net
                 </Link>
               </div>
             </div>
