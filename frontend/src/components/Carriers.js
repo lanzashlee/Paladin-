@@ -34,45 +34,46 @@ const featuredPartnerOrder = [
 const featuredPartnerNames = new Set([
 	'aegis',
 	'biberk',
-	'bristol west',
-	'foremost',
+	'bristolwest',
+	'foremost real',
 	'ergo next',
 	'pie insurance',
 	'three',
 	'bamboo',
 	'hiscox',
 	'american modern',
-	'american builders',
-	'american national lloyds',
-	'certain underwriters at lloyds',
-	'coast natl ins co',
-	'kw specialty',
-	"fireman's fund",
+	'kw specialty insurance company',
 	'the hartford',
-	'cali fair plan',
+	'california fair plan property insurance',
 	'mount vernon',
-	'sierra specialty',
 	'seaview insurance company',
 	'spinnaker insurance company',
 	'state national',
-	'wkfc property consortium',
 	'travelers',
 ]);
 
 const displayNameMap = new Map([
+	['aegis', 'Aegis'],
+	['biberk', 'Biberk'],
 	['bristolwest', 'Bristol West'],
-	['american builders insurance company', 'American Builders'],
-	['american national lloyds insurance company', 'American National Lloyds'],
-	['certain underwriters at lloyds', 'Certain Underwriters at Lloyds'],
-	['coast natl ins co', 'Coast Natl Ins Co'],
-	['firemans fund ind corp', "Fireman's Fund"],
 	['foremost real', 'Foremost'],
-	['kw specialty insurance company', 'KW Specialty'],
-	['california fair plan property insurance', 'Cali Fair Plan'],
-	['sierra specialty insurance company', 'Sierra Specialty'],
+	['ergo next', 'Ergo Next'],
+	['pie insurance', 'Pie Insurance'],
 	['three', 'THREE'],
-	['wkfc property consortium', 'WKFC Property Consortium'],
+	['bamboo', 'Bamboo'],
+	['hiscox', 'Hiscox'],
+	['american modern', 'American Modern'],
+	['kw specialty insurance company', 'KW Specialty'],
+	['the hartford', 'The Hartford'],
+	['california fair plan property insurance', 'Cali Fair Plan'],
+	['mount vernon', 'Mount Vernon'],
+	['seaview', 'Seaview'],
+	['spinnaker', 'Spinnaker'],
+	['state national', 'State National'],
+	['travelers', 'Travelers'],
 ]);
+
+const normalizeCarrierKey = (value) => String(value || '').toLowerCase().replace(/[-_]+/g, ' ').replace(/\s+/g, ' ').trim();
 
 const featuredOrderMap = new Map(featuredPartnerOrder.map((fileName, index) => [fileName, index]));
 
@@ -95,11 +96,12 @@ const partnerCarriers = partnerLogoContext
 	})
 	.map((file) => {
 		const baseName = file.replace('./', '').replace(/\.[^/.]+$/, '');
-		const normalizedBaseName = baseName.toLowerCase().replace(/[-_]+/g, ' ').replace(/\s+/g, ' ').trim();
+		const normalizedBaseName = normalizeCarrierKey(baseName);
 		const prettyName = displayNameMap.get(normalizedBaseName) ?? baseName.replace(/[-_]+/g, ' ').replace(/\s+/g, ' ').trim();
 
 		return {
 			name: prettyName,
+			normalizedName: normalizedBaseName,
 			logo: partnerLogoContext(file),
 		};
 	});
@@ -109,7 +111,7 @@ function Carriers({ showViewPartnersButton = false, featuredOnly = false } = {})
 	const [slideIndex, setSlideIndex] = useState(0);
 	const pageSize = 12;
 	const visibleCarriers = featuredOnly
-		? partnerCarriers.filter(({ name }) => featuredPartnerNames.has(name.toLowerCase()))
+		? partnerCarriers.filter(({ normalizedName }) => featuredPartnerNames.has(normalizedName))
 		: partnerCarriers;
 	const featuredSlides = useMemo(() => {
 		if (!featuredOnly) return [];
