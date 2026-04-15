@@ -4,37 +4,54 @@ import { Link } from 'react-router-dom';
 const partnerLogoContext = require.context('../assets/partners', false, /\.(png|jpe?g|webp|svg)$/i);
 
 const featuredPartnerOrder = [
-	'american-modern.png',
+	'aegis.png',
 	'biBerk.jpg',
-	'bamboo.png',
+	'BristolWest.png',
+	'foremost-real.png',
 	'ergo-next.png',
-	'foremost.png',
+	'pie-insurance.png',
+	'three.png',
+	'bamboo.png',
 	'hiscox.png',
+	'american-modern.png',
 	'kw-specialty-insurance-company.png',
 	'the-hartford.png',
 	'california-fair-plan-property-insurance.png',
+	'mount-vernon.png',
 	'seaview-insurance-company.png',
 	'spinnaker-insurance-company.png',
 	'state-national.png',
 	'travelers.png',
-	'ucs-your-surety-solution.png',
-	'westchester.png',
 ];
 
 const featuredPartnerNames = new Set([
-	'american modern',
+	'aegis',
 	'biberk',
-	'bamboo',
-	'ergo next',
+	'bristol west',
 	'foremost',
+	'ergo next',
+	'pie insurance',
+	'three',
+	'bamboo',
 	'hiscox',
-	'kw specialty insurance company',
+	'american modern',
+	'kw specialty',
 	'the hartford',
-	'california fair plan property insurance',
+	'the hatford',
+	'cali fair plan',
+	'mount vernon',
 	'seaview insurance company',
 	'spinnaker insurance company',
 	'state national',
 	'travelers',
+]);
+
+const displayNameMap = new Map([
+	['bristolwest', 'Bristol West'],
+	['foremost real', 'Foremost'],
+	['kw specialty insurance company', 'KW Specialty'],
+	['california fair plan property insurance', 'Cali Fair Plan'],
+	['three', 'THREE'],
 ]);
 
 const featuredOrderMap = new Map(featuredPartnerOrder.map((fileName, index) => [fileName, index]));
@@ -57,7 +74,8 @@ const partnerCarriers = partnerLogoContext
 	})
 	.map((file) => {
 		const baseName = file.replace('./', '').replace(/\.[^/.]+$/, '');
-		const prettyName = baseName.replace(/[-_]+/g, ' ').replace(/\s+/g, ' ').trim();
+		const normalizedBaseName = baseName.toLowerCase().replace(/[-_]+/g, ' ').replace(/\s+/g, ' ').trim();
+		const prettyName = displayNameMap.get(normalizedBaseName) ?? baseName.replace(/[-_]+/g, ' ').replace(/\s+/g, ' ').trim();
 
 		return {
 			name: prettyName,
