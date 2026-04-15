@@ -19,7 +19,7 @@ const contactSchema = new mongoose.Schema({
   formType: {
     type: String,
     default: 'consultation',
-    enum: ['consultation', 'document-request', 'policy-change', 'update-contact-info', 'call-request', 'claim-report'],
+    enum: ['consultation', 'consultation-request', 'document-request', 'policy-change', 'update-contact-info', 'call-request', 'claim-report'],
   },
   updateType: { type: String },
   updatedValue: { type: String },
@@ -29,6 +29,13 @@ const contactSchema = new mongoose.Schema({
   incidentDate: { type: String },
   claimType: { type: String },
   incidentLocation: { type: String },
+  policyType: { type: String },
+  otherPolicyType: { type: String },
+  requestedChangeTypes: [{ type: String }],
+  requestedChangeOther: { type: String },
+  mortgageeName: { type: String },
+  loanNumber: { type: String },
+  mailingAddress: { type: String },
   createdAt: { type: Date, default: Date.now }
 });
 

@@ -16,7 +16,11 @@ const escapeHtml = (value = '') =>
 
 const formatLabel = (value = '') =>
   String(value)
-    .split('-')
+    .replace(/([a-z0-9])([A-Z])/g, '$1 $2')
+    .replace(/[_-]+/g, ' ')
+    .replace(/\s+/g, ' ')
+    .trim()
+    .split(' ')
     .map((part) => part.charAt(0).toUpperCase() + part.slice(1))
     .join(' ');
 
@@ -25,7 +29,7 @@ const FIELD_LABELS = {
   email: 'Email',
   phone: 'Phone',
   policyNumber: 'Policy Number',
-  effectiveDate: 'Effective Date',
+  effectiveDate: 'Requested Effective Date of Change',
   coverageType: 'Coverage Focus',
   preferredContact: 'Preferred Contact',
   deliveryMethod: 'Delivery Method',
@@ -41,6 +45,73 @@ const FIELD_LABELS = {
   incidentDate: 'Date of Incident',
   claimType: 'Claim Type',
   incidentLocation: 'Location of Incident',
+  otherDocumentTypeDescription: 'Other Document Description',
+  coveragesToShow: 'Coverages to Show',
+  operationsDescription: 'Operations / Locations / Vehicles',
+  additionalInsuredStatus: 'Additional Insured Status',
+  additionalEndorsements: 'Additional Endorsements',
+  certificateHolderName: 'Certificate Holder Name',
+  certificateHolderEmail: 'Certificate Holder Email',
+  certificateHolderAddress: 'Certificate Holder Address',
+  deadlineInstructions: 'Deadline / Special Instructions',
+  policyType: 'Policy Type',
+  otherPolicyType: 'Other Policy Type',
+  requestedChangeTypes: 'Requested Change Type(s)',
+  requestedChangeOther: 'Other Requested Change',
+  mortgageeName: 'Mortgagee / Lienholder Name',
+  loanNumber: 'Loan Number',
+  mailingAddress: 'Mailing Address',
+};
+
+const canonicalizeKey = (value = '') => String(value).replace(/[^a-z0-9]/gi, '').toLowerCase();
+
+const FIELD_KEY_ALIASES = {
+  fullName: 'fullName',
+  email: 'email',
+  phone: 'phone',
+  policyNumber: 'policyNumber',
+  effectiveDate: 'effectiveDate',
+  coverageType: 'coverageType',
+  preferredContact: 'preferredContact',
+  deliveryMethod: 'deliveryMethod',
+  documentType: 'documentType',
+  changeType: 'changeType',
+  timeline: 'timeline',
+  notes: 'notes',
+  updateType: 'updateType',
+  updatedValue: 'updatedValue',
+  preferredDay: 'preferredDay',
+  preferredTime: 'preferredTime',
+  topic: 'topic',
+  incidentDate: 'incidentDate',
+  claimType: 'claimType',
+  incidentLocation: 'incidentLocation',
+  otherDocumentTypeDescription: 'otherDocumentTypeDescription',
+  coveragesToShow: 'coveragesToShow',
+  operationsDescription: 'operationsDescription',
+  additionalInsuredStatus: 'additionalInsuredStatus',
+  additionalEndorsements: 'additionalEndorsements',
+  certificateHolderName: 'certificateHolderName',
+  certificateHolderEmail: 'certificateHolderEmail',
+  certificateHolderAddress: 'certificateHolderAddress',
+  deadlineInstructions: 'deadlineInstructions',
+  policyType: 'policyType',
+  otherPolicyType: 'otherPolicyType',
+  requestedChangeTypes: 'requestedChangeTypes',
+  requestedChangeOther: 'requestedChangeOther',
+  mortgageeName: 'mortgageeName',
+  loanNumber: 'loanNumber',
+  mailingAddress: 'mailingAddress',
+};
+
+const CANONICAL_FIELD_KEY_MAP = Object.entries(FIELD_KEY_ALIASES).reduce((acc, [alias, canonicalKey]) => {
+  acc[canonicalizeKey(alias)] = canonicalKey;
+  return acc;
+}, {});
+
+const resolveFieldKey = (key = '') => {
+  const canonical = canonicalizeKey(key);
+  return CANONICAL_FIELD_KEY_MAP[canonical] || key;
 };
 
 const FORM_METADATA = {
@@ -68,12 +139,42 @@ const FORM_METADATA = {
     title: 'Report a Claim',
     label: 'claim report',
   },
+  'consultation-request': {
+    title: 'Personalized Consultation',
+    label: 'consultation request',
+  },
 };
 
 const FORM_FIELD_ORDER = {
   consultation: ['fullName', 'email', 'phone', 'coverageType', 'preferredContact', 'timeline', 'notes'],
-  'document-request': ['fullName', 'email', 'policyNumber', 'deliveryMethod', 'documentType', 'notes'],
-  'policy-change': ['fullName', 'email', 'policyNumber', 'effectiveDate', 'changeType', 'notes'],
+  'consultation-request': ['fullName', 'email', 'phone', 'coverageType', 'preferredContact', 'timeline', 'notes'],
+  'document-request': [
+    'fullName',
+    'email',
+    'documentType',
+    'otherDocumentTypeDescription',
+    'coveragesToShow',
+    'operationsDescription',
+    'additionalInsuredStatus',
+    'additionalEndorsements',
+    'certificateHolderName',
+    'certificateHolderEmail',
+    'certificateHolderAddress',
+    'deadlineInstructions',
+  ],
+  'policy-change': [
+    'fullName',
+    'email',
+    'policyType',
+    'otherPolicyType',
+    'effectiveDate',
+    'requestedChangeTypes',
+    'requestedChangeOther',
+    'notes',
+    'mortgageeName',
+    'loanNumber',
+    'mailingAddress',
+  ],
   'update-contact-info': ['fullName', 'email', 'policyNumber', 'updateType', 'updatedValue', 'notes'],
   'call-request': ['fullName', 'phone', 'preferredDay', 'preferredTime', 'topic', 'notes'],
   'claim-report': ['fullName', 'email', 'policyNumber', 'incidentDate', 'claimType', 'incidentLocation', 'notes'],
@@ -90,20 +191,180 @@ const FORMAT_LABEL_FIELDS = new Set([
   'claimType',
 ]);
 
+const formatDisplayDate = (value) => {
+  const raw = String(value || '').trim();
+  const match = raw.match(/^(\d{4})-(\d{2})-(\d{2})$/);
+
+  if (!match) {
+    return raw;
+  }
+
+  const [, yearText, monthText, dayText] = match;
+  const year = Number(yearText);
+  const month = Number(monthText);
+  const day = Number(dayText);
+  const localDate = new Date(year, month - 1, day);
+
+  if (
+    Number.isNaN(localDate.getTime()) ||
+    localDate.getFullYear() !== year ||
+    localDate.getMonth() !== month - 1 ||
+    localDate.getDate() !== day
+  ) {
+    return raw;
+  }
+
+  return localDate.toLocaleDateString('en-US', {
+    month: 'long',
+    day: 'numeric',
+    year: 'numeric',
+  });
+};
+
+const VALUE_LABELS = {
+  coverageType: {
+    'personal-auto': 'Personal auto',
+    homeowners: 'Homeowners',
+    renters: 'Renters',
+    business: 'Business',
+    life: 'Life',
+    other: 'Other',
+  },
+  preferredContact: {
+    email: 'Email',
+    phone: 'Phone',
+    text: 'Text message',
+  },
+  changeType: {
+    coverage: 'Coverage change',
+    billing: 'Billing update',
+    vehicle: 'Vehicle update',
+    property: 'Property update',
+    'named-insured': 'Named insured update',
+    other: 'Other',
+  },
+  updateType: {
+    'contact-info': 'Contact info',
+    'mailing-address': 'Mailing address',
+    'insured-item': 'Insured item',
+    vehicle: 'Vehicle details',
+    property: 'Property details',
+    other: 'Other',
+  },
+  topic: {
+    general: 'General support',
+    'new-policy': 'New policy',
+    'existing-policy': 'Existing policy',
+    billing: 'Billing',
+    claims: 'Claims',
+    other: 'Other',
+  },
+  claimType: {
+    auto: 'Auto',
+    home: 'Home',
+    liability: 'Liability',
+    property: 'Property',
+    other: 'Other',
+  },
+  documentType: {
+    'coi-acord25': 'COI / ACORD 25 (General Liability / Auto / Workers\' Comp)',
+    'evidence-property-insurance-acord28': 'Evidence of Property Insurance / ACORD 28 (Mortgagee / Lender)',
+    'evidence-homeowners-acord27': 'Evidence of Homeowners Insurance / ACORD 27',
+    'declarations-page-copy': 'Declarations page copy',
+    'endorsement-copy': 'Endorsement copy',
+    other: 'Other (describe in the box below)',
+  },
+  additionalInsuredStatus: {
+    yes: 'Yes - they need to be added as an Additional Insured on my GL / Auto policy',
+    no: 'No - standard proof of insurance is sufficient',
+    'not-sure': 'I am not sure',
+  },
+  coveragesToShow: {
+    'general-liability': 'General Liability (GL)',
+    'commercial-auto': 'Commercial Auto',
+    umbrella: 'Umbrella / Excess Liability',
+    'workers-compensation': 'Workers\' Compensation (WC)',
+    'professional-liability': 'Professional Liability / E&O',
+  },
+  additionalEndorsements: {
+    'waiver-subrogation': 'Waiver of Subrogation',
+    pnc: 'Primary & Non-Contributory (P&NC)',
+    hnoa: 'Hired & Non-Owned Auto (HNOA)',
+  },
+  policyType: {
+    'homeowners-ho3': 'Homeowners (HO3)',
+    'condo-ho6': 'Condo (HO6)',
+    'renters-ho4': 'Renters (HO4)',
+    'dwelling-rental-property': 'Dwelling / Rental Property',
+    'commercial-gl': 'Commercial GL',
+    'commercial-auto': 'Commercial Auto',
+    'workers-comp': "Workers' Comp",
+    'umbrella-excess': 'Umbrella / Excess',
+    other: 'Other',
+  },
+  requestedChangeTypes: {
+    driver: 'Add or remove a driver',
+    vehicle: 'Add, replace, or remove a vehicle',
+    'property-location': 'Add or remove a property / location',
+    'property-details': 'Update property details (roof, renovations, square footage, etc.)',
+    endorsement: 'Add or remove an endorsement',
+    'coverage-limits-deductibles': 'Change coverage limits or deductibles',
+    'mortgagee-lienholder-loss-payee': 'Add or update a mortgagee / lienholder / loss payee',
+    'cancel-policy': 'Cancel this policy',
+    other: 'Other (describe below)',
+  },
+};
+
+const ARRAY_VALUE_FIELDS = new Set(['coveragesToShow', 'additionalEndorsements', 'requestedChangeTypes']);
+
 const normalizeContactFieldValue = (key, value) => {
+  const resolvedKey = resolveFieldKey(key);
+
+  if (value === null || value === undefined) {
+    return '';
+  }
+
+  if (ARRAY_VALUE_FIELDS.has(resolvedKey)) {
+    const values = Array.isArray(value)
+      ? value
+      : String(value)
+          .split(',')
+          .map((entry) => entry.trim())
+          .filter(Boolean);
+
+    if (!values.length) {
+      return '';
+    }
+
+    const valueLabels = VALUE_LABELS[resolvedKey] || {};
+    return values.map((entry) => valueLabels[entry] || formatLabel(entry)).join(', ');
+  }
+
   const raw = String(value ?? '').trim();
   if (!raw) {
     return '';
   }
 
-  if (FORMAT_LABEL_FIELDS.has(key)) {
+  if (resolvedKey === 'effectiveDate') {
+    return formatDisplayDate(raw);
+  }
+
+  const valueLabels = VALUE_LABELS[resolvedKey];
+  if (valueLabels && valueLabels[raw]) {
+    return valueLabels[raw];
+  }
+
+  if (FORMAT_LABEL_FIELDS.has(resolvedKey)) {
     return formatLabel(raw);
   }
 
   return raw;
 };
 
-const getFieldLabel = (key) => FIELD_LABELS[key] || formatLabel(key);
+const getFieldLabel = (key) => {
+  const resolvedKey = resolveFieldKey(key);
+  return FIELD_LABELS[resolvedKey] || formatLabel(resolvedKey);
+};
 
 const createTransporter = () => {
   const SMTP_HOST = (process.env.SMTP_HOST || '').trim();
@@ -229,10 +490,12 @@ const renderEmailLayout = ({ title, intro, rowsHtml, detailsLabel, detailsHtml, 
       </tr>
       <tr>
         <td style="padding:10px 24px 24px;">
+          ${detailsHtml ? `
           <div style="font-size:12px;color:#667085;text-transform:uppercase;letter-spacing:0.8px;font-weight:700;margin-bottom:8px;">${detailsLabel}</div>
           <div style="background:#f7faff;border:1px solid #dbe8ff;border-radius:12px;padding:14px 15px;font-size:14px;line-height:1.65;color:#1f2937;">
             ${detailsHtml}
           </div>
+          ` : ''}
         </td>
       </tr>
     </table>
@@ -342,7 +605,7 @@ const sendServiceRequestEmail = async (contactData) => {
   const fieldKeys = [...preferredFields, ...appendedFields];
 
   const notesText = normalizeContactFieldValue('notes', contactData.notes);
-  const notesHtml = escapeHtml(notesText).replace(/\n/g, '<br>');
+  const notesHtml = notesText ? escapeHtml(notesText).replace(/\n/g, '<br>') : '';
 
   const fieldRows = fieldKeys
     .map((key) => {
@@ -396,7 +659,7 @@ const sendServiceRequestEmail = async (contactData) => {
                 </tr>
                 `,
       detailsLabel: 'Notes',
-      detailsHtml: notesHtml || '<em style="color:#6b7280;">No additional notes provided.</em>',
+      detailsHtml: notesHtml,
       logoHtml,
       submittedAt,
     }),
@@ -404,9 +667,7 @@ const sendServiceRequestEmail = async (contactData) => {
       metadata.title,
       '',
       ...fieldRows.map((field) => `${field.label}: ${field.textValue}`),
-      '',
-      'Notes:',
-      notesText || 'No additional notes provided.',
+      ...(notesText ? ['', 'Notes:', notesText] : []),
     ].join('\n'),
   });
 };

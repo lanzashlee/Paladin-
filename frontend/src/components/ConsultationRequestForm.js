@@ -1,9 +1,39 @@
 import React, { useState } from 'react';
+import { User, FileText, Send } from 'lucide-react';
 import RequestModal from './RequestModal';
 import FieldGroup, { inputClassName } from './RequestFormField';
+import RequestFormWizard from './RequestFormWizard';
+
+const wizardSteps = [
+  { id: 'contact-details', label: 'Contact Details', icon: User },
+  { id: 'consultation-needs', label: 'Consultation Needs', icon: FileText },
+  { id: 'review-submit', label: 'Review & Submit', icon: Send },
+];
+
+const stepFields = [
+  ['fullName', 'email', 'phone'],
+  ['preferredContact', 'coverageType', 'timeline', 'notes'],
+  [],
+];
+
+const preferredContactLabelMap = {
+  email: 'Email',
+  phone: 'Phone',
+  text: 'Text message',
+};
+
+const coverageTypeLabelMap = {
+  'personal-auto': 'Personal auto',
+  homeowners: 'Homeowners',
+  renters: 'Renters',
+  business: 'Business',
+  life: 'Life',
+  other: 'Other',
+};
 
 function ConsultationRequestForm({ onClose }) {
   const [formData, setFormData] = useState({
+    formType: 'consultation-request',
     fullName: '',
     email: '',
     phone: '',
@@ -16,18 +46,21 @@ function ConsultationRequestForm({ onClose }) {
   const [saved, setSaved] = useState(false);
   const [loading, setLoading] = useState(false);
   const [submitError, setSubmitError] = useState(null);
+  const [stepIndex, setStepIndex] = useState(0);
 
-  const validateForm = () => {
+  const validateFields = (fields) => {
     const newErrors = {};
 
-    Object.entries(formData).forEach(([field, value]) => {
-      if (!value.trim()) {
+    fields.forEach((field) => {
+      if (!String(formData[field] ?? '').trim()) {
         newErrors[field] = 'This field is required.';
       }
     });
 
     return newErrors;
   };
+
+  const validateForm = () => validateFields(Object.keys(formData));
 
   const getFieldClass = (field) =>
     errors[field]
@@ -78,7 +111,9 @@ function ConsultationRequestForm({ onClose }) {
       }
 
       setSaved(true);
+      setStepIndex(wizardSteps.length - 1);
       setFormData({
+        formType: 'consultation-request',
         fullName: '',
         email: '',
         phone: '',
@@ -94,6 +129,21 @@ function ConsultationRequestForm({ onClose }) {
     }
   };
 
+  const handleNext = () => {
+    const validationErrors = validateFields(stepFields[stepIndex] || []);
+
+    if (Object.keys(validationErrors).length > 0) {
+      setErrors((current) => ({ ...current, ...validationErrors }));
+      return;
+    }
+
+    setStepIndex((current) => Math.min(current + 1, wizardSteps.length - 1));
+  };
+
+  const handlePrevious = () => {
+    setStepIndex((current) => Math.max(current - 1, 0));
+  };
+
   return (
     <RequestModal
       badge="Consultation"
@@ -101,109 +151,156 @@ function ConsultationRequestForm({ onClose }) {
       description="Use this form to outline the kind of coverage you want, how you prefer to be contacted, and when you need help."
       onClose={onClose}
     >
-      <form className="space-y-5" onSubmit={handleSubmit} noValidate>
-        <div className="grid gap-5 md:grid-cols-2">
-          <FieldGroup label="Full name" htmlFor="consultation-fullName" required error={errors.fullName}>
-            <input
-              id="consultation-fullName"
-              name="fullName"
-              type="text"
-              value={formData.fullName}
-              onChange={handleChange}
-              placeholder="John Doe"
-              className={getFieldClass('fullName')}
-              disabled={loading}
-            />
-          </FieldGroup>
+      <form className="space-y-5" onSubmit={(event) => event.preventDefault()} noValidate>
+        <RequestFormWizard
+          steps={wizardSteps}
+          activeStep={stepIndex}
+          onStepChange={(nextIndex) => {
+            if (nextIndex <= stepIndex) {
+              setStepIndex(nextIndex);
+            }
+          }}
+        >
+          {stepIndex === 0 && (
+            <div className="grid gap-5 md:grid-cols-2">
+              <FieldGroup label="Full name" htmlFor="consultation-fullName" required error={errors.fullName}>
+                <input
+                  id="consultation-fullName"
+                  name="fullName"
+                  type="text"
+                  value={formData.fullName}
+                  onChange={handleChange}
+                  placeholder="John Doe"
+                  className={getFieldClass('fullName')}
+                  disabled={loading}
+                />
+              </FieldGroup>
 
-          <FieldGroup label="Email address" htmlFor="consultation-email" required error={errors.email}>
-            <input
-              id="consultation-email"
-              name="email"
-              type="email"
-              value={formData.email}
-              onChange={handleChange}
-              placeholder="john@example.com"
-              className={getFieldClass('email')}
-              disabled={loading}
-            />
-          </FieldGroup>
+              <FieldGroup label="Email address" htmlFor="consultation-email" required error={errors.email}>
+                <input
+                  id="consultation-email"
+                  name="email"
+                  type="email"
+                  value={formData.email}
+                  onChange={handleChange}
+                  placeholder="john@example.com"
+                  className={getFieldClass('email')}
+                  disabled={loading}
+                />
+              </FieldGroup>
 
-          <FieldGroup label="Phone number" htmlFor="consultation-phone" required error={errors.phone}>
-            <input
-              id="consultation-phone"
-              name="phone"
-              type="tel"
-              value={formData.phone}
-              onChange={handleChange}
-              placeholder="(555) 555-5555"
-              className={getFieldClass('phone')}
-              disabled={loading}
-            />
-          </FieldGroup>
+              <FieldGroup label="Phone number" htmlFor="consultation-phone" required error={errors.phone}>
+                <input
+                  id="consultation-phone"
+                  name="phone"
+                  type="tel"
+                  value={formData.phone}
+                  onChange={handleChange}
+                  placeholder="(555) 555-5555"
+                  className={getFieldClass('phone')}
+                  disabled={loading}
+                />
+              </FieldGroup>
+            </div>
+          )}
 
-          <FieldGroup label="Preferred contact" htmlFor="consultation-preferredContact" required error={errors.preferredContact}>
-            <select
-              id="consultation-preferredContact"
-              name="preferredContact"
-              value={formData.preferredContact}
-              onChange={handleChange}
-              className={getFieldClass('preferredContact')}
-              disabled={loading}
-            >
-              <option value="email">Email</option>
-              <option value="phone">Phone</option>
-              <option value="text">Text message</option>
-            </select>
-          </FieldGroup>
+          {stepIndex === 1 && (
+            <div className="space-y-5">
+              <div className="grid gap-5 md:grid-cols-2">
+                <FieldGroup label="Preferred contact" htmlFor="consultation-preferredContact" required error={errors.preferredContact}>
+                  <select
+                    id="consultation-preferredContact"
+                    name="preferredContact"
+                    value={formData.preferredContact}
+                    onChange={handleChange}
+                    className={getFieldClass('preferredContact')}
+                    disabled={loading}
+                  >
+                    <option value="email">Email</option>
+                    <option value="phone">Phone</option>
+                    <option value="text">Text message</option>
+                  </select>
+                </FieldGroup>
 
-          <FieldGroup label="Coverage focus" htmlFor="consultation-coverageType" required error={errors.coverageType}>
-            <select
-              id="consultation-coverageType"
-              name="coverageType"
-              value={formData.coverageType}
-              onChange={handleChange}
-              className={getFieldClass('coverageType')}
-              disabled={loading}
-            >
-              <option value="">Select coverage</option>
-              <option value="personal-auto">Personal auto</option>
-              <option value="homeowners">Homeowners</option>
-              <option value="renters">Renters</option>
-              <option value="business">Business</option>
-              <option value="life">Life</option>
-              <option value="other">Other</option>
-            </select>
-          </FieldGroup>
+                <FieldGroup label="Coverage focus" htmlFor="consultation-coverageType" required error={errors.coverageType}>
+                  <select
+                    id="consultation-coverageType"
+                    name="coverageType"
+                    value={formData.coverageType}
+                    onChange={handleChange}
+                    className={getFieldClass('coverageType')}
+                    disabled={loading}
+                  >
+                    <option value="">Select coverage</option>
+                    <option value="personal-auto">Personal auto</option>
+                    <option value="homeowners">Homeowners</option>
+                    <option value="renters">Renters</option>
+                    <option value="business">Business</option>
+                    <option value="life">Life</option>
+                    <option value="other">Other</option>
+                  </select>
+                </FieldGroup>
 
-          <FieldGroup label="Timeline" htmlFor="consultation-timeline" required error={errors.timeline}>
-            <select
-              id="consultation-timeline"
-              name="timeline"
-              value={formData.timeline}
-              onChange={handleChange}
-              className={getFieldClass('timeline')}
-              disabled={loading}
-            >
-              <option value="This week">This week</option>
-              <option value="Within 30 days">Within 30 days</option>
-              <option value="Just exploring">Just exploring</option>
-            </select>
-          </FieldGroup>
-        </div>
+                <FieldGroup label="Timeline" htmlFor="consultation-timeline" required error={errors.timeline}>
+                  <select
+                    id="consultation-timeline"
+                    name="timeline"
+                    value={formData.timeline}
+                    onChange={handleChange}
+                    className={getFieldClass('timeline')}
+                    disabled={loading}
+                  >
+                    <option value="This week">This week</option>
+                    <option value="Within 30 days">Within 30 days</option>
+                    <option value="Just exploring">Just exploring</option>
+                  </select>
+                </FieldGroup>
+              </div>
 
-        <FieldGroup label="What do you want to cover?" htmlFor="consultation-notes" required error={errors.notes}>
-          <textarea
-            id="consultation-notes"
-            name="notes"
-            rows="5"
-            value={formData.notes}
-            onChange={handleChange}
-            placeholder="Tell us what kind of protection you need, who needs coverage, and any details that matter."
-            className={`${getFieldClass('notes')} resize-none`}
-            disabled={loading}
-          />
-        </FieldGroup>
+              <FieldGroup label="What do you want to cover?" htmlFor="consultation-notes" required error={errors.notes}>
+                <textarea
+                  id="consultation-notes"
+                  name="notes"
+                  rows="5"
+                  value={formData.notes}
+                  onChange={handleChange}
+                  placeholder="Tell us what kind of protection you need, who needs coverage, and any details that matter."
+                  className={`${getFieldClass('notes')} resize-none`}
+                  disabled={loading}
+                />
+              </FieldGroup>
+            </div>
+          )}
+
+          {stepIndex === 2 && (
+            <div className="space-y-4 rounded-2xl border border-[#e7dccb] bg-[#F7F4EF]/55 p-5">
+              <h4 className="text-base font-semibold text-[#012E72]">Review your request</h4>
+              <div className="grid gap-3 text-sm text-[#010407]/80 sm:grid-cols-2">
+                <p>
+                  <span className="font-semibold">Full name:</span> {formData.fullName || '-'}
+                </p>
+                <p>
+                  <span className="font-semibold">Email:</span> {formData.email || '-'}
+                </p>
+                <p>
+                  <span className="font-semibold">Phone:</span> {formData.phone || '-'}
+                </p>
+                <p>
+                  <span className="font-semibold">Preferred contact:</span> {preferredContactLabelMap[formData.preferredContact] || '-'}
+                </p>
+                <p>
+                  <span className="font-semibold">Coverage focus:</span> {coverageTypeLabelMap[formData.coverageType] || '-'}
+                </p>
+                <p>
+                  <span className="font-semibold">Timeline:</span> {formData.timeline || '-'}
+                </p>
+              </div>
+              <p className="text-sm text-[#010407]/80">
+                <span className="font-semibold">Coverage details:</span> {formData.notes || '-'}
+              </p>
+            </div>
+          )}
+        </RequestFormWizard>
 
         {saved && (
           <div className="rounded-2xl border border-green-300 bg-green-50 px-4 py-3 text-sm text-green-700">
@@ -217,22 +314,46 @@ function ConsultationRequestForm({ onClose }) {
           </div>
         )}
 
-        <div className="flex flex-col-reverse gap-3 pt-1 sm:flex-row sm:justify-end">
+        <div className="flex flex-col-reverse gap-3 pt-1 sm:flex-row sm:justify-between">
           <button
             type="button"
             onClick={onClose}
             disabled={loading}
-            className="inline-flex items-center justify-center rounded-full border border-[#d8cbb8] px-6 py-3 text-sm font-semibold text-[#012E72] transition-colors hover:bg-[#F7F4EF] disabled:opacity-50 disabled:cursor-not-allowed"
+            className="inline-flex items-center justify-center rounded-full border border-[#d8cbb8] px-6 py-3 text-sm font-semibold text-[#012E72] transition-colors hover:bg-[#F7F4EF] disabled:cursor-not-allowed disabled:opacity-50"
           >
             Close
           </button>
-          <button
-            type="submit"
-            disabled={loading}
-            className="inline-flex items-center justify-center rounded-full bg-[#012E72] px-6 py-3 text-sm font-semibold text-white shadow-lg shadow-[#012E72]/15 transition-colors hover:bg-[#002DB5] disabled:opacity-50 disabled:cursor-not-allowed"
-          >
-            {loading ? 'Submitting...' : 'Submit Request'}
-          </button>
+
+          <div className="flex flex-col gap-3 sm:flex-row sm:justify-end">
+            <button
+              type="button"
+              onClick={handlePrevious}
+              disabled={loading || stepIndex === 0}
+              className="inline-flex items-center justify-center rounded-full border border-[#d8cbb8] bg-white px-6 py-3 text-sm font-semibold text-[#012E72] transition-colors hover:bg-[#F7F4EF] disabled:cursor-not-allowed disabled:opacity-50"
+            >
+              Previous
+            </button>
+
+            {stepIndex < wizardSteps.length - 1 ? (
+              <button
+                type="button"
+                onClick={handleNext}
+                disabled={loading}
+                className="inline-flex items-center justify-center rounded-full bg-[#012E72] px-6 py-3 text-sm font-semibold text-white shadow-lg shadow-[#012E72]/15 transition-colors hover:bg-[#002DB5] disabled:cursor-not-allowed disabled:opacity-50"
+              >
+                Next
+              </button>
+            ) : (
+              <button
+                type="button"
+                onClick={handleSubmit}
+                disabled={loading}
+                className="inline-flex items-center justify-center rounded-full bg-[#012E72] px-6 py-3 text-sm font-semibold text-white shadow-lg shadow-[#012E72]/15 transition-colors hover:bg-[#002DB5] disabled:cursor-not-allowed disabled:opacity-50"
+              >
+                {loading ? 'Submitting...' : 'Submit Request'}
+              </button>
+            )}
+          </div>
         </div>
       </form>
     </RequestModal>

@@ -1,6 +1,29 @@
 import React, { useState } from 'react';
+import { User, FileText, Send } from 'lucide-react';
 import RequestModal from './RequestModal';
 import FieldGroup, { inputClassName } from './RequestFormField';
+import RequestFormWizard from './RequestFormWizard';
+
+const wizardSteps = [
+  { id: 'account-holder', label: 'Account Holder', icon: User },
+  { id: 'update-details', label: 'Update Details', icon: FileText },
+  { id: 'review-submit', label: 'Review & Submit', icon: Send },
+];
+
+const stepFields = [
+  ['fullName', 'email', 'policyNumber'],
+  ['updateType', 'updatedValue', 'notes'],
+  [],
+];
+
+const updateTypeLabelMap = {
+  'contact-info': 'Contact info',
+  'mailing-address': 'Mailing address',
+  'insured-item': 'Insured item',
+  vehicle: 'Vehicle details',
+  property: 'Property details',
+  other: 'Other',
+};
 
 function UpdateContactInfoForm({ onClose }) {
   const [formData, setFormData] = useState({
@@ -16,18 +39,21 @@ function UpdateContactInfoForm({ onClose }) {
   const [saved, setSaved] = useState(false);
   const [loading, setLoading] = useState(false);
   const [submitError, setSubmitError] = useState(null);
+  const [stepIndex, setStepIndex] = useState(0);
 
-  const validateForm = () => {
+  const validateFields = (fields) => {
     const newErrors = {};
 
-    Object.entries(formData).forEach(([field, value]) => {
-      if (!value.trim()) {
+    fields.forEach((field) => {
+      if (!String(formData[field] ?? '').trim()) {
         newErrors[field] = 'This field is required.';
       }
     });
 
     return newErrors;
   };
+
+  const validateForm = () => validateFields(Object.keys(formData));
 
   const getFieldClass = (field) =>
     errors[field]
@@ -76,6 +102,7 @@ function UpdateContactInfoForm({ onClose }) {
       }
 
       setSaved(true);
+      setStepIndex(wizardSteps.length - 1);
       setFormData({
         formType: 'update-contact-info',
         fullName: '',
@@ -92,6 +119,21 @@ function UpdateContactInfoForm({ onClose }) {
     }
   };
 
+  const handleNext = () => {
+    const validationErrors = validateFields(stepFields[stepIndex] || []);
+
+    if (Object.keys(validationErrors).length > 0) {
+      setErrors((current) => ({ ...current, ...validationErrors }));
+      return;
+    }
+
+    setStepIndex((current) => Math.min(current + 1, wizardSteps.length - 1));
+  };
+
+  const handlePrevious = () => {
+    setStepIndex((current) => Math.max(current - 1, 0));
+  };
+
   return (
     <RequestModal
       badge="Account update"
@@ -99,91 +141,135 @@ function UpdateContactInfoForm({ onClose }) {
       description="Use this form to send updated contact details or changes to insured items tied to your policy."
       onClose={onClose}
     >
-      <form className="space-y-5" onSubmit={handleSubmit} noValidate>
-        <div className="grid gap-5 md:grid-cols-2">
-          <FieldGroup label="Full name" htmlFor="update-fullName" required error={errors.fullName}>
-            <input
-              id="update-fullName"
-              name="fullName"
-              type="text"
-              value={formData.fullName}
-              onChange={handleChange}
-              placeholder="John Doe"
-              className={getFieldClass('fullName')}
-              disabled={loading}
-            />
-          </FieldGroup>
+      <form className="space-y-5" onSubmit={(event) => event.preventDefault()} noValidate>
+        <RequestFormWizard
+          steps={wizardSteps}
+          activeStep={stepIndex}
+          onStepChange={(nextIndex) => {
+            if (nextIndex <= stepIndex) {
+              setStepIndex(nextIndex);
+            }
+          }}
+        >
+          {stepIndex === 0 && (
+            <div className="grid gap-5 md:grid-cols-2">
+              <FieldGroup label="Full name" htmlFor="update-fullName" required error={errors.fullName}>
+                <input
+                  id="update-fullName"
+                  name="fullName"
+                  type="text"
+                  value={formData.fullName}
+                  onChange={handleChange}
+                  placeholder="John Doe"
+                  className={getFieldClass('fullName')}
+                  disabled={loading}
+                />
+              </FieldGroup>
 
-          <FieldGroup label="Email address" htmlFor="update-email" required error={errors.email}>
-            <input
-              id="update-email"
-              name="email"
-              type="email"
-              value={formData.email}
-              onChange={handleChange}
-              placeholder="john@example.com"
-              className={getFieldClass('email')}
-              disabled={loading}
-            />
-          </FieldGroup>
+              <FieldGroup label="Email address" htmlFor="update-email" required error={errors.email}>
+                <input
+                  id="update-email"
+                  name="email"
+                  type="email"
+                  value={formData.email}
+                  onChange={handleChange}
+                  placeholder="john@example.com"
+                  className={getFieldClass('email')}
+                  disabled={loading}
+                />
+              </FieldGroup>
 
-          <FieldGroup label="Policy number" htmlFor="update-policyNumber" required error={errors.policyNumber}>
-            <input
-              id="update-policyNumber"
-              name="policyNumber"
-              type="text"
-              value={formData.policyNumber}
-              onChange={handleChange}
-              placeholder="Policy number"
-              className={getFieldClass('policyNumber')}
-              disabled={loading}
-            />
-          </FieldGroup>
+              <FieldGroup label="Policy number" htmlFor="update-policyNumber" required error={errors.policyNumber}>
+                <input
+                  id="update-policyNumber"
+                  name="policyNumber"
+                  type="text"
+                  value={formData.policyNumber}
+                  onChange={handleChange}
+                  placeholder="Policy number"
+                  className={getFieldClass('policyNumber')}
+                  disabled={loading}
+                />
+              </FieldGroup>
+            </div>
+          )}
 
-          <FieldGroup label="Update type" htmlFor="update-updateType" required error={errors.updateType}>
-            <select
-              id="update-updateType"
-              name="updateType"
-              value={formData.updateType}
-              onChange={handleChange}
-              className={getFieldClass('updateType')}
-              disabled={loading}
-            >
-              <option value="contact-info">Contact info</option>
-              <option value="mailing-address">Mailing address</option>
-              <option value="insured-item">Insured item</option>
-              <option value="vehicle">Vehicle details</option>
-              <option value="property">Property details</option>
-              <option value="other">Other</option>
-            </select>
-          </FieldGroup>
-        </div>
+          {stepIndex === 1 && (
+            <div className="space-y-5">
+              <div className="grid gap-5 md:grid-cols-2">
+                <FieldGroup label="Update type" htmlFor="update-updateType" required error={errors.updateType}>
+                  <select
+                    id="update-updateType"
+                    name="updateType"
+                    value={formData.updateType}
+                    onChange={handleChange}
+                    className={getFieldClass('updateType')}
+                    disabled={loading}
+                  >
+                    <option value="contact-info">Contact info</option>
+                    <option value="mailing-address">Mailing address</option>
+                    <option value="insured-item">Insured item</option>
+                    <option value="vehicle">Vehicle details</option>
+                    <option value="property">Property details</option>
+                    <option value="other">Other</option>
+                  </select>
+                </FieldGroup>
+              </div>
 
-        <FieldGroup label="Updated information" htmlFor="update-updatedValue" required error={errors.updatedValue}>
-          <textarea
-            id="update-updatedValue"
-            name="updatedValue"
-            rows="4"
-            value={formData.updatedValue}
-            onChange={handleChange}
-            placeholder="Add the new contact information or describe the item that should be updated."
-            className={`${getFieldClass('updatedValue')} resize-none`}
-            disabled={loading}
-          />
-        </FieldGroup>
+              <FieldGroup label="Updated information" htmlFor="update-updatedValue" required error={errors.updatedValue}>
+                <textarea
+                  id="update-updatedValue"
+                  name="updatedValue"
+                  rows="4"
+                  value={formData.updatedValue}
+                  onChange={handleChange}
+                  placeholder="Add the new contact information or describe the item that should be updated."
+                  className={`${getFieldClass('updatedValue')} resize-none`}
+                  disabled={loading}
+                />
+              </FieldGroup>
 
-        <FieldGroup label="Additional notes" htmlFor="update-notes" required error={errors.notes}>
-          <textarea
-            id="update-notes"
-            name="notes"
-            rows="3"
-            value={formData.notes}
-            onChange={handleChange}
-            placeholder="Anything else we should know?"
-            className={`${getFieldClass('notes')} resize-none`}
-            disabled={loading}
-          />
-        </FieldGroup>
+              <FieldGroup label="Additional notes" htmlFor="update-notes" required error={errors.notes}>
+                <textarea
+                  id="update-notes"
+                  name="notes"
+                  rows="3"
+                  value={formData.notes}
+                  onChange={handleChange}
+                  placeholder="Anything else we should know?"
+                  className={`${getFieldClass('notes')} resize-none`}
+                  disabled={loading}
+                />
+              </FieldGroup>
+            </div>
+          )}
+
+          {stepIndex === 2 && (
+            <div className="space-y-4 rounded-2xl border border-[#e7dccb] bg-[#F7F4EF]/55 p-5">
+              <h4 className="text-base font-semibold text-[#012E72]">Review your request</h4>
+              <div className="grid gap-3 text-sm text-[#010407]/80 sm:grid-cols-2">
+                <p>
+                  <span className="font-semibold">Full name:</span> {formData.fullName || '-'}
+                </p>
+                <p>
+                  <span className="font-semibold">Email:</span> {formData.email || '-'}
+                </p>
+                <p>
+                  <span className="font-semibold">Policy number:</span> {formData.policyNumber || '-'}
+                </p>
+                <p>
+                  <span className="font-semibold">Update type:</span> {updateTypeLabelMap[formData.updateType] || '-'}
+                </p>
+              </div>
+              <p className="text-sm text-[#010407]/80">
+                <span className="font-semibold">Updated information:</span> {formData.updatedValue || '-'}
+              </p>
+              <p className="text-sm text-[#010407]/80">
+                <span className="font-semibold">Additional notes:</span> {formData.notes || '-'}
+              </p>
+            </div>
+          )}
+        </RequestFormWizard>
 
         {saved && (
           <div className="rounded-2xl border border-green-300 bg-green-50 px-4 py-3 text-sm text-green-700">
@@ -197,22 +283,46 @@ function UpdateContactInfoForm({ onClose }) {
           </div>
         )}
 
-        <div className="flex flex-col-reverse gap-3 pt-1 sm:flex-row sm:justify-end">
+        <div className="flex flex-col-reverse gap-3 pt-1 sm:flex-row sm:justify-between">
           <button
             type="button"
             onClick={onClose}
             disabled={loading}
-            className="inline-flex items-center justify-center rounded-full border border-[#d8cbb8] px-6 py-3 text-sm font-semibold text-[#012E72] transition-colors hover:bg-[#F7F4EF] disabled:opacity-50 disabled:cursor-not-allowed"
+            className="inline-flex items-center justify-center rounded-full border border-[#d8cbb8] px-6 py-3 text-sm font-semibold text-[#012E72] transition-colors hover:bg-[#F7F4EF] disabled:cursor-not-allowed disabled:opacity-50"
           >
             Close
           </button>
-          <button
-            type="submit"
-            disabled={loading}
-            className="inline-flex items-center justify-center rounded-full bg-[#012E72] px-6 py-3 text-sm font-semibold text-white shadow-lg shadow-[#012E72]/15 transition-colors hover:bg-[#002DB5] disabled:opacity-50 disabled:cursor-not-allowed"
-          >
-            {loading ? 'Submitting...' : 'Submit Request'}
-          </button>
+
+          <div className="flex flex-col gap-3 sm:flex-row sm:justify-end">
+            <button
+              type="button"
+              onClick={handlePrevious}
+              disabled={loading || stepIndex === 0}
+              className="inline-flex items-center justify-center rounded-full border border-[#d8cbb8] bg-white px-6 py-3 text-sm font-semibold text-[#012E72] transition-colors hover:bg-[#F7F4EF] disabled:cursor-not-allowed disabled:opacity-50"
+            >
+              Previous
+            </button>
+
+            {stepIndex < wizardSteps.length - 1 ? (
+              <button
+                type="button"
+                onClick={handleNext}
+                disabled={loading}
+                className="inline-flex items-center justify-center rounded-full bg-[#012E72] px-6 py-3 text-sm font-semibold text-white shadow-lg shadow-[#012E72]/15 transition-colors hover:bg-[#002DB5] disabled:cursor-not-allowed disabled:opacity-50"
+              >
+                Next
+              </button>
+            ) : (
+              <button
+                type="button"
+                onClick={handleSubmit}
+                disabled={loading}
+                className="inline-flex items-center justify-center rounded-full bg-[#012E72] px-6 py-3 text-sm font-semibold text-white shadow-lg shadow-[#012E72]/15 transition-colors hover:bg-[#002DB5] disabled:cursor-not-allowed disabled:opacity-50"
+              >
+                {loading ? 'Submitting...' : 'Submit Request'}
+              </button>
+            )}
+          </div>
         </div>
       </form>
     </RequestModal>
