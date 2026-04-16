@@ -8,6 +8,7 @@ const VOICE_CHAT_STORAGE_KEY = 'paladin.voice-chat-widget.v1';
 const INITIAL_ASSISTANT_MESSAGE = {
   role: 'assistant',
   text: 'Hi, I am your Paladin voice assistant. Ask me anything about insurance support and services.',
+  timestamp: new Date().toISOString(),
 };
 
 function VoiceChatWidget() {
@@ -601,7 +602,7 @@ function VoiceChatWidget() {
 
     setIsLoading(true);
     setStatus('Thinking...');
-    setMessages((prev) => [...prev, { role: 'user', text: message }]);
+    setMessages((prev) => [...prev, { role: 'user', text: message, timestamp: new Date().toISOString() }]);
 
     try {
       const response = await fetch(`${API_BASE_URL}/api/voice-chat`, {
@@ -615,7 +616,7 @@ function VoiceChatWidget() {
       const payload = await response.json();
       const assistantText = payload.reply || payload.error || 'I ran into an issue. Please try again.';
 
-      setMessages((prev) => [...prev, { role: 'assistant', text: assistantText }]);
+      setMessages((prev) => [...prev, { role: 'assistant', text: assistantText, timestamp: new Date().toISOString() }]);
       setStatus('Speaking response...');
       await speak(assistantText);
 
@@ -646,6 +647,7 @@ function VoiceChatWidget() {
               {
                 role: 'assistant',
                 text: 'Connection failed. Please make sure backend server is running on http://localhost:5000 and try again.',
+                timestamp: new Date().toISOString(),
               },
             ]),
       ]);
@@ -827,192 +829,134 @@ function VoiceChatWidget() {
     return -1;
   }, [messages]);
 
+  const formatTimestamp = (isoString) => {
+    if (!isoString) return '';
+    const date = new Date(isoString);
+    const now = new Date();
+    const diffMs = now - date;
+    const diffMins = Math.floor(diffMs / 60000);
+    
+    if (diffMins < 1) return 'Just now';
+    if (diffMins < 60) return `${diffMins}m ago`;
+    
+    const diffHours = Math.floor(diffMins / 60);
+    if (diffHours < 24) return `${diffHours}h ago`;
+    
+    return date.toLocaleDateString('en-US', { month: 'short', day: 'numeric' });
+  };
+
+  const handleDeleteMessage = (index) => {
+    setMessages((prev) => prev.filter((_, i) => i !== index));
+    setFeedbackByMessageIndex((prev) => {
+      const updated = { ...prev };
+      delete updated[index];
+      return updated;
+    });
+  };
+
+  const handleExportChat = () => {
+    const chatText = messages
+      .map((msg) => `${msg.role.toUpperCase()}: ${msg.text}`)
+      .join('\n\n');
+    
+    const element = document.createElement('a');
+    element.setAttribute('href', `data:text/plain;charset=utf-8,${encodeURIComponent(chatText)}`);
+    element.setAttribute('download', `paladin-chat-${new Date().toISOString().split('T')[0]}.txt`);
+    element.style.display = 'none';
+    document.body.appendChild(element);
+    element.click();
+    document.body.removeChild(element);
+  };
+
   return (
     <div className="fixed inset-x-2 bottom-2 z-50 flex flex-col items-end sm:inset-x-auto sm:bottom-6 sm:right-6">
       {isOpen && (
         <section className="mb-2 flex w-full max-w-[96vw] flex-col overflow-hidden rounded-3xl border border-[#e7dccb] bg-white shadow-2xl shadow-[#012E72]/15 sm:mb-3 sm:w-[360px] sm:max-w-[92vw] max-h-[calc(100vh-5.25rem)] sm:max-h-[calc(100vh-7rem)]">
-          <header className="relative overflow-hidden border-b border-[#e7dccb] bg-white px-4 py-4 text-[#012E72]">
-            <div className="pointer-events-none absolute -right-8 -top-8 h-20 w-20 rounded-full bg-[#002DB5]/10 blur-xl" />
-            <div className="pointer-events-none absolute -left-8 bottom-0 h-14 w-24 rounded-full bg-[#F7F4EF] blur-2xl" />
-            <div className="relative flex items-center justify-between gap-3">
-              <div>
-                <h2 className="text-sm font-semibold tracking-wide">Paladin Voice Assistant</h2>
-                <p className="mt-1 text-[11px] text-[#010407]/75">Ask about claims, billing, policy updates, and more</p>
-              </div>
-              <div className="flex items-center gap-2">
-                <span
-                  className={`h-2.5 w-2.5 rounded-full ${
-                    isListening ? 'animate-pulse bg-[#34d399]' : 'bg-white/70'
-                  }`}
-                  aria-hidden="true"
-                />
-                <button
-                  type="button"
-                  onClick={() => {
-                    setIsOpen(false);
-                    if (ENABLE_AGORA) {
-                      disconnectAgoraVoice();
-                    }
-                  }}
-                  className="rounded-lg border border-[#d8cbb8] bg-white px-2.5 py-1 text-xs text-[#012E72] hover:border-[#002DB5] hover:text-[#002DB5]"
-                >
-                  Close
-                </button>
-              </div>
+          <header className="border-b border-[#e7dccb] bg-white px-4 py-3 flex items-center justify-between">
+            <div>
+              <h2 className="text-sm font-semibold text-[#012E72]">Voice Assistant</h2>
+              <p className="text-xs text-[#010407]/60 mt-0.5">{status}</p>
             </div>
+            <button
+              type="button"
+              onClick={() => {
+                setIsOpen(false);
+                if (ENABLE_AGORA) {
+                  disconnectAgoraVoice();
+                }
+              }}
+              className="text-[#010407]/60 hover:text-[#012E72] text-lg"
+            >
+              ✕
+            </button>
           </header>
 
-          <div className="border-b border-[#e7dccb] bg-[#F7F4EF] px-4 py-2.5">
-            <div className="flex items-center justify-between text-[11px] font-medium text-[#012E72]">
-              <span className="max-w-[74%] truncate">{status}</span>
-              <span
-                className={`rounded-full px-2 py-0.5 text-[10px] font-semibold uppercase tracking-wide ${
-                  isLoading
-                    ? 'bg-[#fcd34d]/40 text-[#7c5200]'
-                    : isListening
-                    ? 'bg-[#86efac]/45 text-[#14532d]'
-                    : 'bg-[#dbeafe] text-[#012E72]'
-                }`}
-              >
-                {isLoading ? 'Thinking' : isListening ? 'Listening' : 'Ready'}
-              </span>
-            </div>
-          </div>
-
-          <div className="min-h-[170px] flex-1 space-y-3 overflow-y-auto bg-gradient-to-b from-white to-[#faf8f3] px-4 py-4 text-sm sm:min-h-[220px]">
+          <div className="min-h-[180px] flex-1 space-y-2 overflow-y-auto bg-white px-3 py-3 text-sm sm:min-h-[240px]">
             {messages.map((msg, index) => (
-              <div key={`${msg.role}-${index}`} className={msg.role === 'assistant' ? 'max-w-[88%]' : 'ml-auto max-w-[88%]'}>
+              <div
+                key={`${msg.role}-${index}`}
+                className={`flex gap-2 ${msg.role === 'user' ? 'flex-row-reverse' : ''}`}
+              >
                 <div
-                  className={`rounded-2xl px-3.5 py-2.5 leading-relaxed shadow-sm ${
+                  className={`rounded-lg px-3 py-2 max-w-[72%] break-words ${
                     msg.role === 'assistant'
-                      ? 'border border-[#e7dccb] bg-white text-[#010407]'
-                      : 'bg-gradient-to-br from-[#012E72] to-[#002DB5] text-white'
+                      ? 'bg-[#F7F4EF] text-[#010407]'
+                      : 'bg-[#012E72] text-white'
                   }`}
                 >
-                  {msg.text}
+                  <p>{msg.text}</p>
                 </div>
-
-                {msg.role === 'assistant' && (
-                  <div className="mt-1.5 flex flex-wrap items-center gap-2 pl-1">
-                    <button
-                      type="button"
-                      onClick={() =>
-                        setFeedbackByMessageIndex((prev) => ({
-                          ...prev,
-                          [index]: prev[index] === 'helpful' ? null : 'helpful',
-                        }))
-                      }
-                      className={`rounded-full border px-2.5 py-1 text-[10px] font-semibold uppercase tracking-wide ${
-                        feedbackByMessageIndex[index] === 'helpful'
-                          ? 'border-[#0f766e] bg-[#d1fae5] text-[#14532d]'
-                          : 'border-[#d8cbb8] bg-white text-[#012E72]'
-                      }`}
-                    >
-                      Helpful
-                    </button>
-                    <button
-                      type="button"
-                      onClick={() =>
-                        setFeedbackByMessageIndex((prev) => ({
-                          ...prev,
-                          [index]: prev[index] === 'not-helpful' ? null : 'not-helpful',
-                        }))
-                      }
-                      className={`rounded-full border px-2.5 py-1 text-[10px] font-semibold uppercase tracking-wide ${
-                        feedbackByMessageIndex[index] === 'not-helpful'
-                          ? 'border-[#b91c1c] bg-[#fee2e2] text-[#7f1d1d]'
-                          : 'border-[#d8cbb8] bg-white text-[#012E72]'
-                      }`}
-                    >
-                      Not Helpful
-                    </button>
-                    {index === lastAssistantMessageIndex && isLowConfidenceReply(msg.text) && (
-                      <button
-                        type="button"
-                        onClick={openContactSupport}
-                        className="rounded-full border border-[#002DB5] bg-[#002DB5] px-2.5 py-1 text-[10px] font-semibold uppercase tracking-wide text-white"
-                      >
-                        Contact Support
-                      </button>
-                    )}
-                  </div>
-                )}
               </div>
             ))}
+            
+            {isLoading && (
+              <div className="flex gap-2">
+                <div className="rounded-lg px-3 py-2 bg-[#F7F4EF] text-[#010407]">
+                  <div className="flex gap-1">
+                    <span className="inline-block h-2 w-2 bg-[#002DB5] rounded-full"></span>
+                    <span className="inline-block h-2 w-2 bg-[#002DB5] rounded-full opacity-60"></span>
+                    <span className="inline-block h-2 w-2 bg-[#002DB5] rounded-full opacity-30"></span>
+                  </div>
+                </div>
+              </div>
+            )}
+
             <div ref={messagesEndRef} />
           </div>
 
-          <div className="max-h-[42vh] overflow-y-auto border-t border-[#e7dccb] bg-white px-4 py-3 sm:max-h-[36vh]">
-            <div className="mb-3 flex flex-wrap gap-2">
-              <button
-                type="button"
-                onClick={() => setIsVoiceMuted((value) => !value)}
-                className={`rounded-full border px-3 py-1 text-[11px] font-semibold uppercase tracking-wide ${
-                  isVoiceMuted
-                    ? 'border-[#d8cbb8] bg-[#F7F4EF] text-[#012E72]'
-                    : 'border-[#002DB5] bg-[#002DB5] text-white'
-                }`}
-              >
-                {isVoiceMuted ? 'Voice Muted' : 'Voice On'}
-              </button>
-              <button
-                type="button"
-                onClick={handleCopyLatestReply}
-                className="rounded-full border border-[#d8cbb8] bg-white px-3 py-1 text-[11px] font-semibold uppercase tracking-wide text-[#012E72] hover:border-[#002DB5] hover:text-[#002DB5]"
-              >
-                {copiedReply ? 'Copied' : 'Copy Reply'}
-              </button>
-              <button
-                type="button"
-                onClick={handleClearChat}
-                className="rounded-full border border-[#d8cbb8] bg-white px-3 py-1 text-[11px] font-semibold uppercase tracking-wide text-[#012E72] hover:border-[#002DB5] hover:text-[#002DB5]"
-              >
-                Clear Chat
-              </button>
-            </div>
-
-            <div className="mb-3">
-              <p className="mb-2 text-[11px] font-semibold uppercase tracking-wide text-[#012E72]">Quick prompts</p>
-              <div className="flex gap-2 overflow-x-auto pb-1">
-                {sampleQuestions.map((question) => (
-                  <button
-                    key={question}
-                    type="button"
-                    onClick={() => handleSampleQuestion(question)}
-                    disabled={isLoading}
-                    className="whitespace-nowrap rounded-full border border-[#d8cbb8] bg-[#F7F4EF] px-3 py-1.5 text-xs font-medium text-[#012E72] hover:border-[#002DB5] hover:bg-white disabled:cursor-not-allowed disabled:opacity-50"
-                  >
-                    {question}
-                  </button>
-                ))}
-              </div>
-            </div>
-
-            <div className="mb-2 grid grid-cols-[1fr_auto] gap-2">
+          <div className="space-y-3 border-t border-[#e7dccb] bg-white px-3 py-3">
+            <div className="grid grid-cols-3 gap-2">
               <button
                 type="button"
                 onClick={handleMicToggle}
                 disabled={!canUseMic}
-                className={`rounded-xl px-3 py-2.5 text-sm font-semibold text-white shadow-md transition ${
+                className={`rounded-lg px-2 py-2 text-xs font-bold text-white transition-all ${
                   isListening
-                    ? 'bg-gradient-to-r from-[#0f766e] to-[#0d9488]'
+                    ? 'bg-[#0f766e]'
                     : micEnabled
-                    ? 'bg-gradient-to-r from-[#002DB5] to-[#012E72]'
-                    : 'bg-gradient-to-r from-[#012E72] to-[#002DB5]'
-                } disabled:cursor-not-allowed disabled:opacity-50`}
+                    ? 'bg-[#002DB5]'
+                    : 'bg-[#012E72]'
+                } disabled:opacity-50`}
               >
-                {isListening ? 'Listening now...' : micEnabled ? 'Turn Mic Off' : 'Turn Mic On'}
+                {isListening ? '🎤 On' : micEnabled ? '🎤 Off' : '🎙️'}
               </button>
               <button
                 type="button"
-                onClick={() => setAutoListen((prev) => !prev)}
-                className={`rounded-xl border px-3 py-2 text-xs font-semibold uppercase tracking-wide ${
-                  autoListen
-                    ? 'border-[#012E72] bg-[#012E72] text-white'
-                    : 'border-[#d8cbb8] bg-[#F7F4EF] text-[#012E72]'
+                onClick={() => setIsVoiceMuted((value) => !value)}
+                className={`rounded-lg px-2 py-2 text-xs font-bold transition-all ${
+                  isVoiceMuted
+                    ? 'bg-[#d8cbb8] text-[#012E72]'
+                    : 'bg-[#012E72] text-white'
                 }`}
               >
-                {autoListen ? 'Auto On' : 'Auto Off'}
+                {isVoiceMuted ? '🔇' : '🔊'}
+              </button>
+              <button
+                type="button"
+                onClick={handleClearChat}
+                className="rounded-lg bg-[#b91c1c] px-2 py-2 text-xs font-bold text-white hover:bg-[#991b1b] transition-all"
+              >
+                🗑️
               </button>
             </div>
 
@@ -1021,17 +965,33 @@ function VoiceChatWidget() {
                 type="text"
                 value={textInput}
                 onChange={(event) => setTextInput(event.target.value)}
-                placeholder="Type your question"
-                className="w-full rounded-xl border border-[#d8cbb8] bg-white px-3 py-2 text-sm text-[#010407] outline-none focus:border-[#002DB5]"
+                placeholder="Ask something..."
+                className="flex-1 rounded-lg border border-[#d8cbb8] bg-white px-3 py-2 text-sm text-[#010407] outline-none focus:border-[#002DB5] focus:ring-1 focus:ring-[#002DB5]/50"
               />
               <button
                 type="submit"
                 disabled={!textInput.trim() || isLoading}
-                className="rounded-xl bg-[#012E72] px-3 py-2 text-xs font-semibold uppercase tracking-wide text-white transition hover:bg-[#002DB5] disabled:cursor-not-allowed disabled:opacity-50"
+                className="rounded-lg bg-[#012E72] px-3 py-2 font-bold text-white hover:bg-[#002DB5] disabled:opacity-50"
               >
-                Send
+                ↲
               </button>
             </form>
+
+            <div className="max-h-[80px] overflow-x-auto overflow-y-hidden">
+              <div className="flex gap-1 pb-1 whitespace-nowrap">
+                {sampleQuestions.slice(0, 3).map((question) => (
+                  <button
+                    key={question}
+                    type="button"
+                    onClick={() => handleSampleQuestion(question)}
+                    disabled={isLoading}
+                    className="rounded-lg border border-[#d8cbb8] bg-[#F7F4EF] px-2 py-1 text-[10px] font-medium text-[#012E72] hover:border-[#002DB5] disabled:opacity-50"
+                  >
+                    {question.substring(0, 16)}...
+                  </button>
+                ))}
+              </div>
+            </div>
           </div>
         </section>
       )}
@@ -1042,17 +1002,14 @@ function VoiceChatWidget() {
           setIsOpen((prev) => !prev);
           setUnreadCount(0);
         }}
-        className="group relative rounded-full bg-gradient-to-r from-[#012E72] to-[#002DB5] px-4 py-3 text-sm font-semibold text-white shadow-lg shadow-[#012E72]/25 transition hover:translate-y-[-1px] hover:from-[#002DB5] hover:to-[#012E72] sm:px-5"
+        className="group relative rounded-full bg-[#012E72] px-4 py-3 text-sm font-semibold text-white shadow-lg shadow-[#012E72]/25 transition-all hover:bg-[#002DB5] hover:translate-y-[-2px] active:translate-y-0 sm:px-5"
       >
         <span className="flex items-center gap-2">
-          <span
-            className={`h-2.5 w-2.5 rounded-full ${isListening ? 'animate-pulse bg-[#6ee7b7]' : 'bg-white/75'}`}
-            aria-hidden="true"
-          />
-          {isOpen ? 'Hide Voice Assistant' : 'Open Voice Assistant'}
+          {isOpen ? '✕' : '💬'}
+          {isOpen ? 'Close' : 'Chat'}
         </span>
         {!isOpen && unreadCount > 0 && (
-          <span className="absolute -right-2 -top-2 inline-flex min-h-5 min-w-5 items-center justify-center rounded-full bg-[#ff7f11] px-1.5 text-[10px] font-bold text-white">
+          <span className="absolute -right-2 -top-2 inline-flex min-h-6 min-w-6 items-center justify-center rounded-full bg-[#ff7f11] text-xs font-bold text-white">
             {unreadCount > 9 ? '9+' : unreadCount}
           </span>
         )}
