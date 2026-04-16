@@ -11,6 +11,49 @@ const INITIAL_ASSISTANT_MESSAGE = {
   timestamp: new Date().toISOString(),
 };
 
+const QUESTION_PACKS = {
+  popular: [
+    'How do I report a claim with Paladin?',
+    'What are your office hours and contact details?',
+    'How do I request proof of insurance or a COI?',
+    'How do I request a callback from an agent?',
+    'How do I make changes to an existing policy?',
+    'What states is Paladin licensed in?',
+  ],
+  claims: [
+    'What details should I prepare before reporting a claim?',
+    'Can I submit a claim after business hours?',
+    'How quickly will a licensed agent follow up on a claim?',
+    'What claim types can Paladin help with?',
+  ],
+  policy: [
+    'How do I add or remove a driver from my policy?',
+    'How do I change coverage limits or deductibles?',
+    'What information is needed for a policy change request?',
+    'How do I update my contact info on file?',
+  ],
+  coverage: [
+    'Do you offer workers compensation and commercial auto?',
+    'Can Paladin bundle multiple business coverages?',
+    'How can Paladin help compare multiple carriers?',
+    'What is the difference between umbrella and general liability?',
+  ],
+};
+
+const QUESTION_CATEGORY_LABELS = {
+  popular: 'Popular',
+  claims: 'Claims',
+  policy: 'Policy',
+  coverage: 'Coverage',
+};
+
+const ACTION_LABEL_BY_TYPE = {
+  'open-request': 'Open form',
+  'jump-contact': 'Contact',
+  'call-phone': 'Call',
+  email: 'Email',
+};
+
 function VoiceChatWidget() {
   const [isOpen, setIsOpen] = useState(false);
   const [isListening, setIsListening] = useState(false);
@@ -27,6 +70,9 @@ function VoiceChatWidget() {
   const [status, setStatus] = useState('Tap the mic and ask your question.');
   const [textInput, setTextInput] = useState('');
   const [messages, setMessages] = useState([INITIAL_ASSISTANT_MESSAGE]);
+  const [questionCategory, setQuestionCategory] = useState('popular');
+  const [followUpQuestions, setFollowUpQuestions] = useState([]);
+  const [suggestedActions, setSuggestedActions] = useState([]);
 
   const recognitionRef = useRef(null);
   const recognitionRestartTimerRef = useRef(null);
@@ -52,16 +98,7 @@ function VoiceChatWidget() {
   const agoraMicTrackRef = useRef(null);
   const agoraUidRef = useRef(Math.floor(Math.random() * 100000) + 1);
 
-  const sampleQuestions = [
-    'What are your office hours?',
-    'How do I report a claim?',
-    'What insurance types do you offer?',
-    'How do I make changes to my existing policy?',
-    'How do I request proof of insurance?',
-    'What states are you licensed in?',
-    'How can I contact Paladin?',
-    'Do you offer workers compensation and commercial auto?',
-  ];
+  const sampleQuestions = QUESTION_PACKS[questionCategory] || QUESTION_PACKS.popular;
 
   const supportsSpeechRecognition = useMemo(
     () => typeof window !== 'undefined' && ('SpeechRecognition' in window || 'webkitSpeechRecognition' in window),
@@ -98,6 +135,57 @@ function VoiceChatWidget() {
     }
 
     window.location.assign('/contact#get-in-touch');
+  };
+
+  const openRequestFlow = (requestId) => {
+    const requestKey = String(requestId || '').trim();
+    if (!requestKey) {
+      return;
+    }
+
+    const requestUrl = `/contact?request=${encodeURIComponent(requestKey)}#quick-actions`;
+
+    if (window.location.pathname === '/contact') {
+      window.history.replaceState({}, '', requestUrl);
+      window.dispatchEvent(
+        new CustomEvent('paladin:open-contact-request', {
+          detail: { requestId: requestKey, source: 'voice-chat-widget' },
+        })
+      );
+
+      const target = document.getElementById('quick-actions');
+      if (target) {
+        target.scrollIntoView({ behavior: 'smooth', block: 'start' });
+      }
+      return;
+    }
+
+    window.location.assign(requestUrl);
+  };
+
+  const executeSuggestedAction = (action) => {
+    if (!action || typeof action !== 'object') {
+      return;
+    }
+
+    if (action.type === 'open-request') {
+      openRequestFlow(action.requestId);
+      return;
+    }
+
+    if (action.type === 'jump-contact') {
+      openContactSupport();
+      return;
+    }
+
+    if (action.type === 'call-phone' && action.value) {
+      window.location.href = `tel:${action.value}`;
+      return;
+    }
+
+    if (action.type === 'email' && action.value) {
+      window.location.href = `mailto:${action.value}`;
+    }
   };
 
   useEffect(() => {
@@ -615,8 +703,12 @@ function VoiceChatWidget() {
 
       const payload = await response.json();
       const assistantText = payload.reply || payload.error || 'I ran into an issue. Please try again.';
+      const payloadFollowUps = Array.isArray(payload.followUpQuestions) ? payload.followUpQuestions : [];
+      const payloadActions = Array.isArray(payload.suggestedActions) ? payload.suggestedActions : [];
 
       setMessages((prev) => [...prev, { role: 'assistant', text: assistantText, timestamp: new Date().toISOString() }]);
+      setFollowUpQuestions(payloadFollowUps.slice(0, 3));
+      setSuggestedActions(payloadActions.slice(0, 3));
       setStatus('Speaking response...');
       await speak(assistantText);
 
@@ -652,6 +744,8 @@ function VoiceChatWidget() {
             ]),
       ]);
       setStatus('Connection issue. Please retry.');
+      setFollowUpQuestions([]);
+      setSuggestedActions([]);
     } finally {
       setIsLoading(false);
       setTextInput('');
@@ -790,6 +884,8 @@ function VoiceChatWidget() {
   const handleClearChat = () => {
     setMessages([INITIAL_ASSISTANT_MESSAGE]);
     setFeedbackByMessageIndex({});
+    setFollowUpQuestions([]);
+    setSuggestedActions([]);
     setStatus('Conversation reset. Ask a new question.');
     setUnreadCount(0);
   };
@@ -977,20 +1073,76 @@ function VoiceChatWidget() {
               </button>
             </form>
 
-            <div className="max-h-[80px] overflow-x-auto overflow-y-hidden">
-              <div className="flex gap-1 pb-1 whitespace-nowrap">
-                {sampleQuestions.slice(0, 3).map((question) => (
+            <div className="space-y-2">
+              <div className="flex flex-wrap gap-1.5">
+                {Object.keys(QUESTION_PACKS).map((categoryKey) => (
                   <button
-                    key={question}
+                    key={categoryKey}
                     type="button"
-                    onClick={() => handleSampleQuestion(question)}
-                    disabled={isLoading}
-                    className="rounded-lg border border-[#d8cbb8] bg-[#F7F4EF] px-2 py-1 text-[10px] font-medium text-[#012E72] hover:border-[#002DB5] disabled:opacity-50"
+                    onClick={() => setQuestionCategory(categoryKey)}
+                    className={`rounded-full border px-2.5 py-1 text-[10px] font-semibold transition-colors ${
+                      questionCategory === categoryKey
+                        ? 'border-[#002DB5] bg-[#002DB5] text-white'
+                        : 'border-[#d8cbb8] bg-[#F7F4EF] text-[#012E72] hover:border-[#002DB5]'
+                    }`}
                   >
-                    {question.substring(0, 16)}...
+                    {QUESTION_CATEGORY_LABELS[categoryKey] || categoryKey}
                   </button>
                 ))}
               </div>
+
+              <div className="max-h-[82px] overflow-y-auto pr-1">
+                <div className="flex flex-wrap gap-1.5">
+                  {sampleQuestions.map((question) => (
+                    <button
+                      key={question}
+                      type="button"
+                      onClick={() => handleSampleQuestion(question)}
+                      disabled={isLoading}
+                      className="rounded-lg border border-[#d8cbb8] bg-[#F7F4EF] px-2 py-1 text-[10px] font-medium text-[#012E72] hover:border-[#002DB5] disabled:opacity-50"
+                    >
+                      {question}
+                    </button>
+                  ))}
+                </div>
+              </div>
+
+              {followUpQuestions.length > 0 && (
+                <div className="rounded-lg border border-[#e7dccb] bg-[#F7F4EF]/65 p-2">
+                  <p className="mb-1 text-[10px] font-semibold uppercase tracking-wide text-[#012E72]">Helpful follow-ups</p>
+                  <div className="flex flex-wrap gap-1.5">
+                    {followUpQuestions.map((question) => (
+                      <button
+                        key={question}
+                        type="button"
+                        onClick={() => handleSampleQuestion(question)}
+                        disabled={isLoading}
+                        className="rounded-md border border-[#d8cbb8] bg-white px-2 py-1 text-[10px] font-medium text-[#012E72] hover:border-[#002DB5] disabled:opacity-50"
+                      >
+                        {question}
+                      </button>
+                    ))}
+                  </div>
+                </div>
+              )}
+
+              {suggestedActions.length > 0 && (
+                <div className="rounded-lg border border-[#e7dccb] bg-white p-2">
+                  <p className="mb-1 text-[10px] font-semibold uppercase tracking-wide text-[#012E72]">Take action</p>
+                  <div className="flex flex-wrap gap-1.5">
+                    {suggestedActions.map((action) => (
+                      <button
+                        key={action.id || `${action.type}-${action.label}`}
+                        type="button"
+                        onClick={() => executeSuggestedAction(action)}
+                        className="rounded-md bg-[#012E72] px-2.5 py-1 text-[10px] font-semibold text-white hover:bg-[#002DB5]"
+                      >
+                        {action.label || ACTION_LABEL_BY_TYPE[action.type] || 'Action'}
+                      </button>
+                    ))}
+                  </div>
+                </div>
+              )}
             </div>
           </div>
         </section>

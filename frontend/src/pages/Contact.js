@@ -1,4 +1,5 @@
-import React, { useState } from 'react';
+import React, { useEffect, useState } from 'react';
+import { useLocation } from 'react-router-dom';
 import Header from '../components/Header';
 import Footer from '../components/Footer';
 import ContactInfo from '../components/ContactInfo';
@@ -14,6 +15,7 @@ import CallRequestForm from '../components/CallRequestForm';
 const API_BASE_URL = process.env.REACT_APP_API_BASE_URL || 'http://localhost:5000';
 
 function Contact() {
+  const location = useLocation();
   const [activeRequest, setActiveRequest] = useState(null);
   const [formData, setFormData] = useState({
     name: '',
@@ -167,6 +169,56 @@ function Contact() {
 
   const activeCard = requestCards.find((card) => card.id === activeRequest);
   const ActiveRequestForm = activeCard?.component;
+
+  useEffect(() => {
+    const requestAliases = {
+      consultation: 'consultation',
+      documents: 'documents',
+      'document-request': 'documents',
+      'policy-change': 'policy-change',
+      'update-info': 'update-info',
+      'update-contact-info': 'update-info',
+      claim: 'claim',
+      'claim-report': 'claim',
+      call: 'call',
+      'call-request': 'call',
+    };
+
+    const params = new URLSearchParams(location.search);
+    const requestFromQuery = String(params.get('request') || '').trim().toLowerCase();
+    const mappedRequest = requestAliases[requestFromQuery];
+
+    if (mappedRequest) {
+      setActiveRequest(mappedRequest);
+
+      const quickActionsSection = document.getElementById('quick-actions');
+      if (quickActionsSection) {
+        setTimeout(() => {
+          quickActionsSection.scrollIntoView({ behavior: 'smooth', block: 'start' });
+        }, 80);
+      }
+    }
+
+    const handleOpenRequest = (event) => {
+      const incomingRequest = String(event?.detail?.requestId || '').trim().toLowerCase();
+      const nextRequest = requestAliases[incomingRequest];
+      if (!nextRequest) {
+        return;
+      }
+
+      setActiveRequest(nextRequest);
+
+      const quickActionsSection = document.getElementById('quick-actions');
+      if (quickActionsSection) {
+        quickActionsSection.scrollIntoView({ behavior: 'smooth', block: 'start' });
+      }
+    };
+
+    window.addEventListener('paladin:open-contact-request', handleOpenRequest);
+    return () => {
+      window.removeEventListener('paladin:open-contact-request', handleOpenRequest);
+    };
+  }, [location.search]);
 
   return (
     <>
