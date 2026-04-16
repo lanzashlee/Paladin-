@@ -5,7 +5,7 @@ const ELEVENLABS_DEFAULT_VOICE_ID = process.env.ELEVENLABS_VOICE_ID || 'EXAVITQu
 const ELEVENLABS_DEFAULT_MODEL_ID = process.env.ELEVENLABS_MODEL_ID || 'eleven_multilingual_v2';
 
 const SYSTEM_PROMPT =
-  'You are Paladin Professional Insurance Solutions voice assistant. Keep answers clear, concise, and friendly. If asked for policy-specific legal advice, suggest contacting a licensed agent.';
+  'You are Paladin Professional Insurance Solutions voice assistant. Keep answers clear, concise, and friendly. Prioritize practical next steps based on Paladin workflows (consultation request, document request, policy change, update contact info, claim report, and call request). Ask one short clarifying question when details are missing. If asked for policy-specific legal advice, suggest contacting a licensed agent.';
 
 const PALADIN_FACTS = `
 Company: Paladin Professional Insurance Solutions, an independent insurance agency based in Ventura, CA.
@@ -115,12 +115,160 @@ const KNOWN_TOPICS = [
   },
 ];
 
+const INTENT_RULES = [
+  {
+    intent: 'claim',
+    keywords: ['claim', 'accident', 'incident', 'loss', 'damage', 'file claim', 'report claim'],
+  },
+  {
+    intent: 'document-request',
+    keywords: [
+      'proof of insurance',
+      'certificate',
+      'coi',
+      'acord',
+      'declarations',
+      'endorsement copy',
+      'lender',
+      'mortgagee',
+    ],
+  },
+  {
+    intent: 'policy-change',
+    keywords: ['policy change', 'change policy', 'update policy', 'add driver', 'remove vehicle', 'coverage limit'],
+  },
+  {
+    intent: 'update-contact',
+    keywords: ['update contact', 'new address', 'phone number changed', 'email changed', 'mailing address'],
+  },
+  {
+    intent: 'consultation',
+    keywords: ['consultation', 'quote', 'compare carriers', 'new policy', 'best coverage', 'recommend'],
+  },
+  {
+    intent: 'call-request',
+    keywords: ['call me', 'call back', 'callback', 'talk to agent', 'speak with agent'],
+  },
+  {
+    intent: 'hours-contact',
+    keywords: ['hours', 'open', 'office hours', 'contact', 'phone', 'email', 'address', 'location'],
+  },
+  {
+    intent: 'coverage-info',
+    keywords: ['coverage', 'insurance types', 'workers comp', 'commercial auto', 'umbrella', 'cyber', 'flood'],
+  },
+];
+
+const FALLBACK_FOLLOW_UP_QUESTIONS = [
+  'Would you like me to guide you to the exact Paladin request form?',
+  'Are you asking about personal insurance, business insurance, or both?',
+  'Do you want a quick summary, or step-by-step next actions?',
+];
+
+const INTENT_FOLLOW_UPS = {
+  claim: [
+    'What was the date of the incident?',
+    'What type of claim is it: auto, home, liability, property, or other?',
+    'Do you want to open the claim report form now?'
+  ],
+  'document-request': [
+    'Which document do you need: COI, declarations page, endorsement copy, or other?',
+    'Do you need any special endorsements listed, like Waiver of Subrogation or P&NC?',
+    'Do you want to open the document request form now?'
+  ],
+  'policy-change': [
+    'What change do you need most: driver, vehicle, property, endorsement, or coverage limits?',
+    'When should this change become effective?',
+    'Do you want to open the policy change form now?'
+  ],
+  'update-contact': [
+    'Which detail changed: phone, email, mailing address, or insured item details?',
+    'Do you have your policy number available?',
+    'Do you want to open the update contact info form now?'
+  ],
+  consultation: [
+    'Are you looking for personal, commercial, or specialty coverage?',
+    'Which state is the policy for: CA, AZ, ID, IL, IN, NV, NC, OH, or TX?',
+    'Do you want to open the consultation request form now?'
+  ],
+  'call-request': [
+    'What day and time window work best for a callback?',
+    'What topic should the agent prepare for before calling?',
+    'Do you want to open the call request form now?'
+  ],
+  'hours-contact': [
+    'Do you want phone, email, or office location details?',
+    'Do you want me to open the contact section for you?',
+    'Would you like to request a callback instead?'
+  ],
+  'coverage-info': [
+    'Do you want help with one line of coverage or a full bundle review?',
+    'Is this for business operations, personal assets, or both?',
+    'Would you like to open a consultation request now?'
+  ],
+};
+
+const INTENT_ACTIONS = {
+  claim: [
+    { id: 'claim-form', label: 'Open claim report form', type: 'open-request', requestId: 'claim' },
+    { id: 'request-call', label: 'Request an agent callback', type: 'open-request', requestId: 'call' },
+  ],
+  'document-request': [
+    { id: 'doc-form', label: 'Open document request form', type: 'open-request', requestId: 'documents' },
+    { id: 'call-office', label: 'Call Paladin office', type: 'call-phone', value: '8056926900' },
+  ],
+  'policy-change': [
+    { id: 'policy-form', label: 'Open policy change form', type: 'open-request', requestId: 'policy-change' },
+    { id: 'update-info-form', label: 'Open update contact info form', type: 'open-request', requestId: 'update-info' },
+  ],
+  'update-contact': [
+    { id: 'update-form', label: 'Open update contact info form', type: 'open-request', requestId: 'update-info' },
+    { id: 'contact-form', label: 'Open contact message form', type: 'jump-contact' },
+  ],
+  consultation: [
+    { id: 'consult-form', label: 'Open consultation request form', type: 'open-request', requestId: 'consultation' },
+    { id: 'request-call', label: 'Request an agent callback', type: 'open-request', requestId: 'call' },
+  ],
+  'call-request': [
+    { id: 'call-form', label: 'Open call request form', type: 'open-request', requestId: 'call' },
+    { id: 'call-office', label: 'Call Paladin office', type: 'call-phone', value: '8056926900' },
+  ],
+  'hours-contact': [
+    { id: 'open-contact', label: 'Open contact details', type: 'jump-contact' },
+    { id: 'email-office', label: 'Email support', type: 'email', value: 'support@paladinbusinessservices.net' },
+  ],
+  'coverage-info': [
+    { id: 'consult-form', label: 'Open consultation request form', type: 'open-request', requestId: 'consultation' },
+    { id: 'request-call', label: 'Request an agent callback', type: 'open-request', requestId: 'call' },
+  ],
+  general: [
+    { id: 'contact-form', label: 'Open contact form', type: 'jump-contact' },
+    { id: 'request-call', label: 'Request an agent callback', type: 'open-request', requestId: 'call' },
+  ],
+};
+
 const normalizeMessage = (message) =>
   String(message || '')
     .toLowerCase()
     .replace(/[^a-z0-9\s']/g, ' ')
     .replace(/\s+/g, ' ')
     .trim();
+
+const detectIntent = (message) => {
+  const normalized = normalizeMessage(message);
+
+  for (const rule of INTENT_RULES) {
+    if (rule.keywords.some((keyword) => normalized.includes(keyword))) {
+      return rule.intent;
+    }
+  }
+
+  return 'general';
+};
+
+const getFollowUpQuestions = (intent) => INTENT_FOLLOW_UPS[intent] || FALLBACK_FOLLOW_UP_QUESTIONS;
+
+const getSuggestedActions = (intent) => INTENT_ACTIONS[intent] || INTENT_ACTIONS.general;
 
 const buildLocalReply = (message) => {
   const normalized = normalizeMessage(message);
@@ -243,8 +391,18 @@ exports.askVoiceAssistant = async (req, res) => {
     return res.status(400).json({ error: 'A non-empty message is required.' });
   }
 
+  const detectedIntent = detectIntent(userMessage);
+  const followUpQuestions = getFollowUpQuestions(detectedIntent);
+  const suggestedActions = getSuggestedActions(detectedIntent);
+
   if (!process.env.OPENAI_API_KEY) {
-    return res.status(200).json({ reply: buildLocalReply(userMessage), source: 'knowledge-base' });
+    return res.status(200).json({
+      reply: buildLocalReply(userMessage),
+      source: 'knowledge-base',
+      detectedIntent,
+      followUpQuestions,
+      suggestedActions,
+    });
   }
 
   const controller = new AbortController();
@@ -282,6 +440,9 @@ exports.askVoiceAssistant = async (req, res) => {
       return res.status(200).json({
         reply: buildLocalReply(userMessage),
         source: 'knowledge-base',
+        detectedIntent,
+        followUpQuestions,
+        suggestedActions,
         warning: 'Voice AI provider returned an error, so a local answer was used instead.',
         details: errorPayload,
       });
@@ -289,7 +450,13 @@ exports.askVoiceAssistant = async (req, res) => {
 
     const payload = await response.json();
     const reply = extractText(payload) || buildLocalReply(userMessage);
-    return res.status(200).json({ reply, source: 'openai' });
+    return res.status(200).json({
+      reply,
+      source: 'openai',
+      detectedIntent,
+      followUpQuestions,
+      suggestedActions,
+    });
   } catch (error) {
     clearTimeout(timeoutId);
 
@@ -297,6 +464,9 @@ exports.askVoiceAssistant = async (req, res) => {
       return res.status(200).json({
         reply: buildLocalReply(userMessage),
         source: 'knowledge-base',
+        detectedIntent,
+        followUpQuestions,
+        suggestedActions,
         warning: 'Voice AI request timed out, so a local answer was used instead.',
       });
     }
@@ -304,6 +474,9 @@ exports.askVoiceAssistant = async (req, res) => {
     return res.status(200).json({
       reply: buildLocalReply(userMessage),
       source: 'knowledge-base',
+      detectedIntent,
+      followUpQuestions,
+      suggestedActions,
       warning: 'Failed to process voice AI request, so a local answer was used instead.',
     });
   }
