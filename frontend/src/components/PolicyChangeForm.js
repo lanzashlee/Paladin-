@@ -12,7 +12,7 @@ const wizardSteps = [
 ];
 
 const stepFields = [
-  ['fullName', 'email', 'policyType', 'effectiveDate'],
+  ['fullName', 'email', 'policyType'],
   ['requestedChangeTypes', 'notes'],
   ['mortgageeName', 'loanNumber', 'mailingAddress'],
   [],
@@ -145,7 +145,6 @@ function PolicyChangeForm({ onClose }) {
       'email',
       'policyType',
       'otherPolicyType',
-      'effectiveDate',
       'requestedChangeTypes',
       'requestedChangeOther',
       'notes',
@@ -290,7 +289,8 @@ function PolicyChangeForm({ onClose }) {
     <RequestModal
       badge="Policy change"
       title="Policy Change Request"
-      description="Use this form to request policy updates. Complete Sections A, B, and C before submitting."
+      description="Use this form to request changes to your existing policy. Changes are subject to carrier approval and may
+        affect your premium."
       onClose={onClose}
     >
       <form className="space-y-5" onSubmit={(event) => event.preventDefault()} noValidate>
@@ -354,7 +354,7 @@ function PolicyChangeForm({ onClose }) {
                   </select>
                 </FieldGroup>
 
-                <FieldGroup label="Requested effective date of change" htmlFor="policy-effectiveDate" required error={errors.effectiveDate}>
+                <FieldGroup label="Requested effective date of change (optional)" htmlFor="policy-effectiveDate" error={errors.effectiveDate}>
                   <input
                     id="policy-effectiveDate"
                     name="effectiveDate"
@@ -391,7 +391,7 @@ function PolicyChangeForm({ onClose }) {
               </div>
 
               <div className="grid gap-5 md:grid-cols-1">
-                <FieldGroup label="Requested change type(s)" htmlFor="policy-requestedChangeTypes" required error={errors.requestedChangeTypes} hint="Check all that apply">
+                <FieldGroup label="What would you like to change?" htmlFor="policy-requestedChangeTypes" required error={errors.requestedChangeTypes} hint="Check all that apply">
                   <div className="grid gap-2 rounded-2xl border border-[#d8cbb8] bg-white p-4">
                     {requestedChangeTypeOptions.map((option) => (
                       <label
@@ -429,7 +429,7 @@ function PolicyChangeForm({ onClose }) {
                 </FieldGroup>
               )}
 
-              <FieldGroup label="Describe the change" htmlFor="policy-notes" required error={errors.notes}>
+              <FieldGroup label="Describe the requested change in detail" htmlFor="policy-notes" required error={errors.notes}>
                 <textarea
                   id="policy-notes"
                   name="notes"
