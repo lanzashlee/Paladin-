@@ -21,13 +21,13 @@ function RequestFormWizard({ steps, activeStep, onStepChange, children }) {
                     }
                   }}
                   disabled={!isClickable}
-                  className={`group flex min-w-0 flex-1 basis-0 items-stretch rounded-xl px-2 py-2 text-left transition-colors sm:px-3 ${
+                  className={`group flex min-w-0 flex-1 basis-0 items-stretch rounded-xl px-2 py-2 text-center transition-colors sm:px-3 ${
                     isClickable ? 'hover:bg-white/70' : 'cursor-not-allowed opacity-60'
                   }`}
                   aria-current={isActive ? 'step' : undefined}
                 >
-                  <div className="flex min-h-[72px] min-w-0 flex-1 flex-col items-start gap-1 sm:min-h-[84px]">
-                    <div className="flex w-full items-center gap-2">
+                  <div className="flex min-h-[52px] min-w-0 flex-1 flex-col items-center justify-center sm:min-h-[56px]">
+                    <div className="flex w-full items-center justify-center gap-2">
                       <span
                         className={`inline-flex h-10 w-10 shrink-0 items-center justify-center rounded-full border transition-colors ${
                           isActive
@@ -42,14 +42,6 @@ function RequestFormWizard({ steps, activeStep, onStepChange, children }) {
 
                       <span className="text-[11px] font-semibold uppercase tracking-[0.2em] text-[#010407]/45">Step {index + 1}</span>
                     </div>
-
-                    <span
-                      className={`block w-full max-w-[10rem] whitespace-normal break-words text-left text-sm font-semibold leading-tight sm:leading-snug ${
-                        isActive ? 'text-[#002DB5]' : 'text-[#012E72]'
-                      }`}
-                    >
-                      {step.label}
-                    </span>
                   </div>
                 </button>
 

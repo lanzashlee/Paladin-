@@ -1,46 +1,23 @@
 import React, { useState } from 'react';
-import { User, FileText, Send } from 'lucide-react';
+import { User, Send } from 'lucide-react';
 import RequestModal from './RequestModal';
 import FieldGroup, { inputClassName } from './RequestFormField';
 import RequestFormWizard from './RequestFormWizard';
 
 const wizardSteps = [
-  { id: 'contact-details', label: 'Contact Details', icon: User },
-  { id: 'consultation-needs', label: 'Consultation Needs', icon: FileText },
+  { id: 'your-information', label: 'Your Information', icon: User },
   { id: 'review-submit', label: 'Review & Submit', icon: Send },
 ];
 
-const stepFields = [
-  ['fullName', 'email', 'phone'],
-  ['preferredContact', 'coverageType', 'timeline', 'notes'],
-  [],
-];
-
-const preferredContactLabelMap = {
-  email: 'Email',
-  phone: 'Phone',
-  text: 'Text message',
-};
-
-const coverageTypeLabelMap = {
-  'personal-auto': 'Personal auto',
-  homeowners: 'Homeowners',
-  renters: 'Renters',
-  business: 'Business',
-  life: 'Life',
-  other: 'Other',
-};
+const stepFields = [['fullName', 'email', 'address', 'phone'], []];
 
 function ConsultationRequestForm({ onClose }) {
   const [formData, setFormData] = useState({
     formType: 'consultation-request',
     fullName: '',
     email: '',
+    address: '',
     phone: '',
-    coverageType: '',
-    preferredContact: 'email',
-    timeline: 'This week',
-    notes: '',
   });
   const [errors, setErrors] = useState({});
   const [saved, setSaved] = useState(false);
@@ -60,7 +37,7 @@ function ConsultationRequestForm({ onClose }) {
     return newErrors;
   };
 
-  const validateForm = () => validateFields(Object.keys(formData));
+  const validateForm = () => validateFields(['fullName', 'email', 'address', 'phone']);
 
   const getFieldClass = (field) =>
     errors[field]
@@ -116,11 +93,8 @@ function ConsultationRequestForm({ onClose }) {
         formType: 'consultation-request',
         fullName: '',
         email: '',
+        address: '',
         phone: '',
-        coverageType: '',
-        preferredContact: 'email',
-        timeline: 'This week',
-        notes: '',
       });
     } catch (error) {
       setSubmitError(error.message || 'Failed to submit your request. Please try again.');
@@ -148,7 +122,7 @@ function ConsultationRequestForm({ onClose }) {
     <RequestModal
       badge="Consultation"
       title="Personalized Consultation"
-      description="Use this form to outline the kind of coverage you want, how you prefer to be contacted, and when you need help."
+      description="Use this form to share your contact details. We will review it and follow up within 3-4 business days."
       onClose={onClose}
     >
       <form className="space-y-5" onSubmit={(event) => event.preventDefault()} noValidate>
@@ -162,117 +136,68 @@ function ConsultationRequestForm({ onClose }) {
           }}
         >
           {stepIndex === 0 && (
-            <div className="grid gap-5 md:grid-cols-2">
-              <FieldGroup label="Full name" htmlFor="consultation-fullName" required error={errors.fullName}>
-                <input
-                  id="consultation-fullName"
-                  name="fullName"
-                  type="text"
-                  value={formData.fullName}
-                  onChange={handleChange}
-                  placeholder="John Doe"
-                  className={getFieldClass('fullName')}
-                  disabled={loading}
-                />
-              </FieldGroup>
+            <div className="space-y-5">
+              <div className="rounded-2xl border border-amber-300 bg-amber-50 px-4 py-3 text-sm text-amber-900">
+                <strong>Note:</strong> This process will take 3-4 business days.
+              </div>
 
-              <FieldGroup label="Email address" htmlFor="consultation-email" required error={errors.email}>
-                <input
-                  id="consultation-email"
-                  name="email"
-                  type="email"
-                  value={formData.email}
-                  onChange={handleChange}
-                  placeholder="john@example.com"
-                  className={getFieldClass('email')}
-                  disabled={loading}
-                />
-              </FieldGroup>
+              <div className="grid gap-5 md:grid-cols-2">
+                <FieldGroup label="Full name" htmlFor="consultation-fullName" required error={errors.fullName}>
+                  <input
+                    id="consultation-fullName"
+                    name="fullName"
+                    type="text"
+                    value={formData.fullName}
+                    onChange={handleChange}
+                    placeholder="John Doe"
+                    className={getFieldClass('fullName')}
+                    disabled={loading}
+                  />
+                </FieldGroup>
 
-              <FieldGroup label="Phone number" htmlFor="consultation-phone" required error={errors.phone}>
-                <input
-                  id="consultation-phone"
-                  name="phone"
-                  type="tel"
-                  value={formData.phone}
-                  onChange={handleChange}
-                  placeholder="(555) 555-5555"
-                  className={getFieldClass('phone')}
-                  disabled={loading}
-                />
-              </FieldGroup>
+                <FieldGroup label="Email address" htmlFor="consultation-email" required error={errors.email}>
+                  <input
+                    id="consultation-email"
+                    name="email"
+                    type="email"
+                    value={formData.email}
+                    onChange={handleChange}
+                    placeholder="john@example.com"
+                    className={getFieldClass('email')}
+                    disabled={loading}
+                  />
+                </FieldGroup>
+
+                <FieldGroup label="Address" htmlFor="consultation-address" required error={errors.address}>
+                  <input
+                    id="consultation-address"
+                    name="address"
+                    type="text"
+                    value={formData.address}
+                    onChange={handleChange}
+                    placeholder="Street address"
+                    className={getFieldClass('address')}
+                    disabled={loading}
+                  />
+                </FieldGroup>
+
+                <FieldGroup label="Phone number" htmlFor="consultation-phone" required error={errors.phone}>
+                  <input
+                    id="consultation-phone"
+                    name="phone"
+                    type="tel"
+                    value={formData.phone}
+                    onChange={handleChange}
+                    placeholder="(555) 555-5555"
+                    className={getFieldClass('phone')}
+                    disabled={loading}
+                  />
+                </FieldGroup>
+              </div>
             </div>
           )}
 
           {stepIndex === 1 && (
-            <div className="space-y-5">
-              <div className="grid gap-5 md:grid-cols-2">
-                <FieldGroup label="Preferred contact" htmlFor="consultation-preferredContact" required error={errors.preferredContact}>
-                  <select
-                    id="consultation-preferredContact"
-                    name="preferredContact"
-                    value={formData.preferredContact}
-                    onChange={handleChange}
-                    className={getFieldClass('preferredContact')}
-                    disabled={loading}
-                  >
-                    <option value="email">Email</option>
-                    <option value="phone">Phone</option>
-                    <option value="text">Text message</option>
-                  </select>
-                </FieldGroup>
-
-                <FieldGroup label="Coverage focus" htmlFor="consultation-coverageType" required error={errors.coverageType}>
-                  <select
-                    id="consultation-coverageType"
-                    name="coverageType"
-                    value={formData.coverageType}
-                    onChange={handleChange}
-                    className={getFieldClass('coverageType')}
-                    disabled={loading}
-                  >
-                    <option value="">Select coverage</option>
-                    <option value="personal-auto">Personal auto</option>
-                    <option value="homeowners">Homeowners</option>
-                    <option value="renters">Renters</option>
-                    <option value="business">Business</option>
-                    <option value="life">Life</option>
-                    <option value="other">Other</option>
-                  </select>
-                </FieldGroup>
-
-                <FieldGroup label="Timeline" htmlFor="consultation-timeline" required error={errors.timeline}>
-                  <select
-                    id="consultation-timeline"
-                    name="timeline"
-                    value={formData.timeline}
-                    onChange={handleChange}
-                    className={getFieldClass('timeline')}
-                    disabled={loading}
-                  >
-                    <option value="This week">This week</option>
-                    <option value="Within 30 days">Within 30 days</option>
-                    <option value="Just exploring">Just exploring</option>
-                  </select>
-                </FieldGroup>
-              </div>
-
-              <FieldGroup label="What do you want to cover?" htmlFor="consultation-notes" required error={errors.notes}>
-                <textarea
-                  id="consultation-notes"
-                  name="notes"
-                  rows="5"
-                  value={formData.notes}
-                  onChange={handleChange}
-                  placeholder="Tell us what kind of protection you need, who needs coverage, and any details that matter."
-                  className={`${getFieldClass('notes')} resize-none`}
-                  disabled={loading}
-                />
-              </FieldGroup>
-            </div>
-          )}
-
-          {stepIndex === 2 && (
             <div className="space-y-4 rounded-2xl border border-[#e7dccb] bg-[#F7F4EF]/55 p-5">
               <h4 className="text-base font-semibold text-[#012E72]">Review your request</h4>
               <div className="grid gap-3 text-sm text-[#010407]/80 sm:grid-cols-2">
@@ -280,24 +205,15 @@ function ConsultationRequestForm({ onClose }) {
                   <span className="font-semibold">Full name:</span> {formData.fullName || '-'}
                 </p>
                 <p>
-                  <span className="font-semibold">Email:</span> {formData.email || '-'}
+                  <span className="font-semibold">Email address:</span> {formData.email || '-'}
                 </p>
                 <p>
-                  <span className="font-semibold">Phone:</span> {formData.phone || '-'}
+                  <span className="font-semibold">Address:</span> {formData.address || '-'}
                 </p>
                 <p>
-                  <span className="font-semibold">Preferred contact:</span> {preferredContactLabelMap[formData.preferredContact] || '-'}
-                </p>
-                <p>
-                  <span className="font-semibold">Coverage focus:</span> {coverageTypeLabelMap[formData.coverageType] || '-'}
-                </p>
-                <p>
-                  <span className="font-semibold">Timeline:</span> {formData.timeline || '-'}
+                  <span className="font-semibold">Phone number:</span> {formData.phone || '-'}
                 </p>
               </div>
-              <p className="text-sm text-[#010407]/80">
-                <span className="font-semibold">Coverage details:</span> {formData.notes || '-'}
-              </p>
             </div>
           )}
         </RequestFormWizard>

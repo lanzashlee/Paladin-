@@ -1,59 +1,119 @@
 import React, { useState } from 'react';
-import { User, FileText, Send } from 'lucide-react';
+import { FileText, Send, ShieldCheck, User } from 'lucide-react';
 import RequestModal from './RequestModal';
 import FieldGroup, { inputClassName } from './RequestFormField';
 import RequestFormWizard from './RequestFormWizard';
 
 const wizardSteps = [
-  { id: 'account-holder', label: 'Account Holder', icon: User },
-  { id: 'update-details', label: 'Update Details', icon: FileText },
+  { id: 'account-holder', label: 'Identify Your Account', icon: User },
+  { id: 'update-details', label: 'What Would You Like to Update?', icon: FileText },
+  { id: 'new-information', label: 'New Information', icon: ShieldCheck },
+  { id: 'apply-changes', label: 'Apply Changes To', icon: Send },
   { id: 'review-submit', label: 'Review & Submit', icon: Send },
 ];
 
-const stepFields = [
-  ['fullName', 'email', 'policyNumber'],
-  ['updateType', 'updatedValue', 'notes'],
-  [],
+const requestedUpdateOptions = [
+  { value: 'email', label: 'Email address' },
+  { value: 'phone', label: 'Phone number' },
+  { value: 'mailing-address', label: 'Mailing address' },
+  { value: 'legal-name', label: 'Legal name (e.g. name change or correction)' },
+  { value: 'other', label: 'Other (describe below)' },
 ];
 
-const updateTypeLabelMap = {
-  'contact-info': 'Contact info',
+const requestedUpdateLabelMap = {
+  email: 'Email address',
+  phone: 'Phone number',
   'mailing-address': 'Mailing address',
-  'insured-item': 'Insured item',
-  vehicle: 'Vehicle details',
-  property: 'Property details',
+  'legal-name': 'Legal name (e.g. name change or correction)',
   other: 'Other',
 };
+
+const applyChangesToOptions = [
+  { value: 'all-policies', label: 'All active policies on my account' },
+  { value: 'specific-policy', label: 'One specific policy only - provide policy number below' },
+];
+
+const applyChangesToLabelMap = {
+  'all-policies': 'All active policies on my account',
+  'specific-policy': 'One specific policy only',
+};
+
+const requestedUpdateFieldMap = {
+  email: {
+    name: 'newEmailAddress',
+    label: 'New email address',
+    placeholder: 'Updated email',
+    type: 'email',
+  },
+  phone: {
+    name: 'newPhoneNumber',
+    label: 'New phone number',
+    placeholder: 'Updated phone',
+    type: 'text',
+  },
+  'mailing-address': {
+    name: 'newMailingAddress',
+    label: 'New mailing address',
+    placeholder: 'Street, City, State, ZIP',
+    type: 'text',
+  },
+  'legal-name': {
+    name: 'newLegalName',
+    label: 'New legal name (if changing)',
+    placeholder: 'Full updated legal name',
+    type: 'text',
+  },
+};
+
+const requiresOtherDescription = (requestedUpdateTypes) => requestedUpdateTypes.includes('other');
+const requiresPolicyNumber = (applyChangesTo) => applyChangesTo === 'specific-policy';
+
+const getRequestedUpdateFieldConfigs = (requestedUpdateTypes, otherUpdateLabel) =>
+  requestedUpdateTypes
+    .map((requestedType) => {
+      if (requestedType === 'other') {
+        return {
+          key: 'other',
+          name: 'otherUpdateValue',
+          label: otherUpdateLabel.trim() || 'Other update',
+          placeholder: 'Describe the update',
+          type: 'textarea',
+          rows: 4,
+        };
+      }
+
+      return requestedUpdateFieldMap[requestedType] ? { key: requestedType, ...requestedUpdateFieldMap[requestedType] } : null;
+    })
+    .filter(Boolean);
+
+const getRequestedUpdateTypeLabels = (requestedUpdateTypes) =>
+  requestedUpdateTypes.map((requestedType) => requestedUpdateLabelMap[requestedType] || requestedType).join(', ');
+
+const getApplyChangesToLabel = (applyChangesTo) => applyChangesToLabelMap[applyChangesTo] || applyChangesTo;
 
 function UpdateContactInfoForm({ onClose }) {
   const [formData, setFormData] = useState({
     formType: 'update-contact-info',
     fullName: '',
     email: '',
-    policyNumber: '',
-    updateType: 'contact-info',
-    updatedValue: '',
+    requestedUpdateTypes: [],
+    requestedUpdateTypeLabels: '',
+    otherUpdateLabel: '',
+    otherUpdateValue: '',
+    newEmailAddress: '',
+    newPhoneNumber: '',
+    newMailingAddress: '',
+    newLegalName: '',
     notes: '',
+    applyChangesTo: 'all-policies',
+    applyChangesToLabel: getApplyChangesToLabel('all-policies'),
+    policyNumber: '',
   });
   const [errors, setErrors] = useState({});
   const [saved, setSaved] = useState(false);
   const [loading, setLoading] = useState(false);
   const [submitError, setSubmitError] = useState(null);
   const [stepIndex, setStepIndex] = useState(0);
-
-  const validateFields = (fields) => {
-    const newErrors = {};
-
-    fields.forEach((field) => {
-      if (!String(formData[field] ?? '').trim()) {
-        newErrors[field] = 'This field is required.';
-      }
-    });
-
-    return newErrors;
-  };
-
-  const validateForm = () => validateFields(Object.keys(formData));
 
   const getFieldClass = (field) =>
     errors[field]
@@ -67,6 +127,7 @@ function UpdateContactInfoForm({ onClose }) {
     setFormData((current) => ({
       ...current,
       [name]: value,
+      ...(name === 'applyChangesTo' ? { applyChangesToLabel: getApplyChangesToLabel(value) } : {}),
     }));
 
     if (errors[name]) {
@@ -76,6 +137,89 @@ function UpdateContactInfoForm({ onClose }) {
       }));
     }
   };
+
+  const handleCheckboxChange = (event) => {
+    const { name, value, checked } = event.target;
+
+    setSaved(false);
+    setSubmitError(null);
+    setFormData((current) => {
+      const currentValues = Array.isArray(current[name]) ? current[name] : [];
+      const nextValues = checked ? [...currentValues, value] : currentValues.filter((entry) => entry !== value);
+
+      return {
+        ...current,
+        [name]: nextValues,
+        ...(name === 'requestedUpdateTypes' ? { requestedUpdateTypeLabels: getRequestedUpdateTypeLabels(nextValues) } : {}),
+      };
+    });
+
+    if (errors[name]) {
+      setErrors((current) => ({
+        ...current,
+        [name]: undefined,
+      }));
+    }
+  };
+
+  const validateStep = (currentStepIndex) => {
+    const validationErrors = {};
+
+    if (currentStepIndex === 0) {
+      if (!String(formData.fullName || '').trim()) {
+        validationErrors.fullName = 'This field is required.';
+      }
+      if (!String(formData.email || '').trim()) {
+        validationErrors.email = 'This field is required.';
+      }
+      return validationErrors;
+    }
+
+    if (currentStepIndex === 1) {
+      if (!Array.isArray(formData.requestedUpdateTypes) || formData.requestedUpdateTypes.length === 0) {
+        validationErrors.requestedUpdateTypes = 'Select at least one update.';
+      }
+
+      if (requiresOtherDescription(formData.requestedUpdateTypes) && !String(formData.otherUpdateLabel || '').trim()) {
+        validationErrors.otherUpdateLabel = 'Please name the other update.';
+      }
+
+      return validationErrors;
+    }
+
+    if (currentStepIndex === 2) {
+      const fieldConfigs = getRequestedUpdateFieldConfigs(formData.requestedUpdateTypes, formData.otherUpdateLabel);
+
+      fieldConfigs.forEach((field) => {
+        if (!String(formData[field.name] || '').trim()) {
+          validationErrors[field.name] = 'This field is required.';
+        }
+      });
+
+      return validationErrors;
+    }
+
+    if (currentStepIndex === 3) {
+      if (!String(formData.applyChangesTo || '').trim()) {
+        validationErrors.applyChangesTo = 'This field is required.';
+      }
+
+      if (requiresPolicyNumber(formData.applyChangesTo) && !String(formData.policyNumber || '').trim()) {
+        validationErrors.policyNumber = 'This field is required.';
+      }
+
+      return validationErrors;
+    }
+
+    return validationErrors;
+  };
+
+  const validateForm = () => ({
+    ...validateStep(0),
+    ...validateStep(1),
+    ...validateStep(2),
+    ...validateStep(3),
+  });
 
   const handleSubmit = async (event) => {
     event.preventDefault();
@@ -107,10 +251,18 @@ function UpdateContactInfoForm({ onClose }) {
         formType: 'update-contact-info',
         fullName: '',
         email: '',
-        policyNumber: '',
-        updateType: 'contact-info',
-        updatedValue: '',
+        requestedUpdateTypes: [],
+        requestedUpdateTypeLabels: '',
+        otherUpdateLabel: '',
+        otherUpdateValue: '',
+        newEmailAddress: '',
+        newPhoneNumber: '',
+        newMailingAddress: '',
+        newLegalName: '',
         notes: '',
+        applyChangesTo: 'all-policies',
+        applyChangesToLabel: getApplyChangesToLabel('all-policies'),
+        policyNumber: '',
       });
     } catch (error) {
       setSubmitError(error.message || 'Failed to submit your request. Please try again.');
@@ -120,7 +272,7 @@ function UpdateContactInfoForm({ onClose }) {
   };
 
   const handleNext = () => {
-    const validationErrors = validateFields(stepFields[stepIndex] || []);
+    const validationErrors = validateStep(stepIndex);
 
     if (Object.keys(validationErrors).length > 0) {
       setErrors((current) => ({ ...current, ...validationErrors }));
@@ -134,11 +286,14 @@ function UpdateContactInfoForm({ onClose }) {
     setStepIndex((current) => Math.max(current - 1, 0));
   };
 
+  const selectedFieldConfigs = getRequestedUpdateFieldConfigs(formData.requestedUpdateTypes, formData.otherUpdateLabel);
+
   return (
     <RequestModal
       badge="Account update"
-      title="Update Contact Info or Other Insured Items"
-      description="Use this form to send updated contact details or changes to insured items tied to your policy."
+      title="Update Contact Info or Other Insured Details"
+      description="Let us know what information needs to be updated on your account. We will make sure everything is accurate
+across your active policies."
       onClose={onClose}
     >
       <form className="space-y-5" onSubmit={(event) => event.preventDefault()} noValidate>
@@ -152,34 +307,156 @@ function UpdateContactInfoForm({ onClose }) {
           }}
         >
           {stepIndex === 0 && (
-            <div className="grid gap-5 md:grid-cols-2">
-              <FieldGroup label="Full name" htmlFor="update-fullName" required error={errors.fullName}>
-                <input
-                  id="update-fullName"
-                  name="fullName"
-                  type="text"
-                  value={formData.fullName}
-                  onChange={handleChange}
-                  placeholder="John Doe"
-                  className={getFieldClass('fullName')}
-                  disabled={loading}
-                />
+            <div className="space-y-5">
+              <div className="border-b border-[#b9d0ef] pb-2">
+                <h4 className="text-lg font-semibold text-[#2d78bf]">Section A - Identify Your Account</h4>
+              </div>
+
+              <div className="grid gap-5 md:grid-cols-2">
+                <FieldGroup label="Name of insured" htmlFor="update-fullName" required error={errors.fullName}>
+                  <input
+                    id="update-fullName"
+                    name="fullName"
+                    type="text"
+                    value={formData.fullName}
+                    onChange={handleChange}
+                    placeholder="Name as it appears on your policy"
+                    className={getFieldClass('fullName')}
+                    disabled={loading}
+                  />
+                </FieldGroup>
+
+                <FieldGroup label="Current email on file" htmlFor="update-email" required error={errors.email}>
+                  <input
+                    id="update-email"
+                    name="email"
+                    type="email"
+                    value={formData.email}
+                    onChange={handleChange}
+                    placeholder="So we can locate your account"
+                    className={getFieldClass('email')}
+                    disabled={loading}
+                  />
+                </FieldGroup>
+              </div>
+            </div>
+          )}
+
+          {stepIndex === 1 && (
+            <div className="space-y-5">
+              <div className="border-b border-[#b9d0ef] pb-2">
+                <h4 className="text-lg font-semibold text-[#2d78bf]">Section B - What Would You Like to Update?</h4>
+              </div>
+
+              <FieldGroup label="Select one or more update types" htmlFor="update-requestedUpdateTypes" required error={errors.requestedUpdateTypes} hint="Check all that apply">
+                <div className="grid gap-2 rounded-2xl border border-[#d8cbb8] bg-white p-4">
+                  {requestedUpdateOptions.map((option) => (
+                    <label
+                      key={option.value}
+                      className="flex cursor-pointer items-start gap-3 rounded-xl px-3 py-2 text-sm text-[#010407] transition-colors hover:bg-[#F7F4EF]"
+                    >
+                      <input
+                        type="checkbox"
+                        name="requestedUpdateTypes"
+                        value={option.value}
+                        checked={formData.requestedUpdateTypes.includes(option.value)}
+                        onChange={handleCheckboxChange}
+                        className="mt-1 h-4 w-4 rounded border-[#b8c7dc] text-[#2d78bf] focus:ring-[#2d78bf]"
+                        disabled={loading}
+                      />
+                      <span>{option.label}</span>
+                    </label>
+                  ))}
+                </div>
               </FieldGroup>
 
-              <FieldGroup label="Email address" htmlFor="update-email" required error={errors.email}>
-                <input
-                  id="update-email"
-                  name="email"
-                  type="email"
-                  value={formData.email}
-                  onChange={handleChange}
-                  placeholder="john@example.com"
-                  className={getFieldClass('email')}
-                  disabled={loading}
-                />
+              {requiresOtherDescription(formData.requestedUpdateTypes) && (
+                <FieldGroup label='If you selected "Other", what should this update be called?' htmlFor="update-otherUpdateLabel" required error={errors.otherUpdateLabel}>
+                  <textarea
+                    id="update-otherUpdateLabel"
+                    name="otherUpdateLabel"
+                    rows="2"
+                    value={formData.otherUpdateLabel}
+                    onChange={handleChange}
+                    placeholder="Example: Preferred name"
+                    className={`${getFieldClass('otherUpdateLabel')} resize-none`}
+                    disabled={loading}
+                  />
+                </FieldGroup>
+              )}
+            </div>
+          )}
+
+          {stepIndex === 2 && (
+            <div className="space-y-5">
+              <div className="border-b border-[#b9d0ef] pb-2">
+                <h4 className="text-lg font-semibold text-[#2d78bf]">Section C - New Information</h4>
+              </div>
+
+              <div className="grid gap-5 md:grid-cols-2">
+                {selectedFieldConfigs.map((field) => (
+                  <FieldGroup key={field.key} label={field.label} htmlFor={`update-${field.name}`} required error={errors[field.name]}>
+                    {field.type === 'textarea' ? (
+                      <textarea
+                        id={`update-${field.name}`}
+                        name={field.name}
+                        rows={field.rows || 4}
+                        value={formData[field.name]}
+                        onChange={handleChange}
+                        placeholder={field.placeholder}
+                        className={`${getFieldClass(field.name)} resize-none`}
+                        disabled={loading}
+                      />
+                    ) : (
+                      <input
+                        id={`update-${field.name}`}
+                        name={field.name}
+                        type={field.type || 'text'}
+                        value={formData[field.name]}
+                        onChange={handleChange}
+                        placeholder={field.placeholder}
+                        className={getFieldClass(field.name)}
+                        disabled={loading}
+                      />
+                    )}
+                  </FieldGroup>
+                ))}
+              </div>
+            </div>
+          )}
+
+          {stepIndex === 3 && (
+            <div className="space-y-5">
+              <div className="border-b border-[#b9d0ef] pb-2">
+                <h4 className="text-lg font-semibold text-[#2d78bf]">Section D - Apply Changes To</h4>
+              </div>
+
+              <FieldGroup label="Choose how to apply the changes" htmlFor="update-applyChangesTo" required error={errors.applyChangesTo}>
+                <div className="space-y-2 rounded-2xl border border-[#d8cbb8] bg-white p-4">
+                  {applyChangesToOptions.map((option) => (
+                    <label key={option.value} className="flex cursor-pointer items-start gap-3 rounded-xl px-3 py-2 text-sm transition-colors hover:bg-[#F7F4EF]">
+                      <input
+                        type="radio"
+                        name="applyChangesTo"
+                        value={option.value}
+                        checked={formData.applyChangesTo === option.value}
+                        onChange={handleChange}
+                        className="mt-1 h-4 w-4 border-[#b8c7dc] text-[#2d78bf] focus:ring-[#2d78bf]"
+                        disabled={loading}
+                      />
+                      <span>{option.label}</span>
+                    </label>
+                  ))}
+                </div>
               </FieldGroup>
 
-              <FieldGroup label="Policy number" htmlFor="update-policyNumber" required error={errors.policyNumber}>
+              <FieldGroup
+                label="Policy number"
+                htmlFor="update-policyNumber"
+                required={requiresPolicyNumber(formData.applyChangesTo)}
+                error={errors.policyNumber}
+                hint="Only required if you select one specific policy only"
+              >
                 <input
                   id="update-policyNumber"
                   name="policyNumber"
@@ -194,78 +471,44 @@ function UpdateContactInfoForm({ onClose }) {
             </div>
           )}
 
-          {stepIndex === 1 && (
-            <div className="space-y-5">
-              <div className="grid gap-5 md:grid-cols-2">
-                <FieldGroup label="Update type" htmlFor="update-updateType" required error={errors.updateType}>
-                  <select
-                    id="update-updateType"
-                    name="updateType"
-                    value={formData.updateType}
-                    onChange={handleChange}
-                    className={getFieldClass('updateType')}
-                    disabled={loading}
-                  >
-                    <option value="contact-info">Contact info</option>
-                    <option value="mailing-address">Mailing address</option>
-                    <option value="insured-item">Insured item</option>
-                    <option value="vehicle">Vehicle details</option>
-                    <option value="property">Property details</option>
-                    <option value="other">Other</option>
-                  </select>
-                </FieldGroup>
-              </div>
-
-              <FieldGroup label="Updated information" htmlFor="update-updatedValue" required error={errors.updatedValue}>
-                <textarea
-                  id="update-updatedValue"
-                  name="updatedValue"
-                  rows="4"
-                  value={formData.updatedValue}
-                  onChange={handleChange}
-                  placeholder="Add the new contact information or describe the item that should be updated."
-                  className={`${getFieldClass('updatedValue')} resize-none`}
-                  disabled={loading}
-                />
-              </FieldGroup>
-
-              <FieldGroup label="Additional notes" htmlFor="update-notes" required error={errors.notes}>
-                <textarea
-                  id="update-notes"
-                  name="notes"
-                  rows="3"
-                  value={formData.notes}
-                  onChange={handleChange}
-                  placeholder="Anything else we should know?"
-                  className={`${getFieldClass('notes')} resize-none`}
-                  disabled={loading}
-                />
-              </FieldGroup>
-            </div>
-          )}
-
-          {stepIndex === 2 && (
+          {stepIndex === 4 && (
             <div className="space-y-4 rounded-2xl border border-[#e7dccb] bg-[#F7F4EF]/55 p-5">
               <h4 className="text-base font-semibold text-[#012E72]">Review your request</h4>
               <div className="grid gap-3 text-sm text-[#010407]/80 sm:grid-cols-2">
                 <p>
-                  <span className="font-semibold">Full name:</span> {formData.fullName || '-'}
+                  <span className="font-semibold">Name of insured:</span> {formData.fullName || '-'}
                 </p>
                 <p>
-                  <span className="font-semibold">Email:</span> {formData.email || '-'}
+                  <span className="font-semibold">Current email on file:</span> {formData.email || '-'}
                 </p>
                 <p>
-                  <span className="font-semibold">Policy number:</span> {formData.policyNumber || '-'}
+                  <span className="font-semibold">Updates requested:</span> {formData.requestedUpdateTypes.length ? formData.requestedUpdateTypes.map((entry) => requestedUpdateLabelMap[entry] || entry).join(', ') : '-'}
                 </p>
                 <p>
-                  <span className="font-semibold">Update type:</span> {updateTypeLabelMap[formData.updateType] || '-'}
+                  <span className="font-semibold">Apply changes to:</span> {applyChangesToLabelMap[formData.applyChangesTo] || '-'}
                 </p>
               </div>
+
+              {requiresOtherDescription(formData.requestedUpdateTypes) && (
+                <p className="text-sm text-[#010407]/80">
+                  <span className="font-semibold">Other update label:</span> {formData.otherUpdateLabel || '-'}
+                </p>
+              )}
+
+              {selectedFieldConfigs.map((field) => (
+                <p key={field.key} className="text-sm text-[#010407]/80">
+                  <span className="font-semibold">{field.label}:</span> {formData[field.name] || '-'}
+                </p>
+              ))}
+
+              {formData.notes && (
+                <p className="text-sm text-[#010407]/80">
+                  <span className="font-semibold">Additional notes:</span> {formData.notes}
+                </p>
+              )}
+
               <p className="text-sm text-[#010407]/80">
-                <span className="font-semibold">Updated information:</span> {formData.updatedValue || '-'}
-              </p>
-              <p className="text-sm text-[#010407]/80">
-                <span className="font-semibold">Additional notes:</span> {formData.notes || '-'}
+                <span className="font-semibold">Policy number:</span> {formData.policyNumber || '-'}
               </p>
             </div>
           )}
