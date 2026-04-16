@@ -6,8 +6,8 @@ import RequestFormWizard from './RequestFormWizard';
 
 const wizardSteps = [
   { id: 'your-information', label: 'Your Information', icon: User },
-  { id: 'change-requested', label: 'Change Requested', icon: FileText },
-  { id: 'special-details', label: 'Special Details', icon: ShieldCheck },
+  { id: 'change-requested', label: 'Type of Change', icon: FileText },
+  { id: 'special-details', label: 'Mortgage / Lienholder Update', icon: ShieldCheck },
   { id: 'review-submit', label: 'Review & Submit', icon: Send },
 ];
 
@@ -508,6 +508,10 @@ function PolicyChangeForm({ onClose }) {
                     disabled={loading}
                   />
                 </FieldGroup>
+              </div>
+
+              <div className="rounded-2xl border border-amber-300 bg-amber-50 px-4 py-3 text-sm text-amber-900">
+                <strong>Note:</strong> Policy changes require carrier approval and may result in a premium adjustment. We will confirm the change with you before anything is finalized.
               </div>
             </div>
           )}
