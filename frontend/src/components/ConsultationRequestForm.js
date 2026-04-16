@@ -18,6 +18,7 @@ function ConsultationRequestForm({ onClose }) {
     email: '',
     address: '',
     phone: '',
+    notes: '',
   });
   const [errors, setErrors] = useState({});
   const [saved, setSaved] = useState(false);
@@ -95,6 +96,7 @@ function ConsultationRequestForm({ onClose }) {
         email: '',
         address: '',
         phone: '',
+        notes: '',
       });
     } catch (error) {
       setSubmitError(error.message || 'Failed to submit your request. Please try again.');
@@ -194,6 +196,19 @@ function ConsultationRequestForm({ onClose }) {
                   />
                 </FieldGroup>
               </div>
+
+              <FieldGroup label="Details on consultation (optional)" htmlFor="consultation-notes">
+                <textarea
+                  id="consultation-notes"
+                  name="notes"
+                  rows={6}
+                  value={formData.notes}
+                  onChange={handleChange}
+                  placeholder="Share any additional context for your consultation request"
+                  className={getFieldClass('notes')}
+                  disabled={loading}
+                />
+              </FieldGroup>
             </div>
           )}
 
@@ -212,6 +227,9 @@ function ConsultationRequestForm({ onClose }) {
                 </p>
                 <p>
                   <span className="font-semibold">Phone number:</span> {formData.phone || '-'}
+                </p>
+                <p className="sm:col-span-2">
+                  <span className="font-semibold">Details on consultation:</span> {formData.notes || '-'}
                 </p>
               </div>
             </div>
