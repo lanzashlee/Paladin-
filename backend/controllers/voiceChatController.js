@@ -1,5 +1,8 @@
 const OPENAI_API_URL = 'https://api.openai.com/v1/responses';
 const DEFAULT_MODEL = process.env.OPENAI_MODEL || 'gpt-4o-mini';
+const OPENAI_MAX_OUTPUT_TOKENS = Number.isFinite(Number(process.env.OPENAI_MAX_OUTPUT_TOKENS))
+  ? Math.max(200, Number(process.env.OPENAI_MAX_OUTPUT_TOKENS))
+  : 700;
 const ELEVENLABS_API_BASE_URL = process.env.ELEVENLABS_API_URL || 'https://api.elevenlabs.io/v1';
 const ELEVENLABS_DEFAULT_VOICE_ID = process.env.ELEVENLABS_VOICE_ID || 'EXAVITQu4vr4xnSDxMaL';
 const ELEVENLABS_DEFAULT_MODEL_ID = process.env.ELEVENLABS_MODEL_ID || 'eleven_multilingual_v2';
@@ -115,6 +118,88 @@ const KNOWN_TOPICS = [
   },
 ];
 
+const SAMPLE_QUESTION_RESPONSES = [
+  {
+    patterns: [/\breport\b.*\bclaim\b/i, /\bfile\b.*\bclaim\b/i],
+    reply:
+      'To report a claim, start the claim form on the website or call 805-692-6900. Share your policy number, date/time of loss, what happened, and any photos or documents you have. A licensed Paladin agent will follow up and walk you through carrier-specific next steps.',
+  },
+  {
+    patterns: [/\boffice hours\b/i, /\bcontact details\b/i],
+    reply:
+      'Paladin office hours are Monday to Friday, 9:00 AM to 5:00 PM, and the office is closed on weekends. You can reach us at 805-692-6900, email support@paladinbusinessservices.net, or visit 3787 Transport ST Suite A7 Box #5, Ventura, CA 93003. If it is after hours, send an email and an agent will respond the next business day.',
+  },
+  {
+    patterns: [/\bproof of insurance\b/i, /\bcoi\b/i, /\bcertificate of insurance\b/i],
+    reply:
+      'For proof of insurance or a COI, submit a document request through the website. Include certificate holder details, job/property address, and any required endorsements like Waiver of Subrogation or Additional Insured. If urgent, call 805-692-6900 and ask for certificate processing support.',
+  },
+  {
+    patterns: [/\brequest\b.*\bcallback\b/i, /\bcall me\b/i, /\bcall back\b/i],
+    reply:
+      'To request a callback, use the call request form and include your preferred phone number, best time window, and topic. This helps the assigned agent prepare before calling you. You can also call 805-692-6900 during business hours for immediate routing.',
+  },
+  {
+    patterns: [/\bchange\b.*\bpolicy\b/i, /\bpolicy change\b/i, /\badd\b.*\bdriver\b/i, /\bremove\b.*\bdriver\b/i],
+    reply:
+      'Policy changes can be requested online or by phone. For updates like adding/removing a driver, vehicle, address, or coverage limits, provide the policy number, effective date, and complete change details so the carrier can process quickly. Some changes may require underwriting review before final approval.',
+  },
+  {
+    patterns: [/\blicensed\b.*\bstates\b/i, /\bwhat states\b/i],
+    reply:
+      'Paladin is licensed in CA, AZ, ID, IL, IN, NV, NC, OH, and TX. If your risk or business operates across multiple states, we can help you identify the best next step and route you to the right policy workflow.',
+  },
+  {
+    patterns: [/\bafter hours\b.*\bclaim\b/i],
+    reply:
+      'Yes, you can submit claim details after hours through the website. If there is immediate danger or emergency damage, contact emergency services first, then notify your carrier emergency line if available. Paladin will review your submission and follow up on the next business day.',
+  },
+  {
+    patterns: [/\bhow quickly\b.*\bfollow up\b.*\bclaim\b/i],
+    reply:
+      'Paladin aims to follow up on new claim reports as soon as possible during business hours. Response time can vary by claim severity and carrier requirements, but submitting complete details and supporting documents usually speeds up handling.',
+  },
+  {
+    patterns: [/\bclaim types\b/i, /\bwhat claim\b.*\bhelp\b/i],
+    reply:
+      'We can assist with common claim categories such as auto, home, commercial property, general liability, workers compensation, and related coverage claims. The exact process depends on your carrier and policy terms, and we can guide you through the right channel.',
+  },
+  {
+    patterns: [/\bbundle\b.*\bcoverages\b/i],
+    reply:
+      'Yes, Paladin can review bundled options for business coverages such as general liability, property, commercial auto, workers compensation, and umbrella depending on eligibility. Bundling may improve pricing and simplify renewals, but final terms come from the carrier quote.',
+  },
+  {
+    patterns: [/\bcompare\b.*\bcarriers\b/i],
+    reply:
+      'As an independent agency, Paladin can compare multiple carrier options for your risk profile. We look at coverage fit, limits, deductibles, exclusions, pricing, and service factors so you can make an informed choice instead of selecting only by premium.',
+  },
+  {
+    patterns: [/\bumbrella\b.*\bgeneral liability\b/i, /\bgeneral liability\b.*\bumbrella\b/i],
+    reply:
+      'General liability is primary coverage for common third-party bodily injury and property damage claims. Umbrella coverage typically sits on top of eligible underlying policies and adds extra liability limits once those base limits are exhausted. It is designed to provide broader financial protection for larger claims.',
+  },
+];
+
+const INTENT_LOCAL_RESPONSES = {
+  claim:
+    'You can report a claim through the website or by calling 805-692-6900. To avoid delays, include your policy number, incident date, location, what happened, and any photos/documents. A licensed Paladin agent will follow up and guide you through carrier-specific requirements.',
+  'document-request':
+    'You can request documents like COI, declarations, or endorsement copies using the document request form. Please include certificate holder details, delivery deadline, and any endorsement wording needed. If this is urgent, call 805-692-6900 during office hours for priority support.',
+  'policy-change':
+    'For policy changes, submit the request online or call the office with your policy number and requested effective date. Common updates include driver/vehicle changes, endorsements, contact updates, and limit changes. Some requests may require underwriting review before they are finalized.',
+  'update-contact':
+    'You can update contact information by submitting the update form with your policy number and the new details. Include phone, email, mailing address, or insured item changes as needed. Keeping this current helps avoid delays on claims, billing, and renewal notices.',
+  consultation:
+    'Paladin can provide a personalized consultation to compare carriers and recommend coverage options for your needs. Share your state, business/personal profile, target limits, and current pain points so the quote comparison is more accurate. You can start with a consultation request or callback request.',
+  'call-request':
+    'Use the call request form and include your best callback window, phone number, and topic so the agent is prepared. If you need immediate help during business hours, call 805-692-6900 directly. For after-hours requests, submit the form and the team will respond on the next business day.',
+  'hours-contact':
+    'Paladin office hours are Monday to Friday, 9:00 AM to 5:00 PM. Contact options are phone 805-692-6900, fax 805-830-1680, and email support@paladinbusinessservices.net. The office address is 3787 Transport ST Suite A7 Box #5, Ventura, CA 93003.',
+  'coverage-info':
+    'Paladin supports a broad mix of coverage lines including general liability, commercial auto, workers compensation, cyber, flood, umbrella, home, auto, life, and health. The best structure depends on your risk profile, state, and contract requirements. A consultation can help you choose limits and endorsements that fit your goals.',
+};
+
 const INTENT_RULES = [
   {
     intent: 'claim',
@@ -135,7 +220,18 @@ const INTENT_RULES = [
   },
   {
     intent: 'policy-change',
-    keywords: ['policy change', 'change policy', 'update policy', 'add driver', 'remove vehicle', 'coverage limit'],
+    keywords: [
+      'policy change',
+      'change policy',
+      'update policy',
+      'add driver',
+      'remove driver',
+      'add or remove a driver',
+      'remove vehicle',
+      'coverage limit',
+      'deductible',
+      'deductibles',
+    ],
   },
   {
     intent: 'update-contact',
@@ -285,6 +381,19 @@ const buildLocalReply = (message) => {
     return 'You are welcome. If you need anything else, ask me about claims, policy changes, or coverage options.';
   }
 
+  const sampleMatch = SAMPLE_QUESTION_RESPONSES.find((item) =>
+    item.patterns.some((pattern) => pattern.test(message))
+  );
+
+  if (sampleMatch) {
+    return sampleMatch.reply;
+  }
+
+  const detectedIntent = detectIntent(message);
+  if (INTENT_LOCAL_RESPONSES[detectedIntent]) {
+    return INTENT_LOCAL_RESPONSES[detectedIntent];
+  }
+
   const matchedTopic = KNOWN_TOPICS.find((topic) =>
     topic.keywords.some((keyword) => normalized.includes(keyword))
   );
@@ -293,7 +402,7 @@ const buildLocalReply = (message) => {
     return matchedTopic.reply;
   }
 
-  return 'I can help with office hours, contact details, claims, policy changes, proof of insurance, consultations, and Paladin coverage options. Try asking about one of those topics.';
+  return 'I can help with claims, policy changes, document requests, consultations, callbacks, coverage options, and office contact details. Tell me your goal and I will give you exact next steps.';
 };
 
 const extractText = (payload) => {
@@ -428,7 +537,7 @@ exports.askVoiceAssistant = async (req, res) => {
             content: [{ type: 'input_text', text: userMessage }],
           },
         ],
-        max_output_tokens: 280,
+        max_output_tokens: OPENAI_MAX_OUTPUT_TOKENS,
       }),
       signal: controller.signal,
     });
