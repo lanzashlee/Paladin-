@@ -6,12 +6,12 @@ function Hero() {
   return (
     <section id="hero" className="relative bg-white overflow-hidden">
       <div className="max-w-[1320px] mx-auto px-4 sm:px-8 lg:px-10 pt-4 lg:pt-5 pb-2 lg:pb-3">
-        <div className="grid grid-cols-1 lg:grid-cols-[0.95fr_0.95fr_0.45fr] gap-6 lg:gap-8 items-start">
-          <div className="pt-3 lg:pt-14">
+        <div className="grid grid-cols-1 lg:grid-cols-[0.95fr_0.95fr_0.45fr] lg:grid-rows-[auto_auto] gap-6 lg:gap-x-8 lg:gap-y-6 items-start">
+          <div className="pt-3 lg:pt-14 lg:col-start-1 lg:row-start-1">
             <p className="text-[#123f93] text-2xl mb-2">Welcome to</p>
             <h1 className="leading-[0.96] tracking-tight text-[#0b3a89]">
-              <span className="block text-7xl sm:text-8xl font-black">PALADIN</span>
-              <span className="block text-[2.45rem] sm:text-5xl font-medium text-[#11346f] mt-1">
+              <span className="block text-6xl sm:text-7xl font-black">PALADIN</span>
+              <span className="block text-[2rem] sm:text-[2.9rem] font-medium text-[#11346f] mt-1">
                 Professional Insurance Solutions
               </span>
             </h1>
@@ -19,36 +19,19 @@ function Hero() {
             <p className="mt-7 text-[#14161d] text-base leading-relaxed max-w-[37ch] font-medium">
               Coverage built for professionals, businesses, property owners, and families who want a clear path to the right protection.
             </p>
-
-            <div className="mt-7 flex flex-wrap gap-2.5 max-w-[430px]">
-              {['Professional', 'Commercial', 'Landlord', 'Contractors', 'Watercraft', 'Auto'].map((item) => (
-                <span
-                  key={item}
-                  className="inline-flex items-center rounded-full px-4 py-1 text-xs font-medium shadow-[0_4px_7px_rgba(0,0,0,0.16)] bg-[#f4f2ed] text-[#1b1f26]"
-                >
-                  {item}
-                </span>
-              ))}
-              <Link
-                to="/service"
-                className="inline-flex items-center rounded-full px-4 py-1 text-xs font-medium shadow-[0_4px_7px_rgba(0,0,0,0.16)] bg-[#f4f2ed] text-[#1b1f26] hover:bg-[#0b3a89] hover:text-white transition-colors"
-              >
-                and More
-              </Link>
-            </div>
           </div>
 
-          <div className="flex justify-center lg:justify-start self-start">
+          <div className="flex justify-center lg:justify-start self-start overflow-visible lg:col-start-2 lg:row-span-2">
             <img
               src={heroImage}
               alt="Paladin building"
-              className="w-full max-w-[520px] h-auto object-contain object-top"
+              className="w-[122%] sm:w-[128%] lg:w-[145%] max-w-none h-auto object-contain object-top lg:-ml-8"
             />
           </div>
 
-          <div className="flex flex-col gap-2 pt-2 lg:pt-0 lg:items-end">
+          <div className="flex flex-col gap-2 pt-3 lg:pt-14 lg:items-end lg:col-start-3 lg:row-start-1">
             {[
-              ['30 +', 'Coverage Option'],
+              ['30+', 'Coverage Option'],
               ['9', 'States Served'],
               ['FAST', 'Quote  Turnaround'],
             ].map(([value, label]) => (
@@ -60,21 +43,38 @@ function Hero() {
                 <p className="mt-0.5 text-[0.82rem] uppercase tracking-[0.07em] text-[#787878] font-semibold leading-snug">{label}</p>
               </div>
             ))}
+          </div>
 
-            <div className="pt-0.5 flex flex-col gap-2 w-full max-w-[188px]">
-              <a
-                href="#contact-location"
-                className="inline-flex items-center justify-center rounded-full bg-[#f4f2ed] text-[#161a22] text-xs py-1.5 shadow-[0_6px_9px_rgba(0,0,0,0.16)]"
+          <div className="mt-7 lg:mt-0 flex flex-wrap gap-2.5 max-w-[430px] lg:col-start-1 lg:row-start-2">
+            {['Professional', 'Commercial', 'Landlord', 'Contractors', 'Watercraft', 'Auto'].map((item) => (
+              <span
+                key={item}
+                className="inline-flex items-center rounded-full px-4 py-1 text-xs font-medium shadow-[0_4px_7px_rgba(0,0,0,0.16)] bg-[#f4f2ed] text-[#1b1f26]"
               >
-                Get <span className="text-[#0b3a89] font-bold ml-1">Free Quote</span>
-              </a>
-              <a
-                href="tel:8056926900"
-                className="inline-flex items-center justify-center rounded-full bg-[#f4f2ed] text-[#161a22] text-xs py-1.5 shadow-[0_6px_9px_rgba(0,0,0,0.16)]"
-              >
-                Call <span className="text-[#0b3a89] font-bold ml-1">805 - 692 - 6900</span>
-              </a>
-            </div>
+                {item}
+              </span>
+            ))}
+            <Link
+              to="/service"
+              className="inline-flex items-center rounded-full px-4 py-1 text-xs font-medium shadow-[0_4px_7px_rgba(0,0,0,0.16)] bg-[#f4f2ed] text-[#1b1f26] hover:bg-[#0b3a89] hover:text-white transition-colors"
+            >
+              and More
+            </Link>
+          </div>
+
+          <div className="mt-3 lg:mt-0 flex flex-col gap-2 w-full max-w-[188px] lg:col-start-3 lg:row-start-2 lg:justify-self-end">
+            <a
+              href="#contact-location"
+              className="inline-flex items-center justify-center rounded-full bg-[#f4f2ed] text-[#161a22] text-xs py-1.5 shadow-[0_6px_9px_rgba(0,0,0,0.16)]"
+            >
+              Get <span className="text-[#0b3a89] font-bold ml-1">Free Quote</span>
+            </a>
+            <a
+              href="tel:8056926900"
+              className="inline-flex items-center justify-center rounded-full bg-[#f4f2ed] text-[#161a22] text-xs py-1.5 shadow-[0_6px_9px_rgba(0,0,0,0.16)]"
+            >
+              Call <span className="text-[#0b3a89] font-bold ml-1">805 - 692 - 6900</span>
+            </a>
           </div>
         </div>
       </div>

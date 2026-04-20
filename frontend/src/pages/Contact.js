@@ -224,7 +224,7 @@ function Contact() {
     <>
       <Header />
       
-      <main id="get-in-touch" className="pt-16 pb-24 px-8 max-w-7xl mx-auto w-full text-[#010407]">
+      <main id="get-in-touch" className="pt-16 pb-0 px-8 max-w-7xl mx-auto w-full text-[#010407]">
         {/* Page Header */}
         <div className="text-center mb-16">
           <p className="inline-flex items-center px-4 py-1 rounded-full bg-[#F7F4EF] text-[#012E72] text-xs font-semibold tracking-widest uppercase mb-4 border border-[#e7dccb] shadow-sm">
@@ -410,11 +410,9 @@ function Contact() {
       </main>
 
       {/* Render ContactInfo below the form instead of side-by-side to preserve its existing layout since it acts as a full section */}
-      <div className="mt-[-8rem]">
-        <ContactInfo />
-      </div>
+      <ContactInfo />
 
-      <MapLocation className="pt-0 -mt-10" />
+      <MapLocation />
 
       <Footer />
 

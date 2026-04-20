@@ -25,7 +25,7 @@ function Home() {
       <TestimonialsPreview />
       <OfficeHours />
       <ContactInfo />
-      <MapLocation className="pt-0 -mt-10" />
+      <MapLocation />
       <Footer />
     </>
   );
