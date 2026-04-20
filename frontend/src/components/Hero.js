@@ -4,98 +4,76 @@ import heroImage from '../assets/hero-image.png';
 
 function Hero() {
   return (
-    <section id="hero" className="relative w-full overflow-hidden min-h-[500px] sm:min-h-[580px] lg:min-h-[640px] flex items-center bg-white">
-      {/* Full hero background image */}
-      <div className="absolute inset-0 hidden lg:block pointer-events-none">
-        <img
-          src={heroImage}
-          alt=""
-          aria-hidden="true"
-          className="w-full h-full object-cover object-[76%_center] lg:object-right"
-        />
-        <div className="absolute inset-0 bg-gradient-to-r from-white via-white/96 via-[48%] to-transparent" />
-        <div className="absolute inset-0 bg-gradient-to-l from-[#F7F4EF]/80 via-transparent to-transparent" />
-      </div>
+    <section id="hero" className="relative bg-white overflow-hidden">
+      <div className="max-w-[1320px] mx-auto px-4 sm:px-8 lg:px-10 pt-4 lg:pt-5 pb-2 lg:pb-3">
+        <div className="grid grid-cols-1 lg:grid-cols-[0.95fr_0.95fr_0.45fr] gap-6 lg:gap-8 items-start">
+          <div className="pt-3 lg:pt-14">
+            <p className="text-[#123f93] text-2xl mb-2">Welcome to</p>
+            <h1 className="leading-[0.96] tracking-tight text-[#0b3a89]">
+              <span className="block text-7xl sm:text-8xl font-black">PALADIN</span>
+              <span className="block text-[2.45rem] sm:text-5xl font-medium text-[#11346f] mt-1">
+                Professional Insurance Solutions
+              </span>
+            </h1>
 
-      {/* Mobile/tablet background tone */}
-      <div className="absolute inset-0 bg-white lg:hidden pointer-events-none" />
-      <div className="absolute inset-0 pointer-events-none">
-        <div className="absolute -top-20 -left-16 w-56 h-56 rounded-full bg-[#002DB5]/10 blur-3xl" />
-        <div className="absolute -bottom-20 right-0 w-64 h-64 rounded-full bg-[#F7F4EF] blur-3xl" />
-      </div>
+            <p className="mt-7 text-[#14161d] text-base leading-relaxed max-w-[37ch] font-medium">
+              Coverage built for professionals, businesses, property owners, and families who want a clear path to the right protection.
+            </p>
 
-      <div className="relative z-10 w-full max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 pt-10 sm:pt-12 lg:pt-14 pb-16 sm:pb-18 lg:pb-24">
-        {/* Left Column - Content */}
-        <div className="flex flex-col justify-center max-w-2xl lg:min-h-[560px]">
-
-          <h1 className="font-extrabold text-[#010407] leading-[1.08] sm:leading-[1.12] mb-4 sm:mb-6 tracking-tight">
-            <span className="text-xl lg:text-2xl text-[#012E72]">Welcome To</span>
-            <br />
-            <span className="text-3xl sm:text-4xl md:text-5xl lg:text-6xl text-[#002DB5]">PALADIN</span>
-            <br />
-            <span className="text-3xl sm:text-4xl md:text-5xl lg:text-5xl text-[#012E72]">Professional Insurance Solutions</span>
-          </h1>
-
-          <p className="text-sm sm:text-base text-[#010407]/78 mb-6 sm:mb-8 leading-relaxed font-medium max-w-[62ch]">
-            Coverage built for professionals, businesses, property owners, and families who want a clear path to the right protection.
-          </p>
-
-          <div className="flex flex-col gap-2 mb-8 sm:mb-10">
-            <div className="flex flex-wrap gap-2 sm:gap-3 md:gap-4">
-              {['Professional', 'Commercial', 'Landlord', 'Contractors'].map((item) => (
+            <div className="mt-7 flex flex-wrap gap-2.5 max-w-[430px]">
+              {['Professional', 'Commercial', 'Landlord', 'Contractors', 'Watercraft', 'Auto'].map((item) => (
                 <span
                   key={item}
-                    className="inline-flex items-center rounded-full px-3 py-1.5 text-xs sm:text-sm font-semibold shadow-sm border bg-white text-[#002DB5] border-[#d8cbb8]"
-                >
-                  {item}
-                </span>
-              ))}
-            </div>
-            <div className="flex flex-wrap gap-2 sm:gap-3 md:gap-4">
-              {['Watercraft', 'Auto'].map((item) => (
-                <span
-                  key={item}
-                    className="inline-flex items-center rounded-full px-3 py-1.5 text-xs sm:text-sm font-semibold shadow-sm border bg-white text-[#002DB5] border-[#d8cbb8]"
+                  className="inline-flex items-center rounded-full px-4 py-1 text-xs font-medium shadow-[0_4px_7px_rgba(0,0,0,0.16)] bg-[#f4f2ed] text-[#1b1f26]"
                 >
                   {item}
                 </span>
               ))}
               <Link
                 to="/service"
-                  className="inline-flex items-center rounded-full px-3 py-1.5 text-xs sm:text-sm font-semibold shadow-sm border bg-[#F7F4EF] text-[#012E72] border-[#d8cbb8] transition-all duration-200 hover:bg-[#002DB5] hover:text-white hover:border-[#002DB5] hover:-translate-y-0.5 hover:shadow-lg hover:shadow-[#002DB5]/20 focus:outline-none focus:ring-2 focus:ring-[#002DB5]/30"
+                className="inline-flex items-center rounded-full px-4 py-1 text-xs font-medium shadow-[0_4px_7px_rgba(0,0,0,0.16)] bg-[#f4f2ed] text-[#1b1f26] hover:bg-[#0b3a89] hover:text-white transition-colors"
               >
                 and More
               </Link>
             </div>
           </div>
 
-          <div className="flex flex-col sm:flex-row gap-3 mb-8 sm:mb-10">
-            <a
-              href="#contact-location"
-              className="inline-flex items-center justify-center bg-[#012E72] text-white px-6 py-3 rounded-full font-bold text-sm sm:text-base shadow-lg shadow-[#012E72]/20 hover:bg-[#002DB5] transition-all hover:-translate-y-0.5"
-            >
-              Get Free Quote
-            </a>
-            <a
-              href="tel:8056926900"
-              className="inline-flex items-center justify-center bg-white text-[#012E72] border border-[#d8cbb8] px-6 py-3 rounded-full font-bold text-sm sm:text-base shadow-sm hover:border-[#002DB5] hover:text-[#002DB5] hover:bg-[#F7F4EF] transition-all hover:-translate-y-0.5"
-            >
-              Call 805-692-6900
-            </a>
+          <div className="flex justify-center lg:justify-start self-start">
+            <img
+              src={heroImage}
+              alt="Paladin building"
+              className="w-full max-w-[520px] h-auto object-contain object-top"
+            />
           </div>
 
-          <div className="grid grid-cols-2 sm:grid-cols-3 gap-2 sm:gap-3 max-w-lg">
-            <div className="rounded-xl bg-white border border-[#e7dccb] p-3 sm:p-4 shadow-sm backdrop-blur-sm">
-              <p className="text-lg sm:text-2xl font-black text-[#012E72]">30+</p>
-              <p className="text-xs text-[#010407]/70 font-semibold uppercase tracking-wide">Coverage Options</p>
-            </div>
-            <div className="rounded-xl bg-white border border-[#e7dccb] p-3 sm:p-4 shadow-sm backdrop-blur-sm">
-              <p className="text-lg sm:text-2xl font-black text-[#012E72]">9</p>
-              <p className="text-xs text-[#010407]/70 font-semibold uppercase tracking-wide">States Served</p>
-            </div>
-            <div className="rounded-xl bg-white border border-[#e7dccb] p-3 sm:p-4 shadow-sm backdrop-blur-sm col-span-2 sm:col-span-1">
-              <p className="text-lg sm:text-2xl font-black text-[#012E72]">Fast</p>
-              <p className="text-xs text-[#010407]/70 font-semibold uppercase tracking-wide">Quote Turnaround</p>
+          <div className="flex flex-col gap-2 pt-2 lg:pt-0 lg:items-end">
+            {[
+              ['30 +', 'Coverage Option'],
+              ['9', 'States Served'],
+              ['FAST', 'Quote  Turnaround'],
+            ].map(([value, label]) => (
+              <div
+                key={label}
+                className="w-full max-w-[188px] rounded-2xl px-3.5 py-2.5 bg-[#f4f2ed] shadow-[0_7px_11px_rgba(0,0,0,0.17)]"
+              >
+                <p className="text-[1.85rem] font-extrabold text-[#0b3a89] leading-none">{value}</p>
+                <p className="mt-0.5 text-[0.82rem] uppercase tracking-[0.07em] text-[#787878] font-semibold leading-snug">{label}</p>
+              </div>
+            ))}
+
+            <div className="pt-0.5 flex flex-col gap-2 w-full max-w-[188px]">
+              <a
+                href="#contact-location"
+                className="inline-flex items-center justify-center rounded-full bg-[#f4f2ed] text-[#161a22] text-xs py-1.5 shadow-[0_6px_9px_rgba(0,0,0,0.16)]"
+              >
+                Get <span className="text-[#0b3a89] font-bold ml-1">Free Quote</span>
+              </a>
+              <a
+                href="tel:8056926900"
+                className="inline-flex items-center justify-center rounded-full bg-[#f4f2ed] text-[#161a22] text-xs py-1.5 shadow-[0_6px_9px_rgba(0,0,0,0.16)]"
+              >
+                Call <span className="text-[#0b3a89] font-bold ml-1">805 - 692 - 6900</span>
+              </a>
             </div>
           </div>
         </div>
