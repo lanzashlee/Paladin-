@@ -7,9 +7,9 @@ import WhyChooseUs from '../components/WhyChooseUs';
 import MapLocation from '../components/MapLocation';
 import Carriers from '../components/Carriers';
 
-import TeamMember1 from '../assets/team_member_1_1774940222890.png';
-import TeamMember2 from '../assets/team_member_2_1774940252257.png';
-import TeamMember3 from '../assets/team_member_3_1774940454549.png';
+import TeamMember1 from '../assets/MS DENISE.png';
+import TeamMember2 from '../assets/SIR ANDY.png';
+import TeamMember3 from '../assets/DONNA.png';
 
 export default function About() {
   return (
@@ -111,12 +111,11 @@ export default function About() {
             </p>
           </div>
           
-          <div className="grid grid-cols-1 md:grid-cols-4 gap-10">
+          <div className="grid grid-cols-1 md:grid-cols-3 gap-10">
             {[
-              { name: "Michael Sterling", role: "Founder & Principal Broker", bio: "With over 20 years in the industry, Michael founded Paladin to bring a higher standard of care to commercial insurance.", img: TeamMember1 },
-              { name: "Sarah Jenkins", role: "Head of Client Relations", bio: "Sarah ensures every client receives the personalized, attentive service that Paladin is universally known for.", img: TeamMember2 },
-              { name: "David Chen", role: "Senior Risk Analyst", bio: "David specializes in designing tailored liability strategies for both emerging businesses and established enterprises.", img: TeamMember3 },
-              { name: "Lisa Morales", role: "Client Success Manager", bio: "Lisa keeps every policy on track, coordinating renewals and follow-ups so clients stay protected without the paperwork headaches.", img: TeamMember2 },
+              { name: "Denise Pomboonreung", role: "CEO", bio: "Sets the vision for the agency, leads client relationships, and drives long-term growth with a service-first mindset.", img: TeamMember1 },
+              { name: "Andy Zubia", role: "President", bio: "Oversees company strategy and daily execution, keeping the team aligned and the client experience consistent.", img: TeamMember2 },
+              { name: "Donna Jumdail", role: "Operations Lead", bio: "Manages workflow, coordination, and service follow-through so every request moves smoothly from start to finish.", img: TeamMember3 },
             ].map((member, idx) => (
               <div key={idx} className="group text-center bg-[#F7F4EF] border border-[#e7dccb] p-6 rounded-3xl shadow-xl shadow-[#012E72]/5 hover:-translate-y-2 transition-all duration-300">
                 <div className="relative w-48 h-48 mx-auto rounded-[2rem] overflow-hidden mb-8 shadow-md">
