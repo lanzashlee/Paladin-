@@ -4,7 +4,7 @@ import heroImage from '../assets/hero-image.png';
 
 function Hero() {
   return (
-    <section id="hero" className="relative bg-white overflow-hidden">
+    <section id="hero" className="relative bg-[linear-gradient(180deg,#f9fbff_0%,#f1f5fb_62%,#ffffff_100%)] overflow-hidden">
       <div className="max-w-[1320px] mx-auto px-4 sm:px-8 lg:px-10 pt-4 lg:pt-5 pb-2 lg:pb-3">
         <div className="grid grid-cols-1 lg:grid-cols-[0.95fr_0.95fr_0.45fr] lg:grid-rows-[auto_auto] gap-6 lg:gap-x-8 lg:gap-y-6 items-start">
           <div className="pt-3 lg:pt-14 lg:col-start-1 lg:row-start-1">
