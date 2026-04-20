@@ -1,6 +1,10 @@
 import React, { useEffect, useMemo, useRef, useState } from 'react';
 
-const API_BASE_URL = process.env.REACT_APP_API_BASE_URL || 'http://localhost:5000';
+const IS_LOCALHOST =
+  typeof window !== 'undefined' &&
+  (window.location.hostname === 'localhost' || window.location.hostname === '127.0.0.1');
+const API_BASE_URL = process.env.REACT_APP_API_BASE_URL || (IS_LOCALHOST ? 'http://localhost:5000' : '');
+const API_TARGET_LABEL = API_BASE_URL || 'same-origin /api';
 const AGORA_DEFAULT_CHANNEL = process.env.REACT_APP_AGORA_CHANNEL || 'paladin-voice';
 const USE_ELEVENLABS_TTS = process.env.REACT_APP_USE_ELEVENLABS_TTS !== 'false';
 const ENABLE_AGORA = process.env.REACT_APP_ENABLE_AGORA === 'true';
@@ -693,6 +697,12 @@ function VoiceChatWidget() {
     setMessages((prev) => [...prev, { role: 'user', text: message, timestamp: new Date().toISOString() }]);
 
     try {
+      if (!API_BASE_URL && !IS_LOCALHOST) {
+        throw new Error(
+          'Missing REACT_APP_API_BASE_URL for production. Add it in Vercel frontend Environment Variables and redeploy.'
+        );
+      }
+
       const response = await fetch(`${API_BASE_URL}/api/voice-chat`, {
         method: 'POST',
         headers: {
@@ -701,7 +711,19 @@ function VoiceChatWidget() {
         body: JSON.stringify({ message }),
       });
 
-      const payload = await response.json();
+      const rawBody = await response.text();
+      let payload = {};
+
+      try {
+        payload = rawBody ? JSON.parse(rawBody) : {};
+      } catch (parseError) {
+        payload = { error: rawBody || 'Unexpected response from server.' };
+      }
+
+      if (!response.ok) {
+        throw new Error(payload.error || `Backend error (${response.status}).`);
+      }
+
       const assistantText = payload.reply || payload.error || 'I ran into an issue. Please try again.';
       const payloadFollowUps = Array.isArray(payload.followUpQuestions) ? payload.followUpQuestions : [];
       const payloadActions = Array.isArray(payload.suggestedActions) ? payload.suggestedActions : [];
@@ -730,15 +752,18 @@ function VoiceChatWidget() {
         setStatus('Tap the mic and ask your question.');
       }
     } catch (error) {
+      const errorText = String(error?.message || '').trim();
+      const userVisibleError =
+        errorText || `Connection failed. Could not reach backend API at ${API_TARGET_LABEL}. Please try again.`;
+
       setMessages((prev) => [
-        ...(prev[prev.length - 1]?.text ===
-        'Connection failed. Please make sure backend server is running on http://localhost:5000 and try again.'
+        ...(prev[prev.length - 1]?.text === userVisibleError
           ? prev
           : [
               ...prev,
               {
                 role: 'assistant',
-                text: 'Connection failed. Please make sure backend server is running on http://localhost:5000 and try again.',
+                text: userVisibleError,
                 timestamp: new Date().toISOString(),
               },
             ]),
