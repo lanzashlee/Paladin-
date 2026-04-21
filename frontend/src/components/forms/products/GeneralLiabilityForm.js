@@ -544,7 +544,7 @@ function GeneralLiabilityForm({ onBack }) {
               </label>
 
               {priorClaims.length > 1 ? (
-                <button className="quote-request__inline-secondary" type="button" onClick={() => removeClaim(index)}>
+                <button className="quote-request__inline-secondary quote-request__inline-secondary--remove-row" type="button" onClick={() => removeClaim(index)}>
                   Remove Row
                 </button>
               ) : null}

@@ -266,6 +266,22 @@
   cursor: pointer;
   transition: background-color 0.2s, border-color 0.2s, color 0.2s;
 }
+.quote-request__claim-row .quote-request__inline-secondary {
+  width: fit-content;
+  justify-self: start;
+}
+.quote-request__inline-secondary--remove-row {
+  grid-column: 1;
+  grid-row: auto;
+}
+.quote-request__inline-secondary--compact {
+  padding: 0.32rem 0.58rem;
+  font-size: 0.76rem;
+  border-radius: 7px;
+  line-height: 1.1;
+  width: fit-content;
+  justify-self: start;
+}
 .quote-request__inline-secondary:hover {
   background: #edf4ff;
   color: var(--paladin-navy);
