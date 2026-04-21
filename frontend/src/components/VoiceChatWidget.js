@@ -610,8 +610,24 @@ function VoiceChatWidget() {
     });
 
     if (!response.ok) {
-      const errorBody = await response.text();
-      throw new Error(errorBody || 'ElevenLabs synthesis failed.');
+      const rawBody = await response.text();
+      let errorMessage = 'ElevenLabs synthesis failed.';
+
+      try {
+        const parsed = rawBody ? JSON.parse(rawBody) : null;
+        if (parsed?.error) {
+          errorMessage = parsed.error;
+        }
+        if (parsed?.details) {
+          errorMessage = `${errorMessage} ${String(parsed.details)}`.trim();
+        }
+      } catch (parseError) {
+        if (rawBody) {
+          errorMessage = rawBody;
+        }
+      }
+
+      throw new Error(errorMessage);
     }
 
     const audioBlob = await response.blob();
@@ -678,7 +694,12 @@ function VoiceChatWidget() {
         await speakWithBrowserVoice(text);
       }
     } catch (error) {
-      setStatus('ElevenLabs unavailable. Using browser voice fallback.');
+      const reason = String(error?.message || '').trim();
+      setStatus(
+        reason
+          ? `ElevenLabs unavailable (${reason}). Using browser voice fallback.`
+          : 'ElevenLabs unavailable. Using browser voice fallback.'
+      );
       await speakWithBrowserVoice(text);
     } finally {
       setIsSpeaking(false);
