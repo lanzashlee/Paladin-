@@ -489,7 +489,10 @@ exports.synthesizeVoice = async (req, res) => {
       return res.status(504).json({ error: 'ElevenLabs synthesis timed out.' });
     }
 
-    return res.status(502).json({ error: 'Failed to synthesize audio with ElevenLabs.' });
+    return res.status(502).json({
+      error: 'Failed to synthesize audio with ElevenLabs.',
+      details: error?.message || 'Unknown upstream error.',
+    });
   }
 };
 
