@@ -5,6 +5,17 @@ const fs = require('fs');
 const Contact = require('../models/Contact');
 
 const toBoolean = (value) => String(value || '').toLowerCase() === 'true';
+const normalizeSmtpPassword = (password, username) => {
+  const raw = String(password || '').trim();
+  const user = String(username || '').toLowerCase();
+
+  // Gmail app passwords are often pasted with spaces (xxxx xxxx xxxx xxxx).
+  if (user.endsWith('@gmail.com')) {
+    return raw.replace(/\s+/g, '');
+  }
+
+  return raw;
+};
 
 const escapeHtml = (value = '') =>
   String(value)
@@ -678,12 +689,12 @@ const createTransporter = () => {
   const SMTP_HOST = (process.env.SMTP_HOST || '').trim();
   const SMTP_PORT = (process.env.SMTP_PORT || '').trim();
   const SMTP_USER = (process.env.SMTP_USER || process.env.EMAIL_USER || '').trim();
-  const SMTP_PASS = (
+  const SMTP_PASS = normalizeSmtpPassword((
     process.env.SMTP_PASS ||
     process.env.GMAIL_APP_PASSWORD ||
     process.env.EMAIL_PASSWORD ||
     ''
-  ).trim();
+  ), SMTP_USER);
   const SMTP_SECURE = (process.env.SMTP_SECURE || '').trim();
 
   if (SMTP_HOST && SMTP_PORT && SMTP_USER && SMTP_PASS) {
@@ -709,6 +720,26 @@ const createTransporter = () => {
   }
 
   return null;
+};
+
+const isGmailAuthError = (error) => {
+  if (!error) {
+    return false;
+  }
+
+  const message = String(error.message || '').toLowerCase();
+  const response = String(error.response || '').toLowerCase();
+  const command = String(error.command || '').toLowerCase();
+
+  return (
+    error.code === 'EAUTH' ||
+    error.responseCode === 535 ||
+    message.includes('badcredentials') ||
+    message.includes('username and password not accepted') ||
+    response.includes('badcredentials') ||
+    response.includes('username and password not accepted') ||
+    command.includes('auth')
+  );
 };
 
 const getEmailDeliveryReadiness = () => {
@@ -1133,6 +1164,14 @@ exports.createContact = async (req, res) => {
     });
   } catch (err) {
     console.error('Error creating contact:', err);
+
+    if (isGmailAuthError(err)) {
+      return res.status(502).json({
+        error:
+          'Email authentication failed for SMTP. If using Gmail, set SMTP_USER to your full Gmail address and SMTP_PASS to a Google App Password (not your regular account password).',
+      });
+    }
+
     return res.status(500).json({ error: err.message || 'Unable to submit your request right now.' });
   }
 };
