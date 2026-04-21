@@ -10,6 +10,47 @@ const wizardSteps = [
 ];
 
 const stepFields = [['fullName', 'email', 'address', 'phone'], []];
+const EMAIL_REGEX = /^[a-zA-Z0-9!#$%&'*+/=?^_`{|}~.-]+@[a-zA-Z0-9](?:[a-zA-Z0-9-]{0,61}[a-zA-Z0-9])?(?:\.[a-zA-Z]{2,})+$/;
+
+const isValidEmailFormat = (emailValue = '') => {
+  const email = String(emailValue).trim();
+  if (!email || !EMAIL_REGEX.test(email)) {
+    return false;
+  }
+
+  const [localPart = '', domainPart = ''] = email.split('@');
+  if (
+    localPart.startsWith('.') ||
+    localPart.endsWith('.') ||
+    localPart.includes('..') ||
+    domainPart.startsWith('.') ||
+    domainPart.endsWith('.') ||
+    domainPart.includes('..')
+  ) {
+    return false;
+  }
+
+  return true;
+};
+
+const normalizeUsPhoneDigits = (value = '') => String(value).replace(/\D/g, '').slice(0, 10);
+const formatUsPhoneDisplay = (digitsValue = '') => {
+  const digits = normalizeUsPhoneDigits(digitsValue);
+
+  if (!digits) {
+    return '';
+  }
+
+  if (digits.length <= 3) {
+    return `(${digits}`;
+  }
+
+  if (digits.length <= 6) {
+    return `(${digits.slice(0, 3)}) ${digits.slice(3)}`;
+  }
+
+  return `(${digits.slice(0, 3)}) ${digits.slice(3, 6)} ${digits.slice(6, 10)}`;
+};
 
 function ConsultationRequestForm({ onClose }) {
   const [formData, setFormData] = useState({
@@ -35,6 +76,17 @@ function ConsultationRequestForm({ onClose }) {
       }
     });
 
+    if (fields.includes('email') && formData.email.trim() && !isValidEmailFormat(formData.email)) {
+      newErrors.email = 'Please enter a valid email address.';
+    }
+
+    if (fields.includes('phone') && formData.phone.trim()) {
+      const digits = normalizeUsPhoneDigits(formData.phone);
+      if (digits.length !== 10) {
+        newErrors.phone = 'Phone number must be exactly 10 digits (US format).';
+      }
+    }
+
     return newErrors;
   };
 
@@ -47,11 +99,12 @@ function ConsultationRequestForm({ onClose }) {
 
   const handleChange = (event) => {
     const { name, value } = event.target;
+    const normalizedValue = name === 'phone' ? formatUsPhoneDisplay(value) : value;
     setSaved(false);
     setSubmitError(null);
     setFormData((current) => ({
       ...current,
-      [name]: value,
+      [name]: normalizedValue,
     }));
 
     if (errors[name]) {
@@ -174,6 +227,7 @@ function ConsultationRequestForm({ onClose }) {
                     value={formData.email}
                     onChange={handleChange}
                     placeholder="john@example.com"
+                    pattern="[a-zA-Z0-9!#$%&'*+/=?^_`{|}~.-]+@[a-zA-Z0-9](?:[a-zA-Z0-9-]{0,61}[a-zA-Z0-9])?(?:\.[a-zA-Z]{2,})+"
                     className={getFieldClass('email')}
                     disabled={loading}
                   />
@@ -199,7 +253,10 @@ function ConsultationRequestForm({ onClose }) {
                     type="tel"
                     value={formData.phone}
                     onChange={handleChange}
-                    placeholder="(555) 555-5555"
+                    placeholder="(555) 555 5555"
+                    inputMode="numeric"
+                    maxLength={14}
+                    pattern="\d{10}"
                     className={getFieldClass('phone')}
                     disabled={loading}
                   />

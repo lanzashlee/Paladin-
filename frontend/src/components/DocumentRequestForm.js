@@ -17,6 +17,28 @@ const stepFields = [
   ['additionalInsuredStatus'],
   [],
 ];
+const EMAIL_REGEX = /^[a-zA-Z0-9!#$%&'*+/=?^_`{|}~.-]+@[a-zA-Z0-9](?:[a-zA-Z0-9-]{0,61}[a-zA-Z0-9])?(?:\.[a-zA-Z]{2,})+$/;
+
+const isValidEmailFormat = (emailValue = '') => {
+  const email = String(emailValue).trim();
+  if (!email || !EMAIL_REGEX.test(email)) {
+    return false;
+  }
+
+  const [localPart = '', domainPart = ''] = email.split('@');
+  if (
+    localPart.startsWith('.') ||
+    localPart.endsWith('.') ||
+    localPart.includes('..') ||
+    domainPart.startsWith('.') ||
+    domainPart.endsWith('.') ||
+    domainPart.includes('..')
+  ) {
+    return false;
+  }
+
+  return true;
+};
 
 const documentTypeOptions = [
   { value: 'coi-acord25', label: 'COI / ACORD 25 (General Liability / Auto / Workers\' Comp)' },
@@ -82,6 +104,14 @@ function DocumentRequestForm({ onClose }) {
       newErrors.otherDocumentTypeDescription = 'Please describe the document you need.';
     }
 
+    if (fields.includes('email') && formData.email.trim() && !isValidEmailFormat(formData.email)) {
+      newErrors.email = 'Please enter a valid email address.';
+    }
+
+    if (fields.includes('certificateHolderEmail') && formData.certificateHolderEmail.trim() && !isValidEmailFormat(formData.certificateHolderEmail)) {
+      newErrors.certificateHolderEmail = 'Please enter a valid email address.';
+    }
+
     return newErrors;
   };
 
@@ -91,6 +121,10 @@ function DocumentRequestForm({ onClose }) {
 
     if (formData.documentType === 'other' && !formData.otherDocumentTypeDescription.trim()) {
       validationErrors.otherDocumentTypeDescription = 'Please describe the document you need.';
+    }
+
+    if (formData.certificateHolderEmail.trim() && !isValidEmailFormat(formData.certificateHolderEmail)) {
+      validationErrors.certificateHolderEmail = 'Please enter a valid email address.';
     }
 
     return validationErrors;
@@ -192,6 +226,14 @@ function DocumentRequestForm({ onClose }) {
       validationErrors.otherDocumentTypeDescription = 'Please describe the document you need.';
     }
 
+    if (
+      stepIndex === 2 &&
+      formData.certificateHolderEmail.trim() &&
+      !isValidEmailFormat(formData.certificateHolderEmail)
+    ) {
+      validationErrors.certificateHolderEmail = 'Please enter a valid email address.';
+    }
+
     if (Object.keys(validationErrors).length > 0) {
       setErrors((current) => ({ ...current, ...validationErrors }));
       return;
@@ -235,8 +277,8 @@ documents."
         >
           {stepIndex === 0 && (
             <div>
-              <div className="mb-4 border-b border-[#b9d0ef] pb-2">
-                <h4 className="text-lg font-semibold text-[#2d78bf]">Section A - Your Information</h4>
+              <div className="mb-4 border-b border-[#1e4f97] pb-2">
+                <h4 className="text-lg font-semibold text-[#012E72]">Section A - Your Information</h4>
               </div>
               <div className="grid gap-5 md:grid-cols-2">
               <FieldGroup label="Name of insured" htmlFor="documents-fullName" required error={errors.fullName} hint="As it appears on your policy">
@@ -260,6 +302,7 @@ documents."
                   value={formData.email}
                   onChange={handleChange}
                   placeholder="your@email.com"
+                  pattern="[a-zA-Z0-9!#$%&'*+/=?^_`{|}~.-]+@[a-zA-Z0-9](?:[a-zA-Z0-9-]{0,61}[a-zA-Z0-9])?(?:\.[a-zA-Z]{2,})+"
                   className={getFieldClass('email')}
                   disabled={loading}
                 />
@@ -270,8 +313,8 @@ documents."
 
           {stepIndex === 1 && (
             <div className="space-y-5">
-              <div className="border-b border-[#b9d0ef] pb-2">
-                <h4 className="text-lg font-semibold text-[#2d78bf]">Section B - Document Requested</h4>
+              <div className="border-b border-[#1e4f97] pb-2">
+                <h4 className="text-lg font-semibold text-[#012E72]">Section B - Document Requested</h4>
               </div>
               <FieldGroup label="Document type" htmlFor="documents-documentType" required error={errors.documentType}>
                 <div className="grid gap-2 rounded-2xl border border-[#d8cbb8] bg-white p-4">
@@ -352,8 +395,8 @@ Operations box on the certificate."
 
           {stepIndex === 2 && (
             <div className="space-y-5">
-              <div className="border-b border-[#b9d0ef] pb-2">
-                <h4 className="text-lg font-semibold text-[#2d78bf]">Section C - Special Requirements & Certificate Holder Details</h4>
+              <div className="border-b border-[#1e4f97] pb-2">
+                <h4 className="text-lg font-semibold text-[#012E72]">Section C - Special Requirements & Certificate Holder Details</h4>
               </div>
 
               <FieldGroup label="Does the certificate holder require additional insured (AI) status?" htmlFor="documents-additionalInsuredStatus" required error={errors.additionalInsuredStatus}>
@@ -424,6 +467,7 @@ Operations box on the certificate."
                     value={formData.certificateHolderEmail}
                     onChange={handleChange}
                     placeholder="holder@company.com"
+                    pattern="[a-zA-Z0-9!#$%&'*+/=?^_`{|}~.-]+@[a-zA-Z0-9](?:[a-zA-Z0-9-]{0,61}[a-zA-Z0-9])?(?:\.[a-zA-Z]{2,})+"
                     className={getFieldClass('certificateHolderEmail')}
                     disabled={loading}
                   />

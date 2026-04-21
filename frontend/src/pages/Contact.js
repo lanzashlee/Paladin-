@@ -13,6 +13,30 @@ import ClaimReportForm from '../components/ClaimReportForm';
 import CallRequestForm from '../components/CallRequestForm';
 
 const API_BASE_URL = process.env.REACT_APP_API_BASE_URL || 'http://localhost:5000';
+const EMAIL_REGEX = /^[a-zA-Z0-9!#$%&'*+/=?^_`{|}~.-]+@[a-zA-Z0-9](?:[a-zA-Z0-9-]{0,61}[a-zA-Z0-9])?(?:\.[a-zA-Z]{2,})+$/;
+
+const isValidEmailFormat = (emailValue = '') => {
+  const email = String(emailValue).trim();
+  if (!email || !EMAIL_REGEX.test(email)) {
+    return false;
+  }
+
+  const [localPart = '', domainPart = ''] = email.split('@');
+
+  // Disallow consecutive dots or dot-at-edges in local/domain parts.
+  if (
+    localPart.startsWith('.') ||
+    localPart.endsWith('.') ||
+    localPart.includes('..') ||
+    domainPart.startsWith('.') ||
+    domainPart.endsWith('.') ||
+    domainPart.includes('..')
+  ) {
+    return false;
+  }
+
+  return true;
+};
 
 function Contact() {
   const location = useLocation();
@@ -31,7 +55,6 @@ function Contact() {
 
   const validateForm = () => {
     const newErrors = {};
-    const emailRegex = /^[^\s@]+@[^\s@]+\.[^\s@]+$/;
 
     if (!formData.name.trim()) {
       newErrors.name = 'Full Name is required.';
@@ -41,7 +64,7 @@ function Contact() {
 
     if (!formData.email.trim()) {
       newErrors.email = 'Email Address is required.';
-    } else if (!emailRegex.test(formData.email.trim())) {
+    } else if (!isValidEmailFormat(formData.email)) {
       newErrors.email = 'Please enter a valid email address.';
     }
 
@@ -284,6 +307,7 @@ function Contact() {
                     placeholder="john@example.com"
                     value={formData.email}
                     onChange={handleChange}
+                    pattern="[a-zA-Z0-9!#$%&'*+/=?^_`{|}~.-]+@[a-zA-Z0-9](?:[a-zA-Z0-9-]{0,61}[a-zA-Z0-9])?(?:\.[a-zA-Z]{2,})+"
                     className={`px-4 py-3 rounded-xl border bg-[#F7F4EF]/40 focus:bg-white focus:outline-none focus:ring-2 transition-colors ${
                       errors.email
                         ? 'border-red-500 focus:ring-red-300 focus:border-red-500'
