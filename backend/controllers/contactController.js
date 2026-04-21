@@ -1016,6 +1016,34 @@ exports.createContact = async (req, res) => {
       'subject' in body ||
       'message' in body;
 
+    const tryPersist = async (payload) => {
+      if (!canPersist) {
+        return { ok: false, value: null, error: null };
+      }
+
+      try {
+        const savedContact = await saveContactIfAvailable(payload);
+        return { ok: true, value: savedContact, error: null };
+      } catch (error) {
+        console.error('Failed to persist contact submission:', error);
+        return { ok: false, value: null, error };
+      }
+    };
+
+    const tryEmail = async (sendFn) => {
+      if (!emailReadiness.ready) {
+        return { ok: false, error: null };
+      }
+
+      try {
+        await sendFn();
+        return { ok: true, error: null };
+      } catch (error) {
+        console.error('Failed to send contact email notification:', error);
+        return { ok: false, error };
+      }
+    };
+
     if (isSimpleContact) {
       const name = String(body.name || '').trim();
       const email = String(body.email || '').trim();
@@ -1026,7 +1054,7 @@ exports.createContact = async (req, res) => {
         return res.status(400).json({ error: 'Name, email, subject, and message are required.' });
       }
 
-      const contact = await saveContactIfAvailable({
+      const persistResult = await tryPersist({
         name,
         fullName: name,
         email,
@@ -1035,18 +1063,35 @@ exports.createContact = async (req, res) => {
         formType: 'consultation',
       });
 
-      if (emailReadiness.ready) {
-        await sendSimpleContactEmail({ name, email, subject, message });
-      } else {
+      const emailResult = await tryEmail(() => sendSimpleContactEmail({ name, email, subject, message }));
+
+      if (!emailReadiness.ready) {
         console.warn('Email settings are incomplete. Contact saved without sending email notification.');
+      }
+
+      if (!persistResult.ok && !emailResult.ok) {
+        return res.status(503).json({
+          error:
+            'Contact service is temporarily unavailable. Please verify database and email configuration on the server.',
+        });
+      }
+
+      const warnings = [];
+      if (!persistResult.ok && canPersist) {
+        warnings.push('Contact details could not be saved to the database.');
+      }
+      if (emailReadiness.ready && !emailResult.ok) {
+        warnings.push('Email notification could not be delivered.');
       }
 
       return res.status(201).json({
         success: true,
-        message: emailReadiness.ready
-          ? 'Contact request submitted and emailed successfully.'
-          : 'Contact request submitted successfully.',
-        id: contact?._id,
+        message:
+          persistResult.ok && emailResult.ok
+            ? 'Contact request submitted and emailed successfully.'
+            : 'Contact request submitted successfully.',
+        id: persistResult.value?._id,
+        warnings,
       });
     }
 
@@ -1055,19 +1100,36 @@ exports.createContact = async (req, res) => {
       return res.status(400).json({ error: 'Full name is required.' });
     }
 
-    const contact = await saveContactIfAvailable(body);
-    if (emailReadiness.ready) {
-      await sendServiceRequestEmail(body);
-    } else {
+    const persistResult = await tryPersist(body);
+    const emailResult = await tryEmail(() => sendServiceRequestEmail(body));
+
+    if (!emailReadiness.ready) {
       console.warn('Email settings are incomplete. Service request saved without sending email notification.');
+    }
+
+    if (!persistResult.ok && !emailResult.ok) {
+      return res.status(503).json({
+        error:
+          'Service request is temporarily unavailable. Please verify database and email configuration on the server.',
+      });
+    }
+
+    const warnings = [];
+    if (!persistResult.ok && canPersist) {
+      warnings.push('Service request could not be saved to the database.');
+    }
+    if (emailReadiness.ready && !emailResult.ok) {
+      warnings.push('Email notification could not be delivered.');
     }
 
     return res.status(201).json({
       success: true,
-      message: emailReadiness.ready
-        ? 'Your consultation request has been submitted.'
-        : 'Your consultation request has been submitted and saved.',
-      contact,
+      message:
+        persistResult.ok && emailResult.ok
+          ? 'Your consultation request has been submitted.'
+          : 'Your consultation request has been submitted and is being processed.',
+      contact: persistResult.value,
+      warnings,
     });
   } catch (err) {
     console.error('Error creating contact:', err);
