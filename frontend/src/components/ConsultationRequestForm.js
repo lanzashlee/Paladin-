@@ -84,8 +84,17 @@ function ConsultationRequestForm({ onClose }) {
         body: JSON.stringify(formData),
       });
 
+      const rawBody = await response.text();
+      let payload = {};
+
+      try {
+        payload = rawBody ? JSON.parse(rawBody) : {};
+      } catch (parseError) {
+        payload = { error: rawBody || 'Unexpected response from server.' };
+      }
+
       if (!response.ok) {
-        throw new Error('Failed to submit form');
+        throw new Error(payload.error || `Failed to submit form (HTTP ${response.status}).`);
       }
 
       setSaved(true);
