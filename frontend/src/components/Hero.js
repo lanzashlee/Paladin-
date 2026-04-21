@@ -63,12 +63,12 @@ function Hero() {
           </div>
 
           <div className="mt-3 lg:mt-0 flex flex-col gap-2 w-full max-w-[188px] lg:col-start-3 lg:row-start-2 lg:justify-self-end">
-            <a
-              href="#contact-location"
+            <Link
+              to="/quote"
               className="inline-flex items-center justify-center rounded-full bg-[#f4f2ed] text-[#161a22] text-xs py-1.5 shadow-[0_6px_9px_rgba(0,0,0,0.16)]"
             >
               Get <span className="text-[#0b3a89] font-bold ml-1">Free Quote</span>
-            </a>
+            </Link>
             <a
               href="tel:8056926900"
               className="inline-flex items-center justify-center rounded-full bg-[#f4f2ed] text-[#161a22] text-xs py-1.5 shadow-[0_6px_9px_rgba(0,0,0,0.16)]"

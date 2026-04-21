@@ -43,8 +43,86 @@ const claimTypeLabelMap = {
   'general-liability-claim': 'General Liability claim',
   other: 'Other',
 };
+const EMAIL_REGEX = /^[a-zA-Z0-9!#$%&'*+/=?^_`{|}~.-]+@[a-zA-Z0-9](?:[a-zA-Z0-9-]{0,61}[a-zA-Z0-9])?(?:\.[a-zA-Z]{2,})+$/;
+
+const isValidEmailFormat = (emailValue = '') => {
+  const email = String(emailValue).trim();
+  if (!email || !EMAIL_REGEX.test(email)) {
+    return false;
+  }
+
+  const [localPart = '', domainPart = ''] = email.split('@');
+  if (
+    localPart.startsWith('.') ||
+    localPart.endsWith('.') ||
+    localPart.includes('..') ||
+    domainPart.startsWith('.') ||
+    domainPart.endsWith('.') ||
+    domainPart.includes('..')
+  ) {
+    return false;
+  }
+
+  return true;
+};
+
+const normalizeUsPhoneDigits = (value = '') => String(value).replace(/\D/g, '').slice(0, 10);
+const formatUsPhoneDisplay = (digitsValue = '') => {
+  const digits = normalizeUsPhoneDigits(digitsValue);
+
+  if (!digits) {
+    return '';
+  }
+
+  if (digits.length <= 3) {
+    return `(${digits}`;
+  }
+
+  if (digits.length <= 6) {
+    return `(${digits.slice(0, 3)}) ${digits.slice(3)}`;
+  }
+
+  return `(${digits.slice(0, 3)}) ${digits.slice(3, 6)} ${digits.slice(6, 10)}`;
+};
+const formatCurrencyInput = (rawValue = '') => {
+  const sanitized = String(rawValue ?? '')
+    .replace(/,/g, '')
+    .replace(/[^\d.]/g, '');
+
+  if (!sanitized) {
+    return '';
+  }
+
+  const hasDecimalPoint = sanitized.includes('.');
+  const [integerRaw = '', ...decimalParts] = sanitized.split('.');
+  const decimalRaw = decimalParts.join('').slice(0, 2);
+  const normalizedInteger = integerRaw.replace(/^0+(?=\d)/, '');
+  const integerPart = normalizedInteger || (hasDecimalPoint ? '0' : '');
+  const formattedInteger = integerPart
+    ? integerPart.replace(/\B(?=(\d{3})+(?!\d))/g, ',')
+    : '';
+
+  if (!hasDecimalPoint) {
+    return formattedInteger;
+  }
+
+  return `${formattedInteger || '0'}.${decimalRaw}`;
+};
+const getTodayIsoDate = () => {
+  const now = new Date();
+  const timezoneOffsetMs = now.getTimezoneOffset() * 60 * 1000;
+  return new Date(now.getTime() - timezoneOffsetMs).toISOString().slice(0, 10);
+};
+const getNowTime24h = () => {
+  const now = new Date();
+  const hours = String(now.getHours()).padStart(2, '0');
+  const minutes = String(now.getMinutes()).padStart(2, '0');
+  return `${hours}:${minutes}`;
+};
 
 function ClaimReportForm({ onClose }) {
+  const todayIsoDate = getTodayIsoDate();
+  const nowTime24h = getNowTime24h();
   const [formData, setFormData] = useState({
     formType: 'claim-report',
     fullName: '',
@@ -81,10 +159,38 @@ function ClaimReportForm({ onClose }) {
         return;
       }
 
+      if (field === 'incidentTime') {
+        return;
+      }
+
       if (!String(formData[field] ?? '').trim()) {
         newErrors[field] = 'This field is required.';
       }
     });
+
+    if (fields.includes('email') && formData.email.trim() && !isValidEmailFormat(formData.email)) {
+      newErrors.email = 'Please enter a valid email address.';
+    }
+
+    if (fields.includes('phone') && formData.phone.trim()) {
+      const digits = normalizeUsPhoneDigits(formData.phone);
+      if (digits.length !== 10) {
+        newErrors.phone = 'Phone number must be exactly 10 digits (US format).';
+      }
+    }
+
+    if (fields.includes('incidentDate') && formData.incidentDate.trim() && formData.incidentDate > todayIsoDate) {
+      newErrors.incidentDate = 'Date of loss / incident cannot be in the future.';
+    }
+
+    if (
+      fields.includes('incidentTime') &&
+      formData.incidentDate === todayIsoDate &&
+      formData.incidentTime &&
+      formData.incidentTime > nowTime24h
+    ) {
+      newErrors.incidentTime = 'Time of incident cannot be in the future for today.';
+    }
 
     return newErrors;
   };
@@ -98,12 +204,28 @@ function ClaimReportForm({ onClose }) {
 
   const handleChange = (event) => {
     const { name, value } = event.target;
+    let normalizedValue = value;
+
+    if (name === 'phone') {
+      normalizedValue = formatUsPhoneDisplay(value);
+    } else if (name === 'estimatedLoss') {
+      normalizedValue = formatCurrencyInput(value);
+    }
+
     setSaved(false);
     setSubmitError(null);
-    setFormData((current) => ({
-      ...current,
-      [name]: value,
-    }));
+    setFormData((current) => {
+      const nextForm = {
+        ...current,
+        [name]: normalizedValue,
+      };
+
+      if (name === 'carrierContactStatus' && normalizedValue !== 'yes') {
+        nextForm.carrierClaimNumber = '';
+      }
+
+      return nextForm;
+    });
 
     if (errors[name]) {
       setErrors((current) => ({
@@ -178,6 +300,10 @@ function ClaimReportForm({ onClose }) {
       }
     }
 
+    if (stepIndex === 1) {
+      currentFields.push('incidentTime');
+    }
+
     const validationErrors = validateFields(currentFields);
 
     if (Object.keys(validationErrors).length > 0) {
@@ -215,8 +341,8 @@ function ClaimReportForm({ onClose }) {
                 <strong>Note:</strong> For urgent matters, call us directly at (805) 692-6900 or contact your carrier's 24/7 claims hotline. We will follow up with the carrier on your behalf after receiving this form.
               </div>
 
-              <div className="border-b border-[#b9d0ef] pb-2">
-                <h4 className="text-lg font-semibold text-[#2d78bf]">Section A - Your Information</h4>
+              <div className="border-b border-[#1e4f97] pb-2">
+                <h4 className="text-lg font-semibold text-[#012E72]">Section A - Your Information</h4>
               </div>
 
               <div className="grid gap-5 md:grid-cols-2">
@@ -254,6 +380,7 @@ function ClaimReportForm({ onClose }) {
                     value={formData.email}
                     onChange={handleChange}
                     placeholder="your@email.com"
+                    pattern="[a-zA-Z0-9!#$%&'*+/=?^_`{|}~.-]+@[a-zA-Z0-9](?:[a-zA-Z0-9-]{0,61}[a-zA-Z0-9])?(?:\.[a-zA-Z]{2,})+"
                     className={getFieldClass('email')}
                     disabled={loading}
                   />
@@ -263,10 +390,13 @@ function ClaimReportForm({ onClose }) {
                   <input
                     id="claim-phone"
                     name="phone"
-                    type="text"
+                    type="tel"
                     value={formData.phone}
                     onChange={handleChange}
-                    placeholder="(805) 000-0000"
+                    placeholder="(805) 000 0000"
+                    inputMode="numeric"
+                    maxLength={14}
+                    pattern="\d{10}"
                     className={getFieldClass('phone')}
                     disabled={loading}
                   />
@@ -277,8 +407,8 @@ function ClaimReportForm({ onClose }) {
 
           {stepIndex === 1 && (
             <div className="space-y-5">
-              <div className="border-b border-[#b9d0ef] pb-2">
-                <h4 className="text-lg font-semibold text-[#2d78bf]">Section B - Incident Details</h4>
+              <div className="border-b border-[#1e4f97] pb-2">
+                <h4 className="text-lg font-semibold text-[#012E72]">Section B - Incident Details</h4>
               </div>
 
               <div className="grid gap-5 md:grid-cols-2">
@@ -289,12 +419,13 @@ function ClaimReportForm({ onClose }) {
                     type="date"
                     value={formData.incidentDate}
                     onChange={handleChange}
+                    max={todayIsoDate}
                     className={getFieldClass('incidentDate')}
                     disabled={loading}
                   />
                 </FieldGroup>
 
-                <FieldGroup label="Approximate time of incident" htmlFor="claim-incidentTime">
+              <FieldGroup label="Approximate time of incident" htmlFor="claim-incidentTime" error={errors.incidentTime}>
                   <input
                     id="claim-incidentTime"
                     name="incidentTime"
@@ -302,6 +433,7 @@ function ClaimReportForm({ onClose }) {
                     step="60"
                     value={formData.incidentTime}
                     onChange={handleChange}
+                  max={formData.incidentDate === todayIsoDate ? nowTime24h : undefined}
                     className={getFieldClass('incidentTime')}
                     disabled={loading}
                   />
@@ -375,8 +507,8 @@ function ClaimReportForm({ onClose }) {
 
           {stepIndex === 2 && (
             <div className="space-y-5">
-              <div className="border-b border-[#b9d0ef] pb-2">
-                <h4 className="text-lg font-semibold text-[#2d78bf]">Section C - Other Parties Involved</h4>
+              <div className="border-b border-[#1e4f97] pb-2">
+                <h4 className="text-lg font-semibold text-[#012E72]">Section C - Other Parties Involved</h4>
               </div>
 
               <div className="grid gap-5 md:grid-cols-2">
@@ -449,8 +581,8 @@ function ClaimReportForm({ onClose }) {
 
           {stepIndex === 3 && (
             <div className="space-y-5">
-              <div className="border-b border-[#b9d0ef] pb-2">
-                <h4 className="text-lg font-semibold text-[#2d78bf]">Section D - Damage & Prior Reporting</h4>
+              <div className="border-b border-[#1e4f97] pb-2">
+                <h4 className="text-lg font-semibold text-[#012E72]">Section D - Damage & Prior Reporting</h4>
               </div>
 
               <FieldGroup label="Estimated dollar amount of loss" htmlFor="claim-estimatedLoss">
@@ -461,6 +593,8 @@ function ClaimReportForm({ onClose }) {
                   value={formData.estimatedLoss}
                   onChange={handleChange}
                   placeholder="e.g. $5,000 (rough estimate is fine)"
+                  inputMode="numeric"
+                  pattern="^\d{1,3}(,\d{3})*(\.\d{0,2})?$|^\d+(\.\d{0,2})?$"
                   className={getFieldClass('estimatedLoss')}
                   disabled={loading}
                 />
@@ -507,18 +641,20 @@ function ClaimReportForm({ onClose }) {
                 </div>
               </FieldGroup>
 
-              <FieldGroup label="Carrier claim number (if already reported)" htmlFor="claim-carrierClaimNumber">
-                <input
-                  id="claim-carrierClaimNumber"
-                  name="carrierClaimNumber"
-                  type="text"
-                  value={formData.carrierClaimNumber}
-                  onChange={handleChange}
-                  placeholder="Carrier-assigned claim number"
-                  className={getFieldClass('carrierClaimNumber')}
-                  disabled={loading}
-                />
-              </FieldGroup>
+              {formData.carrierContactStatus === 'yes' && (
+                <FieldGroup label="Carrier claim number (if already reported)" htmlFor="claim-carrierClaimNumber">
+                  <input
+                    id="claim-carrierClaimNumber"
+                    name="carrierClaimNumber"
+                    type="text"
+                    value={formData.carrierClaimNumber}
+                    onChange={handleChange}
+                    placeholder="Carrier-assigned claim number"
+                    className={getFieldClass('carrierClaimNumber')}
+                    disabled={loading}
+                  />
+                </FieldGroup>
+              )}
 
               <FieldGroup label="Additional notes" htmlFor="claim-additionalNotes">
                 <textarea
