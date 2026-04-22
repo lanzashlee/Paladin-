@@ -1,4 +1,4 @@
-import React, { useMemo, useRef, useState } from 'react';
+import React, { useEffect, useMemo, useRef, useState } from 'react';
 
 const REQUIRED_MESSAGE = 'This field is required.';
 
@@ -445,7 +445,7 @@ const formatWholeNumberWithCommas = (rawValue) => {
   return digits.replace(/\B(?=(\d{3})+(?!\d))/g, ',');
 };
 
-function SpecialtyForm({ onBack }) {
+function SpecialtyForm({ onBack, onFormChange, onValidityChange }) {
   const formRef = useRef(null);
   const suretyBusinessFinancialStatementFileInputRef = useRef(null);
   const [formData, setFormData] = useState(initialForm);
@@ -455,6 +455,7 @@ function SpecialtyForm({ onBack }) {
   const [inlandMarineClaims, setInlandMarineClaims] = useState([{ ...initialInlandMarineClaim }]);
   const [petVeterinaryConditions, setPetVeterinaryConditions] = useState([{ ...initialPetVeterinaryCondition }]);
   const [suretyBusinessFinancialStatementFile, setSuretyBusinessFinancialStatementFile] = useState(null);
+  const [suretyBusinessFinancialStatementAttachment, setSuretyBusinessFinancialStatementAttachment] = useState(null);
   const [errors, setErrors] = useState({});
   const [hasSubmitted, setHasSubmitted] = useState(false);
 
@@ -776,6 +777,29 @@ function SpecialtyForm({ onBack }) {
     const file = event.target.files?.[0] || null;
     setSuretyBusinessFinancialStatementFile(file);
 
+    if (file) {
+      const reader = new FileReader();
+      reader.onload = () => {
+        const raw = String(reader.result || '');
+        const base64Data = raw.includes(',') ? raw.split(',')[1] : '';
+        setSuretyBusinessFinancialStatementAttachment(
+          base64Data
+            ? {
+                filename: file.name,
+                contentType: file.type || 'application/octet-stream',
+                dataBase64: base64Data,
+              }
+            : null
+        );
+      };
+      reader.onerror = () => {
+        setSuretyBusinessFinancialStatementAttachment(null);
+      };
+      reader.readAsDataURL(file);
+    } else {
+      setSuretyBusinessFinancialStatementAttachment(null);
+    }
+
     const nextForm = {
       ...formData,
       businessFinancialStatements: file ? file.name : '',
@@ -787,6 +811,7 @@ function SpecialtyForm({ onBack }) {
 
   const handleRemoveSuretyBusinessFinancialStatementFile = () => {
     setSuretyBusinessFinancialStatementFile(null);
+    setSuretyBusinessFinancialStatementAttachment(null);
 
     if (suretyBusinessFinancialStatementFileInputRef.current) {
       suretyBusinessFinancialStatementFileInputRef.current.value = '';
@@ -999,6 +1024,35 @@ function SpecialtyForm({ onBack }) {
   };
 
   const fieldError = (name) => errors[name];
+
+  useEffect(() => {
+    if (typeof onFormChange === 'function') {
+      onFormChange({
+        ...formData,
+        cyberIncidents,
+        eoClaims,
+        inlandMarineItems,
+        inlandMarineClaims,
+        petVeterinaryConditions,
+        suretyBusinessFinancialStatementFile: suretyBusinessFinancialStatementFile?.name || '',
+        suretyBusinessFinancialStatementAttachment,
+      });
+    }
+    if (typeof onValidityChange === 'function') {
+      onValidityChange(Object.keys(validate(formData)).length === 0);
+    }
+  }, [
+    formData,
+    cyberIncidents,
+    eoClaims,
+    inlandMarineItems,
+    inlandMarineClaims,
+    petVeterinaryConditions,
+    suretyBusinessFinancialStatementFile,
+    suretyBusinessFinancialStatementAttachment,
+    onFormChange,
+    onValidityChange,
+  ]);
 
   return (
     <section className="quote-request__form quote-request__product-form" ref={formRef}>

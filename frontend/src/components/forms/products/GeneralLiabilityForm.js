@@ -1,4 +1,4 @@
-import React, { useRef, useState } from 'react';
+import React, { useEffect, useRef, useState } from 'react';
 
 const REQUIRED_MESSAGE = 'This field is required.';
 const MIN_OPERATIONS_DESCRIPTION_LENGTH = 250;
@@ -220,7 +220,7 @@ const buildAddressSummary = ({ streetAddress, unitNumber, city, state, zip }) =>
     .join(', ')
 );
 
-function GeneralLiabilityForm({ onBack }) {
+function GeneralLiabilityForm({ onBack, onFormChange, onValidityChange }) {
   const formRef = useRef(null);
   const [formData, setFormData] = useState(initialForm);
   const [priorClaims, setPriorClaims] = useState([{ ...initialClaim }]);
@@ -526,6 +526,19 @@ function GeneralLiabilityForm({ onBack }) {
   };
 
   const fieldError = (name) => errors[name];
+
+  useEffect(() => {
+    if (typeof onFormChange === 'function') {
+      onFormChange({
+        ...formData,
+        priorClaims,
+        additionalLocations,
+      });
+    }
+    if (typeof onValidityChange === 'function') {
+      onValidityChange(Object.keys(validate(formData, priorClaims, additionalLocations)).length === 0);
+    }
+  }, [formData, priorClaims, additionalLocations, onFormChange, onValidityChange]);
 
   return (
     <section className="quote-request__form quote-request__product-form" ref={formRef}>
