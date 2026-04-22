@@ -1,4 +1,4 @@
-import React, { useRef, useState } from 'react';
+import React, { useEffect, useRef, useState } from 'react';
 
 const REQUIRED_MESSAGE = 'This field is required.';
 
@@ -164,7 +164,7 @@ const formatCurrencyInput = (rawValue) => {
   return `${formattedInteger || '0'}.${decimalRaw}`;
 };
 
-function EarthquakeForm({ onBack }) {
+function EarthquakeForm({ onBack, onFormChange, onValidityChange }) {
   const formRef = useRef(null);
   const [formData, setFormData] = useState(initialForm);
   const [errors, setErrors] = useState({});
@@ -265,6 +265,15 @@ function EarthquakeForm({ onBack }) {
   };
 
   const fieldError = (name) => errors[name];
+
+  useEffect(() => {
+    if (typeof onFormChange === 'function') {
+      onFormChange(formData);
+    }
+    if (typeof onValidityChange === 'function') {
+      onValidityChange(Object.keys(validate(formData)).length === 0);
+    }
+  }, [formData, onFormChange, onValidityChange]);
 
   return (
     <section className="quote-request__form quote-request__product-form" ref={formRef}>

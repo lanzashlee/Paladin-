@@ -2,6 +2,7 @@ const nodemailer = require('nodemailer');
 const mongoose = require('mongoose');
 const path = require('path');
 const fs = require('fs');
+const PDFDocument = require('pdfkit');
 const Contact = require('../models/Contact');
 
 const toBoolean = (value) => String(value || '').toLowerCase() === 'true';
@@ -34,6 +35,239 @@ const formatLabel = (value = '') =>
     .split(' ')
     .map((part) => part.charAt(0).toUpperCase() + part.slice(1))
     .join(' ');
+
+const PRODUCT_LABEL_ALIASES = {
+  ho3: 'Homeowners Insurance (HO3)',
+  ho4: 'Renters Insurance (HO4)',
+  ho6: 'Condo Owners Insurance (HO6)',
+  commercialauto: 'Commercial Auto Insurance',
+  generalliability: 'General Liability Insurance (GL / CGL)',
+  workerscomp: 'Workers Compensation Insurance',
+  earthquake: 'Earthquake Insurance',
+  flood: 'Flood Insurance',
+  umbrella: 'Umbrella / Excess Liability Insurance',
+  specialty: 'Specialty Products',
+};
+
+const formatSubjectDate = (date = new Date()) =>
+  date.toLocaleDateString('en-US', {
+    month: 'short',
+    day: '2-digit',
+    year: 'numeric',
+  });
+
+const compactValue = (value) => {
+  if (value === null || value === undefined) {
+    return '';
+  }
+
+  if (Array.isArray(value)) {
+    return value
+      .map((item) => compactValue(item))
+      .filter(Boolean)
+      .join(', ');
+  }
+
+  if (typeof value === 'object') {
+    return '';
+  }
+
+  return String(value).trim();
+};
+
+const flattenForPdf = (value, prefix = '', output = []) => {
+  if (value === null || value === undefined || value === '') {
+    return output;
+  }
+
+  if (Array.isArray(value)) {
+    value.forEach((entry, index) => {
+      flattenForPdf(entry, `${prefix}${prefix ? ' ' : ''}${index + 1}`, output);
+    });
+    return output;
+  }
+
+  if (typeof value === 'object') {
+    Object.entries(value).forEach(([key, entry]) => {
+      const nextPrefix = prefix ? `${prefix} > ${formatLabel(key)}` : formatLabel(key);
+      flattenForPdf(entry, nextPrefix, output);
+    });
+    return output;
+  }
+
+  output.push({
+    label: prefix || 'Value',
+    value: String(value),
+  });
+  return output;
+};
+
+const PDF_BRAND = {
+  navy: '#012E72',
+  royal: '#0B3F8F',
+  text: '#1F2937',
+  muted: '#6B7280',
+  border: '#D7E3F3',
+  sectionBg: '#F5F8FE',
+};
+
+const ensurePdfSpace = (doc, requiredHeight = 30) => {
+  const maxY = doc.page.height - doc.page.margins.bottom;
+  if (doc.y + requiredHeight <= maxY) {
+    return;
+  }
+  doc.addPage();
+};
+
+const drawPdfHeader = (doc, title) => {
+  const logoAsset = getLogoAsset();
+  const startX = doc.page.margins.left;
+  const startY = doc.y;
+
+  if (logoAsset?.path) {
+    try {
+      doc.image(logoAsset.path, startX, startY, { fit: [52, 52], align: 'left' });
+    } catch (_error) {
+      // If image fails to render, keep PDF generation resilient.
+    }
+  }
+
+  const textX = startX + 66;
+  doc.fillColor(PDF_BRAND.royal).fontSize(10).text('PALADIN PROFESSIONAL INSURANCE SOLUTIONS', textX, startY + 2, {
+    align: 'left',
+  });
+  doc.fillColor(PDF_BRAND.navy).fontSize(21).text(title, textX, startY + 16, { align: 'left' });
+  doc
+    .fillColor(PDF_BRAND.muted)
+    .fontSize(9)
+    .text(`Generated ${new Date().toLocaleString('en-US')}`, textX, startY + 42, { align: 'left' });
+
+  doc.y = startY + 68;
+  doc
+    .moveTo(doc.page.margins.left, doc.y)
+    .lineTo(doc.page.width - doc.page.margins.right, doc.y)
+    .lineWidth(1)
+    .strokeColor(PDF_BRAND.border)
+    .stroke();
+  doc.moveDown(1);
+};
+
+const drawPdfPageFrame = (doc) => {
+  const inset = 18;
+  const x = inset;
+  const y = inset;
+  const width = doc.page.width - inset * 2;
+  const height = doc.page.height - inset * 2;
+
+  doc
+    .roundedRect(x, y, width, height, 8)
+    .lineWidth(1)
+    .strokeColor(PDF_BRAND.border)
+    .stroke();
+};
+
+const drawPdfSection = (doc, section) => {
+  ensurePdfSpace(doc, 38);
+
+  const sectionX = doc.page.margins.left;
+  const sectionWidth = doc.page.width - doc.page.margins.left - doc.page.margins.right;
+  const sectionHeaderY = doc.y;
+  const sectionHeaderHeight = 22;
+
+  doc
+    .roundedRect(sectionX, sectionHeaderY, sectionWidth, sectionHeaderHeight, 6)
+    .fillColor(PDF_BRAND.sectionBg)
+    .fill();
+  doc
+    .roundedRect(sectionX, sectionHeaderY, sectionWidth, sectionHeaderHeight, 6)
+    .lineWidth(0.8)
+    .strokeColor(PDF_BRAND.border)
+    .stroke();
+  doc.fillColor(PDF_BRAND.navy).fontSize(12).text(section.title, sectionX + 10, sectionHeaderY + 6, { width: sectionWidth - 20 });
+
+  doc.y = sectionHeaderY + sectionHeaderHeight + 8;
+
+  section.rows.forEach((row) => {
+    ensurePdfSpace(doc, 24);
+
+    const labelWidth = 220;
+    const valueX = sectionX + labelWidth + 10;
+    const valueWidth = sectionWidth - labelWidth - 10;
+    const rowStartY = doc.y;
+
+    doc.fillColor(PDF_BRAND.royal).fontSize(10).text(`${row.label}:`, sectionX, rowStartY, {
+      width: labelWidth,
+      align: 'left',
+    });
+    doc.fillColor(PDF_BRAND.text).fontSize(10).text(row.value, valueX, rowStartY, {
+      width: valueWidth,
+      align: 'left',
+    });
+
+    const rowHeight = Math.max(
+      doc.heightOfString(`${row.label}:`, { width: labelWidth }),
+      doc.heightOfString(row.value, { width: valueWidth })
+    );
+
+    doc.y = rowStartY + rowHeight + 6;
+    doc
+      .moveTo(sectionX, doc.y)
+      .lineTo(sectionX + sectionWidth, doc.y)
+      .lineWidth(0.5)
+      .strokeColor(PDF_BRAND.border)
+      .stroke();
+    doc.y += 4;
+  });
+
+  doc.moveDown(0.5);
+};
+
+const buildPdfBufferFromSections = ({ title, sections }) =>
+  new Promise((resolve, reject) => {
+    const doc = new PDFDocument({ margin: 48, size: 'A4' });
+    const chunks = [];
+
+    doc.on('data', (chunk) => chunks.push(chunk));
+    doc.on('end', () => resolve(Buffer.concat(chunks)));
+    doc.on('error', reject);
+    doc.on('pageAdded', () => {
+      drawPdfPageFrame(doc);
+    });
+
+    drawPdfPageFrame(doc);
+    drawPdfHeader(doc, title);
+
+    sections.forEach((section) => {
+      drawPdfSection(doc, section);
+    });
+
+    doc.end();
+  });
+
+const normalizeSectionedDataForPdf = (sections = []) =>
+  (Array.isArray(sections) ? sections : [])
+    .map((section) => ({
+      title: String(section?.title || '').trim(),
+      rows: (Array.isArray(section?.fields) ? section.fields : [])
+        .map((field) => ({
+          label: String(field?.label || '').trim(),
+          value: String(field?.value ?? '').trim() || '-',
+        }))
+        .filter((field) => field.label),
+    }))
+    .filter((section) => section.title && section.rows.length > 0);
+
+const buildPdfBuffer = ({ title, sections }) =>
+  buildPdfBufferFromSections({
+    title,
+    sections: (sections || []).map((section) => ({
+      title: section.title,
+      rows: flattenForPdf(section.data).map((row) => ({
+        label: row.label,
+        value: String(row.value ?? '').trim() || '-',
+      })),
+    })),
+  });
 
 const FIELD_LABELS = {
   fullName: 'Full Name',
@@ -1018,6 +1252,147 @@ const sendServiceRequestEmail = async (contactData) => {
   });
 };
 
+const sendQuoteRequestEmail = async (quoteData) => {
+  const { transporter, recipient } = getEmailDeliveryReadiness();
+
+  if (!recipient || !transporter) {
+    throw new Error('Email settings are incomplete.');
+  }
+
+  const selectedProduct = String(quoteData.selectedProduct || '').trim();
+  const selectedProductKey = selectedProduct.toLowerCase();
+  const selectedProductLabel =
+    String(quoteData.selectedProductLabel || '').trim() ||
+    PRODUCT_LABEL_ALIASES[selectedProductKey] ||
+    formatLabel(selectedProduct) ||
+    'Insurance';
+  const universalApplicant = quoteData.universalApplicant || {};
+  const quotationDetails = quoteData.insuranceQuotation || {};
+  const additionalQuoteAttachment = quotationDetails.suretyBusinessFinancialStatementAttachment;
+  const universalApplicantSections = normalizeSectionedDataForPdf(quoteData.universalApplicantSections);
+  const insuranceQuotationSections = normalizeSectionedDataForPdf(quoteData.insuranceQuotationSections);
+
+  const applicantName =
+    compactValue(universalApplicant.fullLegalName) ||
+    compactValue(quoteData.fullName) ||
+    'Applicant';
+  const email = compactValue(universalApplicant.emailAddress) || compactValue(quoteData.email);
+  const phone = compactValue(universalApplicant.contactPhone) || compactValue(quoteData.phone);
+  const address = [
+    compactValue(universalApplicant.mailingStreet),
+    [compactValue(universalApplicant.mailingCity), compactValue(universalApplicant.mailingState), compactValue(universalApplicant.mailingZip)]
+      .filter(Boolean)
+      .join(', '),
+  ]
+    .filter(Boolean)
+    .join(', ');
+
+  const subject = `${selectedProductLabel} Quotation - ${applicantName} - ${formatSubjectDate(new Date())}`;
+  const logoAsset = getLogoAsset();
+  const logoHtml = getLogoHtml(logoAsset);
+
+  const summaryRows = [
+    { label: 'Applicant', value: applicantName || '-' },
+    { label: 'Email', value: email || '-' },
+    { label: 'Phone', value: phone || '-' },
+    { label: 'Address', value: address || '-' },
+  ];
+
+  const summaryRowsHtml = summaryRows
+    .map(
+      (field) => `
+                <tr>
+                  <td style="padding:11px 14px;border-bottom:1px solid #e5e7eb;width:38%;font-size:12px;color:#6b7280;font-weight:700;vertical-align:top;text-transform:uppercase;letter-spacing:0.5px;">${escapeHtml(field.label)}</td>
+                  <td style="padding:11px 14px;border-bottom:1px solid #e5e7eb;font-size:14px;line-height:1.6;color:#111827;font-weight:600;">${escapeHtml(field.value)}</td>
+                </tr>
+      `
+    )
+    .join('');
+
+  const universalApplicantPdf = universalApplicantSections.length
+    ? await buildPdfBufferFromSections({
+        title: 'Universal Applicant Form',
+        sections: universalApplicantSections,
+      })
+    : await buildPdfBuffer({
+        title: 'Universal Applicant Form',
+        sections: [
+          {
+            title: 'Full Details',
+            data: universalApplicant,
+          },
+        ],
+      });
+
+  const homeownersQuotePdf = insuranceQuotationSections.length
+    ? await buildPdfBufferFromSections({
+        title: selectedProductLabel,
+        sections: insuranceQuotationSections,
+      })
+    : await buildPdfBuffer({
+        title: selectedProductLabel,
+        sections: [
+          {
+            title: 'Full Details',
+            data: quotationDetails,
+          },
+        ],
+      });
+
+  const quoteFileAttachment =
+    additionalQuoteAttachment &&
+    typeof additionalQuoteAttachment === 'object' &&
+    additionalQuoteAttachment.filename &&
+    additionalQuoteAttachment.dataBase64
+      ? {
+          filename: String(additionalQuoteAttachment.filename),
+          content: Buffer.from(String(additionalQuoteAttachment.dataBase64), 'base64'),
+          contentType: String(additionalQuoteAttachment.contentType || 'application/octet-stream'),
+        }
+      : null;
+
+  await transporter.sendMail({
+    from: (process.env.EMAIL_FROM || process.env.SMTP_USER || process.env.EMAIL_USER || '').trim(),
+    to: recipient,
+    replyTo: email || undefined,
+    subject,
+    attachments: [
+      ...getLogoAttachment(logoAsset),
+      {
+        filename: 'universal-applicant-form.pdf',
+        content: universalApplicantPdf,
+      },
+      {
+        filename: 'insurance-quotation-form.pdf',
+        content: homeownersQuotePdf,
+      },
+      ...(quoteFileAttachment ? [quoteFileAttachment] : []),
+    ],
+    html: renderEmailLayout({
+      title: `${selectedProductLabel} Quotation`,
+      intro: 'A new quotation request was submitted.',
+      rowsHtml: summaryRowsHtml,
+      detailsLabel: 'Attachments',
+      detailsHtml: 'Universal Applicant Form (Full) and Insurance/Quotation Form (Full) are attached as PDF.',
+      logoHtml,
+      submittedAt: new Date().toLocaleString('en-US', {
+        year: 'numeric',
+        month: 'short',
+        day: '2-digit',
+        hour: '2-digit',
+        minute: '2-digit',
+      }),
+    }),
+    text: [
+      `${selectedProductLabel} Quotation`,
+      '',
+      ...summaryRows.map((row) => `${row.label}: ${row.value}`),
+      '',
+      'Attachment: Universal Applicant Form (Full) and Insurance/Quotation Form (Full)',
+    ].join('\n'),
+  });
+};
+
 const saveContactIfAvailable = async (data) => {
   if (mongoose.connection.readyState !== 1) {
     console.warn('MongoDB unavailable. Skipping contact persistence and sending email only.');
@@ -1122,6 +1497,91 @@ exports.createContact = async (req, res) => {
             ? 'Contact request submitted and emailed successfully.'
             : 'Contact request submitted successfully.',
         id: persistResult.value?._id,
+        warnings,
+      });
+    }
+
+    if (body.formType === 'quote-request' || body.formType === 'quote-homeowners') {
+      const selectedProduct = String(body.selectedProduct || '').trim();
+      if (!selectedProduct) {
+        return res.status(400).json({ error: 'A selected insurance product is required.' });
+      }
+
+      const universalApplicant = body.universalApplicant || {};
+      const insuranceQuotation = body.insuranceQuotation || {};
+      const insuranceQuotationForStorage = {
+        ...insuranceQuotation,
+        suretyBusinessFinancialStatementAttachment: insuranceQuotation?.suretyBusinessFinancialStatementAttachment
+          ? {
+              filename: insuranceQuotation.suretyBusinessFinancialStatementAttachment.filename || '',
+              contentType: insuranceQuotation.suretyBusinessFinancialStatementAttachment.contentType || '',
+            }
+          : undefined,
+      };
+      const fullName = String(
+        body.fullName ||
+          universalApplicant.fullLegalName ||
+          [universalApplicant.firstName, universalApplicant.middleName, universalApplicant.lastName]
+            .filter(Boolean)
+            .join(' ')
+      ).trim();
+      const email = String(body.email || universalApplicant.emailAddress || '').trim();
+      const phone = String(body.phone || universalApplicant.contactPhone || '').trim();
+
+      if (!fullName || !email || !phone) {
+        return res.status(400).json({ error: 'Applicant name, email, and phone are required for Homeowners quotations.' });
+      }
+
+      const persistPayload = {
+        formType: 'quote-request',
+        fullName,
+        email,
+        phone,
+        coverageType: selectedProduct,
+        notes: JSON.stringify({
+          selectedProductLabel: body.selectedProductLabel,
+          universalApplicant,
+          insuranceQuotation: insuranceQuotationForStorage,
+          universalApplicantSections: body.universalApplicantSections,
+          insuranceQuotationSections: body.insuranceQuotationSections,
+        }),
+      };
+
+      const persistResult = await tryPersist(persistPayload);
+      const emailResult = await tryEmail(() => sendQuoteRequestEmail({
+        selectedProduct,
+        selectedProductLabel: body.selectedProductLabel,
+        universalApplicant,
+        insuranceQuotation,
+        universalApplicantSections: body.universalApplicantSections,
+        insuranceQuotationSections: body.insuranceQuotationSections,
+        fullName,
+        email,
+        phone,
+      }));
+
+      if (!persistResult.ok && !emailResult.ok) {
+        return res.status(503).json({
+          error:
+            'Quotation request is temporarily unavailable. Please verify database and email configuration on the server.',
+        });
+      }
+
+      const warnings = [];
+      if (!persistResult.ok && canPersist) {
+        warnings.push('Quotation request could not be saved to the database.');
+      }
+      if (emailReadiness.ready && !emailResult.ok) {
+        warnings.push('Email notification could not be delivered.');
+      }
+
+      return res.status(201).json({
+        success: true,
+        message:
+          persistResult.ok && emailResult.ok
+            ? 'Your quotation request has been submitted.'
+            : 'Your quotation request has been submitted and is being processed.',
+        contact: persistResult.value,
         warnings,
       });
     }

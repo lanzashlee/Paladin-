@@ -19,7 +19,7 @@ const contactSchema = new mongoose.Schema({
   formType: {
     type: String,
     default: 'consultation',
-    enum: ['consultation', 'consultation-request', 'document-request', 'policy-change', 'update-contact-info', 'call-request', 'claim-report'],
+    enum: ['consultation', 'consultation-request', 'document-request', 'policy-change', 'update-contact-info', 'call-request', 'claim-report', 'quote-homeowners', 'quote-request'],
   },
   updateType: { type: String },
   updatedValue: { type: String },

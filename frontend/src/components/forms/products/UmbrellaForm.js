@@ -1,4 +1,4 @@
-import React, { useRef, useState } from 'react';
+import React, { useEffect, useRef, useState } from 'react';
 
 const REQUIRED_MESSAGE = 'This field is required.';
 
@@ -179,7 +179,7 @@ const buildPriorClaimsSummary = (claims) => claims
   .filter(Boolean)
   .join(' | ');
 
-function UmbrellaForm({ onBack }) {
+function UmbrellaForm({ onBack, onFormChange, onValidityChange }) {
   const formRef = useRef(null);
   const [formData, setFormData] = useState(initialForm);
   const [priorClaims, setPriorClaims] = useState([{ ...initialPriorClaim }]);
@@ -377,6 +377,18 @@ function UmbrellaForm({ onBack }) {
   };
 
   const fieldError = (name) => errors[name];
+
+  useEffect(() => {
+    if (typeof onFormChange === 'function') {
+      onFormChange({
+        ...formData,
+        priorClaims,
+      });
+    }
+    if (typeof onValidityChange === 'function') {
+      onValidityChange(Object.keys(validate(formData, priorClaims)).length === 0);
+    }
+  }, [formData, priorClaims, onFormChange, onValidityChange]);
 
   return (
     <section className="quote-request__form quote-request__product-form" ref={formRef}>

@@ -1,4 +1,4 @@
-import React, { useRef, useState } from 'react';
+import React, { useEffect, useRef, useState } from 'react';
 
 const REQUIRED_MESSAGE = 'This field is required.';
 
@@ -181,7 +181,7 @@ const buildAddressSummary = ({ streetAddress, unitNumber, city, state, zip }) =>
     .join(', ')
 );
 
-function FloodForm({ onBack }) {
+function FloodForm({ onBack, onFormChange, onValidityChange }) {
   const formRef = useRef(null);
   const [formData, setFormData] = useState(initialForm);
   const [priorClaims, setPriorClaims] = useState([{ ...initialPriorClaim }]);
@@ -356,6 +356,18 @@ function FloodForm({ onBack }) {
   };
 
   const fieldError = (name) => errors[name];
+
+  useEffect(() => {
+    if (typeof onFormChange === 'function') {
+      onFormChange({
+        ...formData,
+        priorClaims,
+      });
+    }
+    if (typeof onValidityChange === 'function') {
+      onValidityChange(Object.keys(validate(formData, priorClaims)).length === 0);
+    }
+  }, [formData, priorClaims, onFormChange, onValidityChange]);
   const todayIsoDate = getTodayIsoDate();
 
   return (

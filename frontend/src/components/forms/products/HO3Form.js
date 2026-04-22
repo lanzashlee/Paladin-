@@ -1,4 +1,4 @@
-import React, { useRef, useState } from 'react';
+import React, { useEffect, useRef, useState } from 'react';
 
 const REQUIRED_MESSAGE = 'This field is required.';
 
@@ -332,7 +332,7 @@ const getTodayIsoDate = () => {
   return new Date(now.getTime() - timezoneOffsetMs).toISOString().slice(0, 10);
 };
 
-function HO3Form({ onBack }) {
+function HO3Form({ onBack, onFormChange, onValidityChange }) {
   const todayIsoDate = getTodayIsoDate();
   const formRef = useRef(null);
   const [formData, setFormData] = useState(initialForm);
@@ -435,6 +435,16 @@ function HO3Form({ onBack }) {
   };
 
   const fieldError = (name) => errors[name];
+
+  useEffect(() => {
+    if (typeof onFormChange === 'function') {
+      onFormChange(formData);
+    }
+
+    if (typeof onValidityChange === 'function') {
+      onValidityChange(Object.keys(validate(formData)).length === 0);
+    }
+  }, [formData, onFormChange, onValidityChange]);
 
   return (
     <section className="quote-request__form quote-request__product-form" ref={formRef}>

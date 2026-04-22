@@ -1,4 +1,4 @@
-import React, { useRef, useState } from 'react';
+import React, { useEffect, useRef, useState } from 'react';
 
 const REQUIRED_MESSAGE = 'This field is required.';
 
@@ -181,7 +181,7 @@ const formatCurrencyInput = (rawValue) => {
   return `${wholeFormatted || '0'}.${decimalRaw}`;
 };
 
-function WorkersCompForm({ onBack }) {
+function WorkersCompForm({ onBack, onFormChange, onValidityChange }) {
   const formRef = useRef(null);
   const [formData, setFormData] = useState(initialForm);
   const [classifications, setClassifications] = useState([{ ...initialClassification }]);
@@ -550,6 +550,19 @@ function WorkersCompForm({ onBack }) {
   };
 
   const fieldError = (name) => errors[name];
+
+  useEffect(() => {
+    if (typeof onFormChange === 'function') {
+      onFormChange({
+        ...formData,
+        classifications,
+        wcClaims,
+      });
+    }
+    if (typeof onValidityChange === 'function') {
+      onValidityChange(Object.keys(validate(formData, classifications, wcClaims)).length === 0);
+    }
+  }, [formData, classifications, wcClaims, onFormChange, onValidityChange]);
 
   return (
     <section className="quote-request__form quote-request__product-form" ref={formRef}>
