@@ -59,8 +59,37 @@ const requiresMortgageeDetails = (requestedChangeTypes) =>
 
 const requiresRequestedChangeOther = (requestedChangeTypes) =>
   requestedChangeTypes.includes('other');
+const EMAIL_REGEX = /^[a-zA-Z0-9!#$%&'*+/=?^_`{|}~.-]+@[a-zA-Z0-9](?:[a-zA-Z0-9-]{0,61}[a-zA-Z0-9])?(?:\.[a-zA-Z]{2,})+$/;
+
+const isValidEmailFormat = (emailValue = '') => {
+  const email = String(emailValue).trim();
+  if (!email || !EMAIL_REGEX.test(email)) {
+    return false;
+  }
+
+  const [localPart = '', domainPart = ''] = email.split('@');
+  if (
+    localPart.startsWith('.') ||
+    localPart.endsWith('.') ||
+    localPart.includes('..') ||
+    domainPart.startsWith('.') ||
+    domainPart.endsWith('.') ||
+    domainPart.includes('..')
+  ) {
+    return false;
+  }
+
+  return true;
+};
+
+const getTodayIsoDate = () => {
+  const now = new Date();
+  const timezoneOffsetMs = now.getTimezoneOffset() * 60 * 1000;
+  return new Date(now.getTime() - timezoneOffsetMs).toISOString().slice(0, 10);
+};
 
 function PolicyChangeForm({ onClose }) {
+  const todayIsoDate = getTodayIsoDate();
   const [formData, setFormData] = useState({
     formType: 'policy-change',
     fullName: '',
@@ -107,6 +136,10 @@ function PolicyChangeForm({ onClose }) {
         return;
       }
 
+      if (field === 'effectiveDate') {
+        return;
+      }
+
       if (!String(formData[field] ?? '').trim()) {
         newErrors[field] = 'This field is required.';
       }
@@ -136,6 +169,14 @@ function PolicyChangeForm({ onClose }) {
       }
     }
 
+    if (fields.includes('email') && formData.email.trim() && !isValidEmailFormat(formData.email)) {
+      newErrors.email = 'Please enter a valid email address.';
+    }
+
+    if (fields.includes('effectiveDate') && formData.effectiveDate.trim() && formData.effectiveDate < todayIsoDate) {
+      newErrors.effectiveDate = 'Requested effective date cannot be in the past.';
+    }
+
     return newErrors;
   };
 
@@ -145,6 +186,7 @@ function PolicyChangeForm({ onClose }) {
       'email',
       'policyType',
       'otherPolicyType',
+      'effectiveDate',
       'requestedChangeTypes',
       'requestedChangeOther',
       'notes',
@@ -253,6 +295,7 @@ function PolicyChangeForm({ onClose }) {
     const currentFields = [...(stepFields[stepIndex] || [])];
     if (stepIndex === 0) {
       currentFields.push('otherPolicyType');
+      currentFields.push('effectiveDate');
     }
     if (stepIndex === 1) {
       currentFields.push('requestedChangeOther');
@@ -305,8 +348,8 @@ function PolicyChangeForm({ onClose }) {
         >
           {stepIndex === 0 && (
             <div>
-              <div className="mb-4 border-b border-[#b9d0ef] pb-2">
-                <h4 className="text-lg font-semibold text-[#2d78bf]">Section A - Your Information</h4>
+              <div className="mb-4 border-b border-[#1e4f97] pb-2">
+                <h4 className="text-lg font-semibold text-[#012E72]">Section A - Your Information</h4>
               </div>
 
               <div className="grid gap-5 md:grid-cols-2">
@@ -331,6 +374,7 @@ function PolicyChangeForm({ onClose }) {
                     value={formData.email}
                     onChange={handleChange}
                     placeholder="your@email.com"
+                    pattern="[a-zA-Z0-9!#$%&'*+/=?^_`{|}~.-]+@[a-zA-Z0-9](?:[a-zA-Z0-9-]{0,61}[a-zA-Z0-9])?(?:\.[a-zA-Z]{2,})+"
                     className={getFieldClass('email')}
                     disabled={loading}
                   />
@@ -361,6 +405,7 @@ function PolicyChangeForm({ onClose }) {
                     type="date"
                     value={formData.effectiveDate}
                     onChange={handleChange}
+                    min={todayIsoDate}
                     className={getFieldClass('effectiveDate')}
                     disabled={loading}
                   />
@@ -386,8 +431,8 @@ function PolicyChangeForm({ onClose }) {
 
           {stepIndex === 1 && (
             <div className="space-y-5">
-              <div className="border-b border-[#b9d0ef] pb-2">
-                <h4 className="text-lg font-semibold text-[#2d78bf]">Section B - Change Requested</h4>
+              <div className="border-b border-[#1e4f97] pb-2">
+                <h4 className="text-lg font-semibold text-[#012E72]">Section B - Change Requested</h4>
               </div>
 
               <div className="grid gap-5 md:grid-cols-1">
@@ -446,8 +491,8 @@ function PolicyChangeForm({ onClose }) {
 
           {stepIndex === 2 && (
             <div className="space-y-5">
-              <div className="border-b border-[#b9d0ef] pb-2">
-                <h4 className="text-lg font-semibold text-[#2d78bf]">Section C - Mortgagee / Lienholder Details</h4>
+              <div className="border-b border-[#1e4f97] pb-2">
+                <h4 className="text-lg font-semibold text-[#012E72]">Section C - Mortgagee / Lienholder Details</h4>
               </div>
 
               <p className="text-sm italic text-[#010407]/70">

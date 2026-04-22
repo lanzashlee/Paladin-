@@ -90,6 +90,47 @@ const getRequestedUpdateTypeLabels = (requestedUpdateTypes) =>
   requestedUpdateTypes.map((requestedType) => requestedUpdateLabelMap[requestedType] || requestedType).join(', ');
 
 const getApplyChangesToLabel = (applyChangesTo) => applyChangesToLabelMap[applyChangesTo] || applyChangesTo;
+const EMAIL_REGEX = /^[a-zA-Z0-9!#$%&'*+/=?^_`{|}~.-]+@[a-zA-Z0-9](?:[a-zA-Z0-9-]{0,61}[a-zA-Z0-9])?(?:\.[a-zA-Z]{2,})+$/;
+
+const isValidEmailFormat = (emailValue = '') => {
+  const email = String(emailValue).trim();
+  if (!email || !EMAIL_REGEX.test(email)) {
+    return false;
+  }
+
+  const [localPart = '', domainPart = ''] = email.split('@');
+  if (
+    localPart.startsWith('.') ||
+    localPart.endsWith('.') ||
+    localPart.includes('..') ||
+    domainPart.startsWith('.') ||
+    domainPart.endsWith('.') ||
+    domainPart.includes('..')
+  ) {
+    return false;
+  }
+
+  return true;
+};
+
+const normalizeUsPhoneDigits = (value = '') => String(value).replace(/\D/g, '').slice(0, 10);
+const formatUsPhoneDisplay = (digitsValue = '') => {
+  const digits = normalizeUsPhoneDigits(digitsValue);
+
+  if (!digits) {
+    return '';
+  }
+
+  if (digits.length <= 3) {
+    return `(${digits}`;
+  }
+
+  if (digits.length <= 6) {
+    return `(${digits.slice(0, 3)}) ${digits.slice(3)}`;
+  }
+
+  return `(${digits.slice(0, 3)}) ${digits.slice(3, 6)} ${digits.slice(6, 10)}`;
+};
 
 function UpdateContactInfoForm({ onClose }) {
   const [formData, setFormData] = useState({
@@ -122,11 +163,12 @@ function UpdateContactInfoForm({ onClose }) {
 
   const handleChange = (event) => {
     const { name, value } = event.target;
+    const normalizedValue = name === 'newPhoneNumber' ? formatUsPhoneDisplay(value) : value;
     setSaved(false);
     setSubmitError(null);
     setFormData((current) => ({
       ...current,
-      [name]: value,
+      [name]: normalizedValue,
       ...(name === 'applyChangesTo' ? { applyChangesToLabel: getApplyChangesToLabel(value) } : {}),
     }));
 
@@ -171,6 +213,8 @@ function UpdateContactInfoForm({ onClose }) {
       }
       if (!String(formData.email || '').trim()) {
         validationErrors.email = 'This field is required.';
+      } else if (!isValidEmailFormat(formData.email)) {
+        validationErrors.email = 'Please enter a valid email address.';
       }
       return validationErrors;
     }
@@ -195,6 +239,21 @@ function UpdateContactInfoForm({ onClose }) {
           validationErrors[field.name] = 'This field is required.';
         }
       });
+
+      if (
+        formData.requestedUpdateTypes.includes('email') &&
+        String(formData.newEmailAddress || '').trim() &&
+        !isValidEmailFormat(formData.newEmailAddress)
+      ) {
+        validationErrors.newEmailAddress = 'Please enter a valid email address.';
+      }
+
+      if (formData.requestedUpdateTypes.includes('phone') && String(formData.newPhoneNumber || '').trim()) {
+        const digits = normalizeUsPhoneDigits(formData.newPhoneNumber);
+        if (digits.length !== 10) {
+          validationErrors.newPhoneNumber = 'Phone number must be exactly 10 digits (US format).';
+        }
+      }
 
       return validationErrors;
     }
@@ -308,8 +367,8 @@ across your active policies."
         >
           {stepIndex === 0 && (
             <div className="space-y-5">
-              <div className="border-b border-[#b9d0ef] pb-2">
-                <h4 className="text-lg font-semibold text-[#2d78bf]">Section A - Identify Your Account</h4>
+              <div className="border-b border-[#1e4f97] pb-2">
+                <h4 className="text-lg font-semibold text-[#012E72]">Section A - Identify Your Account</h4>
               </div>
 
               <div className="grid gap-5 md:grid-cols-2">
@@ -334,6 +393,7 @@ across your active policies."
                     value={formData.email}
                     onChange={handleChange}
                     placeholder="So we can locate your account"
+                    pattern="[a-zA-Z0-9!#$%&'*+/=?^_`{|}~.-]+@[a-zA-Z0-9](?:[a-zA-Z0-9-]{0,61}[a-zA-Z0-9])?(?:\.[a-zA-Z]{2,})+"
                     className={getFieldClass('email')}
                     disabled={loading}
                   />
@@ -344,8 +404,8 @@ across your active policies."
 
           {stepIndex === 1 && (
             <div className="space-y-5">
-              <div className="border-b border-[#b9d0ef] pb-2">
-                <h4 className="text-lg font-semibold text-[#2d78bf]">Section B - What Would You Like to Update?</h4>
+              <div className="border-b border-[#1e4f97] pb-2">
+                <h4 className="text-lg font-semibold text-[#012E72]">Section B - What Would You Like to Update?</h4>
               </div>
 
               <FieldGroup label="Select one or more update types" htmlFor="update-requestedUpdateTypes" required error={errors.requestedUpdateTypes} hint="Check all that apply">
@@ -389,8 +449,8 @@ across your active policies."
 
           {stepIndex === 2 && (
             <div className="space-y-5">
-              <div className="border-b border-[#b9d0ef] pb-2">
-                <h4 className="text-lg font-semibold text-[#2d78bf]">Section C - New Information</h4>
+              <div className="border-b border-[#1e4f97] pb-2">
+                <h4 className="text-lg font-semibold text-[#012E72]">Section C - New Information</h4>
               </div>
 
               <div className="grid gap-5 md:grid-cols-2">
@@ -415,6 +475,15 @@ across your active policies."
                         value={formData[field.name]}
                         onChange={handleChange}
                         placeholder={field.placeholder}
+                        inputMode={field.name === 'newPhoneNumber' ? 'numeric' : undefined}
+                        maxLength={field.name === 'newPhoneNumber' ? 14 : undefined}
+                        pattern={
+                          field.name === 'newPhoneNumber'
+                            ? '\\d{10}'
+                            : field.type === 'email'
+                            ? "[a-zA-Z0-9!#$%&'*+/=?^_`{|}~.-]+@[a-zA-Z0-9](?:[a-zA-Z0-9-]{0,61}[a-zA-Z0-9])?(?:\\.[a-zA-Z]{2,})+"
+                            : undefined
+                        }
                         className={getFieldClass(field.name)}
                         disabled={loading}
                       />
@@ -427,8 +496,8 @@ across your active policies."
 
           {stepIndex === 3 && (
             <div className="space-y-5">
-              <div className="border-b border-[#b9d0ef] pb-2">
-                <h4 className="text-lg font-semibold text-[#2d78bf]">Section D - Apply Changes To</h4>
+              <div className="border-b border-[#1e4f97] pb-2">
+                <h4 className="text-lg font-semibold text-[#012E72]">Section D - Apply Changes To</h4>
               </div>
 
               <FieldGroup label="Choose how to apply the changes" htmlFor="update-applyChangesTo" required error={errors.applyChangesTo}>

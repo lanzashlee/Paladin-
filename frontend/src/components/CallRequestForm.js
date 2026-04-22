@@ -28,8 +28,64 @@ const topicLabelMap = {
   'billing-or-payment-question': 'Billing or payment question',
   other: 'Other',
 };
+const EMAIL_REGEX = /^[a-zA-Z0-9!#$%&'*+/=?^_`{|}~.-]+@[a-zA-Z0-9](?:[a-zA-Z0-9-]{0,61}[a-zA-Z0-9])?(?:\.[a-zA-Z]{2,})+$/;
+
+const isValidEmailFormat = (emailValue = '') => {
+  const email = String(emailValue).trim();
+  if (!email || !EMAIL_REGEX.test(email)) {
+    return false;
+  }
+
+  const [localPart = '', domainPart = ''] = email.split('@');
+  if (
+    localPart.startsWith('.') ||
+    localPart.endsWith('.') ||
+    localPart.includes('..') ||
+    domainPart.startsWith('.') ||
+    domainPart.endsWith('.') ||
+    domainPart.includes('..')
+  ) {
+    return false;
+  }
+
+  return true;
+};
+
+const normalizeUsPhoneDigits = (value = '') => String(value).replace(/\D/g, '').slice(0, 10);
+const formatUsPhoneDisplay = (digitsValue = '') => {
+  const digits = normalizeUsPhoneDigits(digitsValue);
+
+  if (!digits) {
+    return '';
+  }
+
+  if (digits.length <= 3) {
+    return `(${digits}`;
+  }
+
+  if (digits.length <= 6) {
+    return `(${digits.slice(0, 3)}) ${digits.slice(3)}`;
+  }
+
+  return `(${digits.slice(0, 3)}) ${digits.slice(3, 6)} ${digits.slice(6, 10)}`;
+};
+
+const getTodayIsoDate = () => {
+  const now = new Date();
+  const timezoneOffsetMs = now.getTimezoneOffset() * 60 * 1000;
+  return new Date(now.getTime() - timezoneOffsetMs).toISOString().slice(0, 10);
+};
+
+const getNowIsoDateTimeLocal = () => {
+  const now = new Date();
+  now.setSeconds(0, 0);
+  const timezoneOffsetMs = now.getTimezoneOffset() * 60 * 1000;
+  return new Date(now.getTime() - timezoneOffsetMs).toISOString().slice(0, 16);
+};
 
 function CallRequestForm({ onClose }) {
+  const todayIsoDate = getTodayIsoDate();
+  const nowIsoDateTimeLocal = getNowIsoDateTimeLocal();
   const [formData, setFormData] = useState({
     formType: 'call-request',
     fullName: '',
@@ -53,10 +109,37 @@ function CallRequestForm({ onClose }) {
     const newErrors = {};
 
     fields.forEach((field) => {
+      if (field === 'email') {
+        return;
+      }
+
       if (!String(formData[field] ?? '').trim()) {
         newErrors[field] = 'This field is required.';
       }
     });
+
+    if (fields.includes('phone') && formData.phone.trim()) {
+      const digits = normalizeUsPhoneDigits(formData.phone);
+      if (digits.length !== 10) {
+        newErrors.phone = 'Phone number must be exactly 10 digits (US format).';
+      }
+    }
+
+    if (fields.includes('email') && formData.email.trim() && !isValidEmailFormat(formData.email)) {
+      newErrors.email = 'Please enter a valid email address.';
+    }
+
+    if (fields.includes('preferredDay') && formData.preferredDay.trim() && formData.preferredDay < todayIsoDate) {
+      newErrors.preferredDay = 'Preferred date cannot be in the past.';
+    }
+
+    if (
+      fields.includes('alternateDateTime') &&
+      formData.alternateDateTime.trim() &&
+      formData.alternateDateTime < nowIsoDateTimeLocal
+    ) {
+      newErrors.alternateDateTime = 'Alternate date / time must be in the future.';
+    }
 
     return newErrors;
   };
@@ -78,11 +161,12 @@ function CallRequestForm({ onClose }) {
 
   const handleChange = (event) => {
     const { name, value } = event.target;
+    const normalizedValue = name === 'phone' ? formatUsPhoneDisplay(value) : value;
     setSaved(false);
     setSubmitError(null);
     setFormData((current) => ({
       ...current,
-      [name]: value,
+      [name]: normalizedValue,
     }));
 
     if (errors[name]) {
@@ -142,6 +226,13 @@ function CallRequestForm({ onClose }) {
   const handleNext = () => {
     const currentFields = [...(stepFields[stepIndex] || [])];
 
+    if (stepIndex === 0) {
+      currentFields.push('email');
+    }
+    if (stepIndex === 1) {
+      currentFields.push('alternateDateTime');
+    }
+
     if (stepIndex === 2 && formData.topic !== 'other') {
       const otherTopicIndex = currentFields.indexOf('otherTopic');
       if (otherTopicIndex >= 0) {
@@ -182,8 +273,8 @@ function CallRequestForm({ onClose }) {
         >
           {stepIndex === 0 && (
             <div className="space-y-5">
-              <div className="border-b border-[#b9d0ef] pb-2">
-                <h4 className="text-lg font-semibold text-[#2d78bf]">Section A - Your Information</h4>
+              <div className="border-b border-[#1e4f97] pb-2">
+                <h4 className="text-lg font-semibold text-[#012E72]">Section A - Your Information</h4>
               </div>
 
               <div className="grid gap-5 md:grid-cols-2">
@@ -207,13 +298,16 @@ function CallRequestForm({ onClose }) {
                     type="tel"
                     value={formData.phone}
                     onChange={handleChange}
-                    placeholder="(805) 000-0000"
+                    placeholder="(805) 000 0000"
+                    inputMode="numeric"
+                    maxLength={14}
+                    pattern="\d{10}"
                     className={getFieldClass('phone')}
                     disabled={loading}
                   />
                 </FieldGroup>
 
-                <FieldGroup label="Email address" htmlFor="call-email">
+                <FieldGroup label="Email address" htmlFor="call-email" error={errors.email}>
                   <input
                     id="call-email"
                     name="email"
@@ -221,6 +315,7 @@ function CallRequestForm({ onClose }) {
                     value={formData.email}
                     onChange={handleChange}
                     placeholder="your@email.com"
+                    pattern="[a-zA-Z0-9!#$%&'*+/=?^_`{|}~.-]+@[a-zA-Z0-9](?:[a-zA-Z0-9-]{0,61}[a-zA-Z0-9])?(?:\.[a-zA-Z]{2,})+"
                     className={getFieldClass('email')}
                     disabled={loading}
                   />
@@ -244,8 +339,8 @@ function CallRequestForm({ onClose }) {
 
           {stepIndex === 1 && (
             <div className="space-y-5">
-              <div className="border-b border-[#b9d0ef] pb-2">
-                <h4 className="text-lg font-semibold text-[#2d78bf]">Section B - Call Preference</h4>
+              <div className="border-b border-[#1e4f97] pb-2">
+                <h4 className="text-lg font-semibold text-[#012E72]">Section B - Call Preference</h4>
               </div>
 
               <FieldGroup label="Preferred date" htmlFor="call-preferredDay" required error={errors.preferredDay}>
@@ -255,6 +350,7 @@ function CallRequestForm({ onClose }) {
                   type="date"
                   value={formData.preferredDay}
                   onChange={handleChange}
+                  min={todayIsoDate}
                   className={getFieldClass('preferredDay')}
                   disabled={loading}
                 />
@@ -284,13 +380,14 @@ function CallRequestForm({ onClose }) {
                 </div>
               </FieldGroup>
 
-              <FieldGroup label="Alternate date / time (optional)" htmlFor="call-alternateDateTime">
+              <FieldGroup label="Alternate date / time (optional)" htmlFor="call-alternateDateTime" error={errors.alternateDateTime}>
                 <input
                   id="call-alternateDateTime"
                   name="alternateDateTime"
                   type="datetime-local"
                   value={formData.alternateDateTime}
                   onChange={handleChange}
+                  min={nowIsoDateTimeLocal}
                   className={getFieldClass('alternateDateTime')}
                   disabled={loading}
                 />
@@ -300,8 +397,8 @@ function CallRequestForm({ onClose }) {
 
           {stepIndex === 2 && (
             <div className="space-y-5">
-              <div className="border-b border-[#b9d0ef] pb-2">
-                <h4 className="text-lg font-semibold text-[#2d78bf]">Section C - Reason for Call</h4>
+              <div className="border-b border-[#1e4f97] pb-2">
+                <h4 className="text-lg font-semibold text-[#012E72]">Section C - Reason for Call</h4>
               </div>
 
               <FieldGroup label="What is this regarding?" htmlFor="call-topic" required error={errors.topic}>

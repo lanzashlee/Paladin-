@@ -4,7 +4,7 @@ import heroImage from '../assets/hero-image.png';
 
 function Hero() {
   return (
-    <section id="hero" className="relative bg-white overflow-hidden">
+    <section id="hero" className="relative bg-[linear-gradient(180deg,#f9fbff_0%,#f1f5fb_62%,#ffffff_100%)] overflow-hidden">
       <div className="max-w-[1320px] mx-auto px-4 sm:px-6 lg:px-10 pt-4 sm:pt-6 lg:pt-5 pb-6 lg:pb-3">
         <div className="grid grid-cols-1 lg:grid-cols-[0.95fr_0.95fr_0.45fr] lg:grid-rows-[auto_auto] gap-5 sm:gap-6 lg:gap-x-8 lg:gap-y-6 items-start">
           <div className="pt-1 sm:pt-3 lg:pt-14 lg:col-start-1 lg:row-start-1">
@@ -63,12 +63,12 @@ function Hero() {
           </div>
 
           <div className="mt-2 sm:mt-3 lg:mt-0 grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-1 gap-2 w-full lg:max-w-[188px] lg:col-start-3 lg:row-start-2 lg:justify-self-end">
-            <a
-              href="#contact-location"
+            <Link
+              to="/quote"
               className="inline-flex items-center justify-center rounded-full bg-[#f4f2ed] text-[#161a22] text-xs py-2 shadow-[0_6px_9px_rgba(0,0,0,0.16)]"
             >
               Get <span className="text-[#0b3a89] font-bold ml-1">Free Quote</span>
-            </a>
+            </Link>
             <a
               href="tel:8056926900"
               className="inline-flex items-center justify-center rounded-full bg-[#f4f2ed] text-[#161a22] text-xs py-2 shadow-[0_6px_9px_rgba(0,0,0,0.16)]"

@@ -1,4 +1,4 @@
-import React from 'react';
+import React, { useState } from 'react';
 import { Link } from 'react-router-dom';
 import { Quote, Star } from 'lucide-react';
 import Header from '../components/Header';
@@ -6,71 +6,150 @@ import Footer from '../components/Footer';
 
 const testimonials = [
   {
-    name: 'Olivia Ramirez',
-    title: 'Owner, Ventura Coastal Cafe',
+    name: 'Jelitza Gutierrez',
+    title: '',
     quote:
-      'Paladin made our renewal process clear and stress-free. They found gaps we did not know existed and fixed them before busy season started.',
-    result: 'Improved renewal timeline by 3 weeks',
+      'I had a great experience with Paladin Professional Insurance Solutions. Denise and Lionel are incredibly kind, knowledgeable, and professional throughout the entire process. They truly go above and beyond - even if you have been denied coverage elsewhere, they work hard to find a solution that fits your needs. Their company name really says it all! I highly recommend them to anyone looking for reliable and supportive insurance professionals.',
+    result: 'a month ago',
+    rating: 5,
   },
   {
-    name: 'Jason Kim',
-    title: 'Operations Manager, Brightline Logistics',
+    name: 'Aj Laboriante',
+    title: '',
     quote:
-      'Their team explained every recommendation in plain language. We now have stronger commercial auto protection without increasing confusion for our team.',
-    result: 'Expanded fleet coverage with clearer limits',
+      'I do not leave reviews often, but when service is this good, it deserves to be recognized. They truly operate at a different level. From the very first conversation, I felt like I was not just another policy number. I was actually taken care of. Denise and Lionel took care of me personally, walked me through every detail, answered all my questions (and I had a lot), and made sure I understood exactly what I was getting. No pressure. No confusion. Just clear communication and real professionalism. What really stood out was how responsive they were. Calls returned quickly, emails answered promptly, and they made the entire process smooth and stress-free. If you are looking for an insurance company that actually values relationships, explains things clearly, and treats you like family, hit them up. Highly recommend.',
+    result: 'a month ago',
+    rating: 5,
   },
   {
-    name: 'Monica Alvarez',
-    title: 'Principal, Alvarez Property Group',
+    name: 'Plumbing Done Right',
+    title: '',
     quote:
-      'The responsiveness is outstanding. Every policy change and certificate request is handled quickly, and we always know who to call.',
-    result: 'Same-day certificate turnaround',
+      'Since I have started my Plumbing Business a few years ago Paladin Insurance Services Solutions has been absolutely Great! From Denise, Lionel and all their Staff are professional. They handle my insurance needs and short notice requests in moments. Thank you Paladin Insurance!',
+    result: 'a month ago',
+    rating: 5,
   },
   {
-    name: 'Ethan Brooks',
-    title: 'Founder, Stonegate Contracting',
+    name: 'Juan Hernandez',
+    title: '',
     quote:
-      'They helped us build a better liability strategy as we grew. It feels like having a dedicated risk partner, not just an agency.',
-    result: 'Liability structure aligned to project growth',
+      'Denise and her team at Paladin Professional Insurance Solutions are truly professionals. Always ready to bend backwards to help their clients with all insurance certificate needs. We (JMH Fire Protection) are very happy and pleased with their service.',
+    result: 'a month ago',
+    rating: 5,
   },
   {
-    name: 'Priya Shah',
-    title: 'Director, Northstar Wellness Clinics',
+    name: 'GG Alexandra',
+    title: '',
     quote:
-      'Our policy review was detailed and practical. Paladin walked us through each step and gave us confidence in every decision.',
-    result: 'Reduced policy uncertainty across teams',
+      'Working with Paladin has been a great experience. They are attentive to customer needs and provide great products and excellent service. The whole team is courteous and they treat every client like VIP.',
+    result: 'a month ago',
+    rating: 5,
   },
   {
-    name: 'Daniel Turner',
-    title: 'Managing Partner, Turner Real Estate Advisors',
+    name: 'Pete Ibarra',
+    title: '',
     quote:
-      'From onboarding to annual review, everything has been organized and professional. They consistently deliver guidance we can act on.',
-    result: 'Stronger annual coverage planning process',
+      'Paladin is exactly who you want on your side for business insurance. They are knowledgeable, responsive, and make the entire process straightforward.',
+    result: 'a month ago',
+    rating: 5,
   },
   {
-    name: 'Grace Molina',
-    title: 'Owner, Molina Family Dental',
+    name: 'Terrence Whitehead',
+    title: '',
     quote:
-      'Paladin helped us simplify policy decisions and explained each option clearly. We feel more secure knowing our clinic is properly protected.',
-    result: 'Clearer policy decisions for clinic operations',
+      'It is always a pleasure working with Paladin Professional Insurance. Their agents are extremely nice and professional.',
+    result: 'a month ago',
+    rating: 5,
   },
   {
-    name: 'Noah Peterson',
-    title: 'General Manager, Sierra Valley Manufacturing',
+    name: 'Taima Brown',
+    title: '',
     quote:
-      'Their team was proactive from day one. They reviewed our coverage in detail and gave practical recommendations we could implement immediately.',
-    result: 'Faster implementation of risk recommendations',
+      'I was looking for a new place to get my homeowners insurance and I was referred to Denise. She was able to get me a policy that was less than half of what I paid the previous year.',
+    result: 'a month ago',
+    rating: 5,
   },
   {
-    name: 'Ariana Lopez',
-    title: 'Director, Lopez Event Productions',
+    name: 'Ursula Cato',
+    title: '',
     quote:
-      'Every renewal conversation is organized and focused. We always understand what changed, why it changed, and what it means for our business.',
-    result: 'More confident and predictable renewal process',
+      'They listened to what my needs were and provided great service. Friendly and knowledgeable.',
+    result: 'a month ago',
+    rating: 5,
+  },
+  {
+    name: 'mark daquilla',
+    title: '',
+    quote: 'Great service and friendly staff.',
+    result: 'a month ago',
+    rating: 5,
+  },
+  {
+    name: 'James G',
+    title: '',
+    quote:
+      'This place utilizes extremely dishonest business practices, policies will be unclear, expect vague charges and lack of customer service. I do not recommend giving this operation your business as they prioritize profits over the well being of their policy holders. Stay away.',
+    result: '3 weeks ago',
+    rating: 1,
+  },
+  {
+    name: 'Edgar Jeknavorjian',
+    title: '',
+    quote: 'I get my cyber insurance through Paladin. Great service and answer all my questions.',
+    result: '3 weeks ago',
+    rating: 5,
+  },
+  {
+    name: 'Keoshi Delivery LLC',
+    title: '',
+    quote:
+      'Paladin is the best insurance company I have worked with thus far. As a transportation company we know how difficult it is to find a great agency that will find us great carriers. Paladin is a one stop shop for everything I need. Thank you!',
+    result: 'a month ago',
+    rating: 5,
   },
 ];
 
+const overallRating = 4.7;
+const totalReviews = 13;
+
+function getInitials(name) {
+  const parts = name
+    .split(' ')
+    .map((part) => part.trim())
+    .filter(Boolean);
+
+  if (parts.length === 0) {
+    return 'U';
+  }
+
+  if (parts.length === 1) {
+    return parts[0].slice(0, 1).toUpperCase();
+  }
+
+  return `${parts[0][0]}${parts[1][0]}`.toUpperCase();
+}
+
+function getAvatarStyle(name) {
+  const palette = [
+    'from-[#0f3f91] to-[#245dc1]',
+    'from-[#0a5f7f] to-[#1185b0]',
+    'from-[#1f4f2c] to-[#2f7a3f]',
+    'from-[#7d3b0d] to-[#b35a1a]',
+    'from-[#6f1d6d] to-[#9c34a2]'
+  ];
+
+  const index = name.length % palette.length;
+  return palette[index];
+}
+
 function TestimonialCard({ item }) {
+  const [isExpanded, setIsExpanded] = useState(false);
+  const collapsedCharacterCount = 320;
+  const isLongQuote = item.quote.length > collapsedCharacterCount;
+  const visibleQuote = isLongQuote && !isExpanded
+    ? `${item.quote.slice(0, collapsedCharacterCount).trimEnd()}...`
+    : item.quote;
+
   return (
     <article className="group h-full rounded-3xl border border-[#e7dccb] bg-white p-6 shadow-lg shadow-[#012E72]/5 hover:-translate-y-1 hover:shadow-xl hover:shadow-[#012E72]/10 transition-all duration-300 flex flex-col">
       <div className="flex items-center justify-between mb-4">
@@ -79,16 +158,40 @@ function TestimonialCard({ item }) {
         </div>
         <div className="flex items-center gap-1 text-[#F4B400]">
           {[1, 2, 3, 4, 5].map((star) => (
-            <Star key={star} className="h-4 w-4 fill-current" />
+            <Star
+              key={star}
+              className={`h-4 w-4 ${star <= (item.rating || 5) ? 'fill-current' : ''}`}
+            />
           ))}
         </div>
       </div>
 
-      <p className="text-[#010407]/80 leading-relaxed text-sm md:text-base flex-1">&ldquo;{item.quote}&rdquo;</p>
+      <div className="flex-1">
+        <p className="text-[#010407]/80 leading-relaxed text-sm md:text-base">&ldquo;{visibleQuote}&rdquo;</p>
+        {isLongQuote && (
+          <button
+            type="button"
+            onClick={() => setIsExpanded((value) => !value)}
+            className="mt-2 text-[11px] font-semibold text-[#002DB5] hover:text-[#012E72] underline underline-offset-2"
+          >
+            {isExpanded ? 'Show less' : 'More'}
+          </button>
+        )}
+      </div>
 
       <div className="mt-6 pt-4 border-t border-[#efe6d7]">
-        <p className="font-bold text-[#012E72] text-base">{item.name}</p>
-        <p className="text-sm text-[#010407]/70">{item.title}</p>
+        <div className="flex items-center gap-3">
+          <div
+            className={`h-10 w-10 rounded-full bg-gradient-to-br ${getAvatarStyle(item.name)} text-white text-sm font-extrabold flex items-center justify-center border border-white shadow-[0_4px_10px_rgba(1,46,114,0.2)]`}
+            aria-hidden="true"
+          >
+            {getInitials(item.name)}
+          </div>
+          <div>
+            <p className="font-bold text-[#012E72] text-base leading-tight">{item.name}</p>
+            {item.title ? <p className="text-sm text-[#010407]/70">{item.title}</p> : null}
+          </div>
+        </div>
         <p className="mt-2 inline-flex rounded-full bg-[#F7F4EF] px-3 py-1 text-xs font-semibold text-[#002DB5] border border-[#d8cbb8]">
           {item.result}
         </p>
@@ -115,6 +218,18 @@ function Testimonials() {
             <p className="mt-5 max-w-3xl mx-auto text-[#F7F4EF] text-base md:text-lg leading-relaxed">
               Every account is personal to us. Here is what Paladin clients say about the way we guide coverage decisions, communicate clearly, and stay dependable year-round.
             </p>
+            <div className="mt-6 inline-flex items-center gap-3 rounded-full border border-white/30 bg-white/10 px-5 py-2.5">
+              <span className="text-2xl font-black leading-none">{overallRating}</span>
+              <div className="flex items-center gap-1 text-[#F4B400]">
+                {[1, 2, 3, 4, 5].map((star) => (
+                  <Star
+                    key={star}
+                    className={`h-4 w-4 ${star <= Math.floor(overallRating) ? 'fill-current' : ''}`}
+                  />
+                ))}
+              </div>
+              <span className="text-sm font-semibold text-[#F7F4EF]">{totalReviews} reviews</span>
+            </div>
           </div>
         </section>
 
