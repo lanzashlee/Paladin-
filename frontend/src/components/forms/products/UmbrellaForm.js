@@ -25,9 +25,8 @@ const AUTO_LIMIT_OPTIONS = [
 
 const GL_LIMIT_OPTIONS = [
   { value: '', label: 'Select GL limits' },
-  { value: '1m-2m', label: '$1M / $2M' },
-  { value: '2m-2m', label: '$2M / $2M' },
-  { value: 'other', label: 'Other' },
+  { value: '1m', label: '$1M' },
+  { value: '2m', label: '$2M' },
 ];
 
 const UMBRELLA_LIMIT_OPTIONS = [
@@ -50,6 +49,11 @@ const SIR_OPTIONS = [
 const initialForm = {
   fullNameOrBusinessName: '',
   dateOfBirthOrEin: '',
+  addressStreet: '',
+  addressUnit: '',
+  addressCity: '',
+  addressState: '',
+  addressZip: '',
   address: '',
   umbrellaPolicyType: '',
   underlyingHomeownersPolicyCarrier: '',
@@ -85,10 +89,19 @@ const initialForm = {
   selfInsuredRetentionSir: '',
 };
 
+const initialPriorClaim = {
+  date: '',
+  amount: '',
+  description: '',
+};
+
 const requiredFields = [
   'fullNameOrBusinessName',
   'dateOfBirthOrEin',
-  'address',
+  'addressStreet',
+  'addressCity',
+  'addressState',
+  'addressZip',
   'umbrellaPolicyType',
   'duiOrSeriousViolationsAnyDriver',
   'priorUmbrellaClaimsPast5Years',
@@ -98,13 +111,82 @@ const requiredFields = [
 
 const isBlank = (value) => String(value ?? '').trim() === '';
 
+const formatZipCode = (rawValue) => {
+  const digits = String(rawValue ?? '').replace(/\D/g, '').slice(0, 9);
+  if (digits.length <= 5) {
+    return digits;
+  }
+  return `${digits.slice(0, 5)}-${digits.slice(5)}`;
+};
+
+const buildAddressSummary = ({ street, unit, city, state, zip }) => (
+  [street, unit, city, state, zip]
+    .map((value) => String(value ?? '').trim())
+    .filter(Boolean)
+    .join(', ')
+);
+
+const formatCurrencyInput = (rawValue) => {
+  const sanitized = String(rawValue ?? '')
+    .replace(/,/g, '')
+    .replace(/[^\d.]/g, '');
+
+  if (!sanitized) {
+    return '';
+  }
+
+  const hasDecimalPoint = sanitized.includes('.');
+  const [integerRaw = '', ...decimalParts] = sanitized.split('.');
+  const decimalRaw = decimalParts.join('').slice(0, 2);
+  const normalizedInteger = integerRaw.replace(/^0+(?=\d)/, '');
+  const integerPart = normalizedInteger || (hasDecimalPoint ? '0' : '');
+  const formattedInteger = integerPart
+    ? integerPart.replace(/\B(?=(\d{3})+(?!\d))/g, ',')
+    : '';
+
+  if (!hasDecimalPoint) {
+    return formattedInteger;
+  }
+
+  return `${formattedInteger || '0'}.${decimalRaw}`;
+};
+
+const formatWholeNumberWithCommas = (rawValue) => {
+  const digits = String(rawValue ?? '').replace(/\D/g, '');
+  if (!digits) {
+    return '';
+  }
+  return digits.replace(/\B(?=(\d{3})+(?!\d))/g, ',');
+};
+
+const buildPriorClaimsSummary = (claims) => claims
+  .map((row) => {
+    const date = String(row.date ?? '').trim();
+    const amount = String(row.amount ?? '').trim();
+    const description = String(row.description ?? '').trim();
+    const parts = [];
+    if (date) {
+      parts.push(`Date: ${date}`);
+    }
+    if (amount) {
+      parts.push(`Amount: ${amount}`);
+    }
+    if (description) {
+      parts.push(`Description: ${description}`);
+    }
+    return parts.join(', ');
+  })
+  .filter(Boolean)
+  .join(' | ');
+
 function UmbrellaForm({ onBack }) {
   const formRef = useRef(null);
   const [formData, setFormData] = useState(initialForm);
+  const [priorClaims, setPriorClaims] = useState([{ ...initialPriorClaim }]);
   const [errors, setErrors] = useState({});
   const [hasSubmitted, setHasSubmitted] = useState(false);
 
-  const validate = (nextForm) => {
+  const validate = (nextForm, nextPriorClaims) => {
     const nextErrors = {};
 
     requiredFields.forEach((field) => {
@@ -113,16 +195,48 @@ function UmbrellaForm({ onBack }) {
       }
     });
 
+    if (!isBlank(nextForm.addressZip) && !/^\d{5}(-\d{4})?$/.test(nextForm.addressZip)) {
+      nextErrors.addressZip = 'Use ZIP format 12345 or 12345-6789.';
+    }
+
+    if (nextForm.priorUmbrellaClaimsPast5Years === 'yes') {
+      const hasRequiredClaimData = !isBlank(nextPriorClaims[0].date) || !isBlank(nextPriorClaims[0].amount) || !isBlank(nextPriorClaims[0].description);
+      if (!hasRequiredClaimData) {
+        nextErrors.priorClaim0 = 'At least one prior umbrella claim is required.';
+      }
+
+      nextPriorClaims.forEach((row, index) => {
+        const hasAny = !isBlank(row.date) || !isBlank(row.amount) || !isBlank(row.description);
+        const hasAll = !isBlank(row.date) && !isBlank(row.amount) && !isBlank(row.description);
+        if (hasAny && !hasAll) {
+          nextErrors[`priorClaim${index}`] = 'Complete date, amount, and description for this claim row.';
+        }
+      });
+    }
+
     return nextErrors;
   };
 
   const focusFirstError = (nextErrors) => {
-    const firstErrorField = requiredFields.find((field) => nextErrors[field]);
+    const orderedKeys = [
+      ...requiredFields,
+      'priorClaim0',
+    ];
+    const firstErrorField = orderedKeys.find((field) => nextErrors[field]);
     if (!firstErrorField) {
       return;
     }
 
     requestAnimationFrame(() => {
+      if (firstErrorField.startsWith('priorClaim')) {
+        const node = formRef.current?.querySelector('[name="priorClaimDate0"]');
+        if (node) {
+          node.scrollIntoView({ behavior: 'smooth', block: 'center' });
+          node.focus({ preventScroll: true });
+        }
+        return;
+      }
+
       const node = formRef.current?.querySelector(`[name="${firstErrorField}"]`);
       if (!node) {
         return;
@@ -134,9 +248,23 @@ function UmbrellaForm({ onBack }) {
 
   const handleChange = (event) => {
     const { name, value } = event.target;
+    let normalizedValue = value;
+
+    if (name === 'addressZip') {
+      normalizedValue = formatZipCode(value);
+    }
+
+    if (name === 'underlyingHomeownersLiabilityLimit') {
+      normalizedValue = formatCurrencyInput(value);
+    }
+
+    if (['rentalPropertiesCount', 'numberOfDriversInHousehold'].includes(name)) {
+      normalizedValue = formatWholeNumberWithCommas(value);
+    }
+
     const nextForm = {
       ...formData,
-      [name]: value,
+      [name]: normalizedValue,
     };
 
     if (name === 'watercraftOwned' && value !== 'yes') {
@@ -163,16 +291,84 @@ function UmbrellaForm({ onBack }) {
       nextForm.homeBasedBusinessDetails = '';
     }
 
+    if (name === 'priorUmbrellaClaimsPast5Years') {
+      if (value !== 'yes') {
+        nextForm.priorUmbrellaClaimsDetails = '';
+      } else {
+        nextForm.priorUmbrellaClaimsDetails = buildPriorClaimsSummary(priorClaims);
+      }
+    }
+
+    if ([
+      'addressStreet',
+      'addressUnit',
+      'addressCity',
+      'addressState',
+      'addressZip',
+    ].includes(name)) {
+      nextForm.address = buildAddressSummary({
+        street: name === 'addressStreet' ? normalizedValue : formData.addressStreet,
+        unit: name === 'addressUnit' ? normalizedValue : formData.addressUnit,
+        city: name === 'addressCity' ? normalizedValue : formData.addressCity,
+        state: name === 'addressState' ? normalizedValue : formData.addressState,
+        zip: name === 'addressZip' ? normalizedValue : formData.addressZip,
+      });
+    }
+
     setFormData(nextForm);
 
     if (hasSubmitted) {
-      setErrors(validate(nextForm));
+      setErrors(validate(nextForm, priorClaims));
+    }
+  };
+
+  const updatePriorClaim = (index, field, value) => {
+    const normalized = field === 'amount' ? formatCurrencyInput(value) : value;
+    const nextPriorClaims = priorClaims.map((row, rowIndex) => (
+      rowIndex === index ? { ...row, [field]: normalized } : row
+    ));
+    setPriorClaims(nextPriorClaims);
+
+    const nextForm = {
+      ...formData,
+      priorUmbrellaClaimsDetails: buildPriorClaimsSummary(nextPriorClaims),
+    };
+    setFormData(nextForm);
+
+    if (hasSubmitted) {
+      setErrors(validate(nextForm, nextPriorClaims));
+    }
+  };
+
+  const addPriorClaim = () => {
+    const nextPriorClaims = [...priorClaims, { ...initialPriorClaim }];
+    setPriorClaims(nextPriorClaims);
+    if (hasSubmitted) {
+      setErrors(validate(formData, nextPriorClaims));
+    }
+  };
+
+  const removePriorClaim = (index) => {
+    if (priorClaims.length <= 1) {
+      return;
+    }
+    const nextPriorClaims = priorClaims.filter((_, rowIndex) => rowIndex !== index);
+    setPriorClaims(nextPriorClaims);
+
+    const nextForm = {
+      ...formData,
+      priorUmbrellaClaimsDetails: buildPriorClaimsSummary(nextPriorClaims),
+    };
+    setFormData(nextForm);
+
+    if (hasSubmitted) {
+      setErrors(validate(nextForm, nextPriorClaims));
     }
   };
 
   const handleContinue = () => {
     setHasSubmitted(true);
-    const nextErrors = validate(formData);
+    const nextErrors = validate(formData, priorClaims);
     setErrors(nextErrors);
 
     if (Object.keys(nextErrors).length > 0) {
@@ -228,16 +424,65 @@ function UmbrellaForm({ onBack }) {
 
           <label className="quote-request__field quote-request__field--full">
             <span className="quote-request__field-label">
-              Address <span className="quote-request__required-mark">*</span>
+              Address - Street <span className="quote-request__required-mark">*</span>
             </span>
             <input
-              name="address"
-              value={formData.address}
+              name="addressStreet"
+              value={formData.addressStreet}
               onChange={handleChange}
-              placeholder="Street, city, state, ZIP"
-              className={fieldError('address') ? 'quote-request__input--invalid' : ''}
+              className={fieldError('addressStreet') ? 'quote-request__input--invalid' : ''}
             />
-            {fieldError('address') ? <span className="quote-request__validation-message">{fieldError('address')}</span> : null}
+            {fieldError('addressStreet') ? <span className="quote-request__validation-message">{fieldError('addressStreet')}</span> : null}
+          </label>
+
+          <label className="quote-request__field">
+            <span className="quote-request__field-label">Address - Unit Number</span>
+            <input
+              name="addressUnit"
+              value={formData.addressUnit}
+              onChange={handleChange}
+            />
+          </label>
+
+          <label className="quote-request__field">
+            <span className="quote-request__field-label">
+              Address - City <span className="quote-request__required-mark">*</span>
+            </span>
+            <input
+              name="addressCity"
+              value={formData.addressCity}
+              onChange={handleChange}
+              className={fieldError('addressCity') ? 'quote-request__input--invalid' : ''}
+            />
+            {fieldError('addressCity') ? <span className="quote-request__validation-message">{fieldError('addressCity')}</span> : null}
+          </label>
+
+          <label className="quote-request__field">
+            <span className="quote-request__field-label">
+              Address - State <span className="quote-request__required-mark">*</span>
+            </span>
+            <input
+              name="addressState"
+              value={formData.addressState}
+              onChange={handleChange}
+              className={fieldError('addressState') ? 'quote-request__input--invalid' : ''}
+            />
+            {fieldError('addressState') ? <span className="quote-request__validation-message">{fieldError('addressState')}</span> : null}
+          </label>
+
+          <label className="quote-request__field">
+            <span className="quote-request__field-label">
+              Address - ZIP <span className="quote-request__required-mark">*</span>
+            </span>
+            <input
+              name="addressZip"
+              value={formData.addressZip}
+              onChange={handleChange}
+              inputMode="numeric"
+              maxLength={10}
+              className={fieldError('addressZip') ? 'quote-request__input--invalid' : ''}
+            />
+            {fieldError('addressZip') ? <span className="quote-request__validation-message">{fieldError('addressZip')}</span> : null}
           </label>
 
           <label className="quote-request__field">
@@ -262,7 +507,7 @@ function UmbrellaForm({ onBack }) {
         <div className="quote-request__grid">
           <label className="quote-request__field"><span className="quote-request__field-label">Underlying Homeowners Policy Carrier</span><input name="underlyingHomeownersPolicyCarrier" value={formData.underlyingHomeownersPolicyCarrier} onChange={handleChange} placeholder="Carrier name" /></label>
           <label className="quote-request__field"><span className="quote-request__field-label">Underlying Homeowners Policy Number</span><input name="underlyingHomeownersPolicyNumber" value={formData.underlyingHomeownersPolicyNumber} onChange={handleChange} placeholder="Policy number" /></label>
-          <label className="quote-request__field"><span className="quote-request__field-label">Underlying Homeowners Liability Limit</span><input name="underlyingHomeownersLiabilityLimit" value={formData.underlyingHomeownersLiabilityLimit} onChange={handleChange} placeholder="e.g., 300,000 or 500,000" /></label>
+          <label className="quote-request__field"><span className="quote-request__field-label">Underlying Homeowners Liability Limit</span><input name="underlyingHomeownersLiabilityLimit" value={formData.underlyingHomeownersLiabilityLimit} onChange={handleChange} placeholder="0.00" inputMode="decimal" /></label>
           <label className="quote-request__field"><span className="quote-request__field-label">Underlying Auto Policy Carrier</span><input name="underlyingAutoPolicyCarrier" value={formData.underlyingAutoPolicyCarrier} onChange={handleChange} placeholder="Carrier name" /></label>
           <label className="quote-request__field"><span className="quote-request__field-label">Underlying Auto Policy Number</span><input name="underlyingAutoPolicyNumber" value={formData.underlyingAutoPolicyNumber} onChange={handleChange} placeholder="Policy number" /></label>
           <label className="quote-request__field"><span className="quote-request__field-label">Underlying Auto BI/PD Limits</span><select name="underlyingAutoBiPdLimits" value={formData.underlyingAutoBiPdLimits} onChange={handleChange}>{AUTO_LIMIT_OPTIONS.map((opt) => <option key={opt.value || 'blank'} value={opt.value}>{opt.label}</option>)}</select></label>
@@ -298,9 +543,9 @@ function UmbrellaForm({ onBack }) {
               {YES_NO_OPTIONS.map((opt) => <option key={opt.value || 'blank'} value={opt.value}>{opt.label}</option>)}
             </select>
           </label>
-          {formData.rentalPropertiesOwned === 'yes' ? <label className="quote-request__field"><span className="quote-request__field-label">Number of Rental Units</span><input name="rentalPropertiesCount" value={formData.rentalPropertiesCount} onChange={handleChange} placeholder="Number of units" /></label> : null}
+          {formData.rentalPropertiesOwned === 'yes' ? <label className="quote-request__field"><span className="quote-request__field-label">Number of Rental Units</span><input name="rentalPropertiesCount" value={formData.rentalPropertiesCount} onChange={handleChange} inputMode="numeric" pattern="[\d,]+" placeholder="Number of units" /></label> : null}
 
-          <label className="quote-request__field"><span className="quote-request__field-label">Number of Drivers in Household (Personal)</span><input name="numberOfDriversInHousehold" value={formData.numberOfDriversInHousehold} onChange={handleChange} placeholder="Driver count" /></label>
+          <label className="quote-request__field"><span className="quote-request__field-label">Number of Drivers in Household (Personal)</span><input name="numberOfDriversInHousehold" value={formData.numberOfDriversInHousehold} onChange={handleChange} inputMode="numeric" pattern="[\d,]+" placeholder="Driver count" /></label>
           <label className="quote-request__field"><span className="quote-request__field-label">Young Drivers (under 25) in Household?</span><select name="youngDriversUnder25" value={formData.youngDriversUnder25} onChange={handleChange}>{YES_NO_OPTIONS.map((opt) => <option key={opt.value || 'blank'} value={opt.value}>{opt.label}</option>)}</select></label>
 
           <label className="quote-request__field">
@@ -332,7 +577,50 @@ function UmbrellaForm({ onBack }) {
             </select>
             {fieldError('priorUmbrellaClaimsPast5Years') ? <span className="quote-request__validation-message">{fieldError('priorUmbrellaClaimsPast5Years')}</span> : null}
           </label>
-          {formData.priorUmbrellaClaimsPast5Years === 'yes' ? <label className="quote-request__field quote-request__field--full"><span className="quote-request__field-label">Prior Umbrella Claim Details</span><input name="priorUmbrellaClaimsDetails" value={formData.priorUmbrellaClaimsDetails} onChange={handleChange} placeholder="Date, amount, and description" /></label> : null}
+          {formData.priorUmbrellaClaimsPast5Years === 'yes' ? (
+            <div className="quote-request__field quote-request__field--full">
+              <span className="quote-request__field-label">Prior Umbrella Claim Details <span className="quote-request__required-mark">*</span></span>
+              {priorClaims.map((row, index) => (
+                <div className="quote-request__claim-row" key={`umbrella-prior-claim-${index}`}>
+                  <label className="quote-request__field">
+                    <span className="quote-request__field-label">Date</span>
+                    <input
+                      name={`priorClaimDate${index}`}
+                      type="date"
+                      value={row.date}
+                      onChange={(event) => updatePriorClaim(index, 'date', event.target.value)}
+                    />
+                  </label>
+                  <label className="quote-request__field">
+                    <span className="quote-request__field-label">Amount</span>
+                    <input
+                      name={`priorClaimAmount${index}`}
+                      value={row.amount}
+                      onChange={(event) => updatePriorClaim(index, 'amount', event.target.value)}
+                      placeholder="0.00"
+                      inputMode="decimal"
+                    />
+                  </label>
+                  <label className="quote-request__field quote-request__field--full">
+                    <span className="quote-request__field-label">Description</span>
+                    <input
+                      name={`priorClaimDescription${index}`}
+                      value={row.description}
+                      onChange={(event) => updatePriorClaim(index, 'description', event.target.value)}
+                      placeholder="Claim details"
+                    />
+                  </label>
+                  {priorClaims.length > 1 ? (
+                    <button className="quote-request__inline-secondary quote-request__inline-secondary--remove-row" type="button" onClick={() => removePriorClaim(index)}>
+                      Remove Row
+                    </button>
+                  ) : null}
+                  {fieldError(`priorClaim${index}`) ? <span className="quote-request__validation-message">{fieldError(`priorClaim${index}`)}</span> : null}
+                </div>
+              ))}
+              <button className="quote-request__inline-secondary" style={{ width: 'fit-content' }} type="button" onClick={addPriorClaim}>Add Another Claim</button>
+            </div>
+          ) : null}
 
           <label className="quote-request__field"><span className="quote-request__field-label">Swimming Pool?</span><select name="swimmingPool" value={formData.swimmingPool} onChange={handleChange}>{YES_NO_OPTIONS.map((opt) => <option key={opt.value || 'blank'} value={opt.value}>{opt.label}</option>)}</select></label>
           <label className="quote-request__field"><span className="quote-request__field-label">Trampoline?</span><select name="trampoline" value={formData.trampoline} onChange={handleChange}>{YES_NO_OPTIONS.map((opt) => <option key={opt.value || 'blank'} value={opt.value}>{opt.label}</option>)}</select></label>

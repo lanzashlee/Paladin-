@@ -93,6 +93,7 @@ const initialForm = {
   scheduledPersonalProperty: '',
   earthquakeEndorsement: '',
   mortgageLenderLienholder: '',
+  mortgageLenderAddress: '',
   effectiveDate: '',
 };
 
@@ -111,6 +112,17 @@ const requiredFields = [
 ];
 
 const isBlank = (value) => String(value ?? '').trim() === '';
+const isFourDigitYear = (value) => /^\d{4}$/.test(String(value || '').trim());
+const isDigitsOnly = (value) => /^\d+$/.test(String(value || '').trim());
+const formatWholeNumberWithCommas = (rawValue = '') => {
+  const digitsOnly = String(rawValue).replace(/\D/g, '');
+  if (!digitsOnly) {
+    return '';
+  }
+
+  const normalized = digitsOnly.replace(/^0+(?=\d)/, '');
+  return (normalized || '0').replace(/\B(?=(\d{3})+(?!\d))/g, ',');
+};
 
 const formatCurrencyInput = (rawValue) => {
   const sanitized = String(rawValue ?? '')
@@ -152,6 +164,30 @@ function HO6Form({ onBack }) {
       }
     });
 
+    if (nextForm.yearBuildingBuilt && !isFourDigitYear(nextForm.yearBuildingBuilt)) {
+      nextErrors.yearBuildingBuilt = 'Please enter a valid 4-digit year.';
+    }
+
+    if (nextForm.floorNumberOfUnit && !isDigitsOnly(nextForm.floorNumberOfUnit)) {
+      nextErrors.floorNumberOfUnit = 'Please enter numbers only.';
+    }
+
+    if (nextForm.totalFloorsInBuilding && !isDigitsOnly(String(nextForm.totalFloorsInBuilding).replace(/,/g, ''))) {
+      nextErrors.totalFloorsInBuilding = 'Please enter numbers only.';
+    }
+
+    if (nextForm.squareFootageOfUnit && !isDigitsOnly(String(nextForm.squareFootageOfUnit).replace(/,/g, ''))) {
+      nextErrors.squareFootageOfUnit = 'Please enter numbers only.';
+    }
+
+    if (nextForm.numberOfRooms && !isDigitsOnly(String(nextForm.numberOfRooms).replace(/,/g, ''))) {
+      nextErrors.numberOfRooms = 'Please enter numbers only.';
+    }
+
+    if (nextForm.yearOfLastRenovation && !isFourDigitYear(nextForm.yearOfLastRenovation)) {
+      nextErrors.yearOfLastRenovation = 'Please enter a valid 4-digit year.';
+    }
+
     return nextErrors;
   };
 
@@ -183,6 +219,14 @@ function HO6Form({ onBack }) {
       'lossAssessmentCoverage',
     ].includes(name)) {
       normalizedValue = formatCurrencyInput(value);
+    } else if (['squareFootageOfUnit', 'totalFloorsInBuilding', 'numberOfRooms'].includes(name)) {
+      normalizedValue = formatWholeNumberWithCommas(value);
+    } else if ([
+      'yearBuildingBuilt',
+      'yearOfLastRenovation',
+      'floorNumberOfUnit',
+    ].includes(name)) {
+      normalizedValue = String(value).replace(/\D/g, '');
     }
 
     const nextForm = {
@@ -246,18 +290,20 @@ function HO6Form({ onBack }) {
 
           <label className="quote-request__field">
             <span className="quote-request__field-label">Year Building Built <span className="quote-request__required-mark">*</span></span>
-            <input name="yearBuildingBuilt" value={formData.yearBuildingBuilt} onChange={handleChange} placeholder="YYYY" className={fieldError('yearBuildingBuilt') ? 'quote-request__input--invalid' : ''} />
+            <input name="yearBuildingBuilt" value={formData.yearBuildingBuilt} onChange={handleChange} placeholder="YYYY" inputMode="numeric" maxLength={4} pattern="\d{4}" className={fieldError('yearBuildingBuilt') ? 'quote-request__input--invalid' : ''} />
             {fieldError('yearBuildingBuilt') ? <span className="quote-request__validation-message">{fieldError('yearBuildingBuilt')}</span> : null}
           </label>
 
           <label className="quote-request__field">
             <span className="quote-request__field-label">Floor Number of Unit</span>
-            <input name="floorNumberOfUnit" value={formData.floorNumberOfUnit} onChange={handleChange} placeholder="Floor number" />
+            <input name="floorNumberOfUnit" value={formData.floorNumberOfUnit} onChange={handleChange} placeholder="Floor number" inputMode="numeric" pattern="\d+" className={fieldError('floorNumberOfUnit') ? 'quote-request__input--invalid' : ''} />
+            {fieldError('floorNumberOfUnit') ? <span className="quote-request__validation-message">{fieldError('floorNumberOfUnit')}</span> : null}
           </label>
 
           <label className="quote-request__field">
             <span className="quote-request__field-label">Total Floors in Building</span>
-            <input name="totalFloorsInBuilding" value={formData.totalFloorsInBuilding} onChange={handleChange} placeholder="Total floors" />
+            <input name="totalFloorsInBuilding" value={formData.totalFloorsInBuilding} onChange={handleChange} placeholder="Total floors" inputMode="numeric" pattern="\d+" className={fieldError('totalFloorsInBuilding') ? 'quote-request__input--invalid' : ''} />
+            {fieldError('totalFloorsInBuilding') ? <span className="quote-request__validation-message">{fieldError('totalFloorsInBuilding')}</span> : null}
           </label>
 
           <label className="quote-request__field">
@@ -270,13 +316,14 @@ function HO6Form({ onBack }) {
 
           <label className="quote-request__field">
             <span className="quote-request__field-label">Square Footage of Unit <span className="quote-request__required-mark">*</span></span>
-            <input name="squareFootageOfUnit" value={formData.squareFootageOfUnit} onChange={handleChange} placeholder="Square footage" className={fieldError('squareFootageOfUnit') ? 'quote-request__input--invalid' : ''} />
+            <input name="squareFootageOfUnit" value={formData.squareFootageOfUnit} onChange={handleChange} placeholder="Square footage" inputMode="numeric" pattern="\d+" className={fieldError('squareFootageOfUnit') ? 'quote-request__input--invalid' : ''} />
             {fieldError('squareFootageOfUnit') ? <span className="quote-request__validation-message">{fieldError('squareFootageOfUnit')}</span> : null}
           </label>
 
           <label className="quote-request__field">
             <span className="quote-request__field-label">Number of Rooms</span>
-            <input name="numberOfRooms" value={formData.numberOfRooms} onChange={handleChange} placeholder="Number of rooms" />
+            <input name="numberOfRooms" value={formData.numberOfRooms} onChange={handleChange} placeholder="Number of rooms" inputMode="numeric" pattern="\d+" className={fieldError('numberOfRooms') ? 'quote-request__input--invalid' : ''} />
+            {fieldError('numberOfRooms') ? <span className="quote-request__validation-message">{fieldError('numberOfRooms')}</span> : null}
           </label>
 
           <label className="quote-request__field">
@@ -319,7 +366,8 @@ function HO6Form({ onBack }) {
 
           <label className="quote-request__field">
             <span className="quote-request__field-label">Year of Last Renovation</span>
-            <input name="yearOfLastRenovation" value={formData.yearOfLastRenovation} onChange={handleChange} placeholder="YYYY" />
+            <input name="yearOfLastRenovation" value={formData.yearOfLastRenovation} onChange={handleChange} placeholder="YYYY" inputMode="numeric" maxLength={4} pattern="\d{4}" className={fieldError('yearOfLastRenovation') ? 'quote-request__input--invalid' : ''} />
+            {fieldError('yearOfLastRenovation') ? <span className="quote-request__validation-message">{fieldError('yearOfLastRenovation')}</span> : null}
           </label>
 
           <label className="quote-request__field">
@@ -433,9 +481,14 @@ function HO6Form({ onBack }) {
             </select>
           </label>
 
-          <label className="quote-request__field quote-request__field--full">
+          <label className="quote-request__field">
             <span className="quote-request__field-label">Mortgage Lender / Lienholder</span>
-            <input name="mortgageLenderLienholder" value={formData.mortgageLenderLienholder} onChange={handleChange} placeholder="Lender and address details" />
+            <input name="mortgageLenderLienholder" value={formData.mortgageLenderLienholder} onChange={handleChange} placeholder="Lender / lienholder name" />
+          </label>
+
+          <label className="quote-request__field quote-request__field--full">
+            <span className="quote-request__field-label">Mortgage Lender / Lienholder Address Details</span>
+            <input name="mortgageLenderAddress" value={formData.mortgageLenderAddress} onChange={handleChange} placeholder="Street, City, State, ZIP" />
           </label>
 
           <label className="quote-request__field">

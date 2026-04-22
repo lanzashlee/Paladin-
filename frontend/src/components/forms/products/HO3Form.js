@@ -149,10 +149,10 @@ const SPRINKLER_OPTIONS = [
 
 const LIABILITY_OPTIONS = [
   { value: '', label: 'Select liability coverage' },
-  { value: '100000-200000', label: '$100,000 / $200,000' },
-  { value: '300000-300000', label: '$300,000 / $300,000' },
-  { value: '500000-500000', label: '$500,000 / $500,000' },
-  { value: '1000000-1000000', label: '$1,000,000 / $1,000,000' },
+  { value: '100000', label: '$100,000' },
+  { value: '200000', label: '$200,000' },
+  { value: '300000', label: '$300,000' },
+  { value: '500000', label: '$500,000' },
 ];
 
 const MED_PAY_OPTIONS = [
@@ -288,6 +288,8 @@ const requiredFields = [
 ];
 
 const isBlank = (value) => String(value ?? '').trim() === '';
+const isFourDigitYear = (value) => /^\d{4}$/.test(String(value || '').trim());
+const isDigitsOnly = (value) => /^\d+$/.test(String(value || '').trim());
 
 const formatCurrencyInput = (rawValue) => {
   const sanitized = String(rawValue ?? '')
@@ -314,7 +316,24 @@ const formatCurrencyInput = (rawValue) => {
   return `${formattedInteger || '0'}.${decimalRaw}`;
 };
 
+const normalizeUsZipDigits = (value = '') => String(value).replace(/\D/g, '').slice(0, 9);
+const formatUsZipDisplay = (value = '') => {
+  const digits = normalizeUsZipDigits(value);
+  if (digits.length <= 5) {
+    return digits;
+  }
+  return `${digits.slice(0, 5)}-${digits.slice(5)}`;
+};
+const isValidUsZipFormat = (value = '') => /^\d{5}(-\d{4})?$/.test(String(value || '').trim());
+
+const getTodayIsoDate = () => {
+  const now = new Date();
+  const timezoneOffsetMs = now.getTimezoneOffset() * 60 * 1000;
+  return new Date(now.getTime() - timezoneOffsetMs).toISOString().slice(0, 10);
+};
+
 function HO3Form({ onBack }) {
+  const todayIsoDate = getTodayIsoDate();
   const formRef = useRef(null);
   const [formData, setFormData] = useState(initialForm);
   const [errors, setErrors] = useState({});
@@ -328,6 +347,22 @@ function HO3Form({ onBack }) {
         nextErrors[field] = REQUIRED_MESSAGE;
       }
     });
+
+    if (nextForm.insuredZip && !isValidUsZipFormat(nextForm.insuredZip)) {
+      nextErrors.insuredZip = 'Please enter a valid US ZIP (12345 or 12345-6789).';
+    }
+
+    if (nextForm.yearBuilt && !isFourDigitYear(nextForm.yearBuilt)) {
+      nextErrors.yearBuilt = 'Please enter a valid 4-digit year.';
+    }
+
+    if (nextForm.squareFootage && !isDigitsOnly(nextForm.squareFootage)) {
+      nextErrors.squareFootage = 'Please enter numbers only.';
+    }
+
+    if (nextForm.roofAge && !isFourDigitYear(nextForm.roofAge)) {
+      nextErrors.roofAge = 'Please enter a valid 4-digit year.';
+    }
 
     return nextErrors;
   };
@@ -360,6 +395,12 @@ function HO3Form({ onBack }) {
       'lossOfUseCoverage',
     ].includes(name)) {
       normalizedValue = formatCurrencyInput(value);
+    } else if (name === 'yearsOwned') {
+      normalizedValue = String(value).replace(/\D/g, '');
+    } else if (name === 'insuredZip') {
+      normalizedValue = formatUsZipDisplay(value);
+    } else if (['yearBuilt', 'squareFootage', 'roofAge'].includes(name)) {
+      normalizedValue = String(value).replace(/\D/g, '');
     }
 
     const nextForm = {
@@ -431,7 +472,7 @@ function HO3Form({ onBack }) {
 
           <label className="quote-request__field">
             <span className="quote-request__field-label">ZIP <span className="quote-request__required-mark">*</span></span>
-            <input name="insuredZip" value={formData.insuredZip} onChange={handleChange} placeholder="ZIP" className={fieldError('insuredZip') ? 'quote-request__input--invalid' : ''} />
+            <input name="insuredZip" value={formData.insuredZip} onChange={handleChange} placeholder="ZIP" inputMode="numeric" maxLength={10} pattern="\d{5}(-\d{4})?" className={fieldError('insuredZip') ? 'quote-request__input--invalid' : ''} />
             {fieldError('insuredZip') ? <span className="quote-request__validation-message">{fieldError('insuredZip')}</span> : null}
           </label>
 
@@ -457,8 +498,8 @@ function HO3Form({ onBack }) {
             {fieldError('occupancyType') ? <span className="quote-request__validation-message">{fieldError('occupancyType')}</span> : null}
           </label>
 
-          <label className="quote-request__field"><span className="quote-request__field-label">Years Owned</span><input name="yearsOwned" value={formData.yearsOwned} onChange={handleChange} placeholder="Years owned" /></label>
-          <label className="quote-request__field"><span className="quote-request__field-label">Purchase Date</span><input name="purchaseDate" type="date" value={formData.purchaseDate} onChange={handleChange} /></label>
+          <label className="quote-request__field"><span className="quote-request__field-label">Years Owned</span><input name="yearsOwned" value={formData.yearsOwned} onChange={handleChange} placeholder="Years owned" inputMode="numeric" pattern="\d*" /></label>
+          <label className="quote-request__field"><span className="quote-request__field-label">Purchase Date</span><input name="purchaseDate" type="date" value={formData.purchaseDate} onChange={handleChange} max={todayIsoDate} /></label>
           <label className="quote-request__field"><span className="quote-request__field-label">Purchase Price</span><input name="purchasePrice" value={formData.purchasePrice} onChange={handleChange} placeholder="0.00" inputMode="decimal" /></label>
         </div>
       </div>
@@ -466,8 +507,8 @@ function HO3Form({ onBack }) {
       <div className="quote-request__section">
         <h4 className="quote-request__section-title">Construction Details</h4>
         <div className="quote-request__grid">
-          <label className="quote-request__field"><span className="quote-request__field-label">Year Built <span className="quote-request__required-mark">*</span></span><input name="yearBuilt" value={formData.yearBuilt} onChange={handleChange} placeholder="YYYY" className={fieldError('yearBuilt') ? 'quote-request__input--invalid' : ''} />{fieldError('yearBuilt') ? <span className="quote-request__validation-message">{fieldError('yearBuilt')}</span> : null}</label>
-          <label className="quote-request__field"><span className="quote-request__field-label">Square Footage (Heated) <span className="quote-request__required-mark">*</span></span><input name="squareFootage" value={formData.squareFootage} onChange={handleChange} placeholder="Square footage" className={fieldError('squareFootage') ? 'quote-request__input--invalid' : ''} />{fieldError('squareFootage') ? <span className="quote-request__validation-message">{fieldError('squareFootage')}</span> : null}</label>
+          <label className="quote-request__field"><span className="quote-request__field-label">Year Built <span className="quote-request__required-mark">*</span></span><input name="yearBuilt" value={formData.yearBuilt} onChange={handleChange} placeholder="YYYY" inputMode="numeric" maxLength={4} pattern="\d{4}" className={fieldError('yearBuilt') ? 'quote-request__input--invalid' : ''} />{fieldError('yearBuilt') ? <span className="quote-request__validation-message">{fieldError('yearBuilt')}</span> : null}</label>
+          <label className="quote-request__field"><span className="quote-request__field-label">Square Footage (Heated) <span className="quote-request__required-mark">*</span></span><input name="squareFootage" value={formData.squareFootage} onChange={handleChange} placeholder="Square footage" inputMode="numeric" pattern="\d+" className={fieldError('squareFootage') ? 'quote-request__input--invalid' : ''} />{fieldError('squareFootage') ? <span className="quote-request__validation-message">{fieldError('squareFootage')}</span> : null}</label>
           <label className="quote-request__field"><span className="quote-request__field-label">Number of Stories <span className="quote-request__required-mark">*</span></span><select name="numberOfStories" value={formData.numberOfStories} onChange={handleChange} className={fieldError('numberOfStories') ? 'quote-request__input--invalid' : ''}>{STORIES_OPTIONS.map((opt) => <option key={opt.value || 'blank'} value={opt.value}>{opt.label}</option>)}</select>{fieldError('numberOfStories') ? <span className="quote-request__validation-message">{fieldError('numberOfStories')}</span> : null}</label>
           <label className="quote-request__field"><span className="quote-request__field-label">Foundation Type <span className="quote-request__required-mark">*</span></span><select name="foundationType" value={formData.foundationType} onChange={handleChange} className={fieldError('foundationType') ? 'quote-request__input--invalid' : ''}>{FOUNDATION_OPTIONS.map((opt) => <option key={opt.value || 'blank'} value={opt.value}>{opt.label}</option>)}</select>{fieldError('foundationType') ? <span className="quote-request__validation-message">{fieldError('foundationType')}</span> : null}</label>
           <label className="quote-request__field"><span className="quote-request__field-label">Construction Type / Frame <span className="quote-request__required-mark">*</span></span><select name="constructionType" value={formData.constructionType} onChange={handleChange} className={fieldError('constructionType') ? 'quote-request__input--invalid' : ''}>{CONSTRUCTION_OPTIONS.map((opt) => <option key={opt.value || 'blank'} value={opt.value}>{opt.label}</option>)}</select>{fieldError('constructionType') ? <span className="quote-request__validation-message">{fieldError('constructionType')}</span> : null}</label>
@@ -475,7 +516,7 @@ function HO3Form({ onBack }) {
           <label className="quote-request__field"><span className="quote-request__field-label">Exterior Wall Material <span className="quote-request__required-mark">*</span></span><select name="exteriorWallMaterial" value={formData.exteriorWallMaterial} onChange={handleChange} className={fieldError('exteriorWallMaterial') ? 'quote-request__input--invalid' : ''}>{EXTERIOR_WALL_OPTIONS.map((opt) => <option key={opt.value || 'blank'} value={opt.value}>{opt.label}</option>)}</select>{fieldError('exteriorWallMaterial') ? <span className="quote-request__validation-message">{fieldError('exteriorWallMaterial')}</span> : null}</label>
           <label className="quote-request__field"><span className="quote-request__field-label">Roof Type (Material) <span className="quote-request__required-mark">*</span></span><select name="roofTypeMaterial" value={formData.roofTypeMaterial} onChange={handleChange} className={fieldError('roofTypeMaterial') ? 'quote-request__input--invalid' : ''}>{ROOF_TYPE_OPTIONS.map((opt) => <option key={opt.value || 'blank'} value={opt.value}>{opt.label}</option>)}</select>{fieldError('roofTypeMaterial') ? <span className="quote-request__validation-message">{fieldError('roofTypeMaterial')}</span> : null}</label>
           <label className="quote-request__field"><span className="quote-request__field-label">Roof Shape</span><select name="roofShape" value={formData.roofShape} onChange={handleChange}>{ROOF_SHAPE_OPTIONS.map((opt) => <option key={opt.value || 'blank'} value={opt.value}>{opt.label}</option>)}</select></label>
-          <label className="quote-request__field"><span className="quote-request__field-label">Roof Age (Year Last Replaced) <span className="quote-request__required-mark">*</span></span><input name="roofAge" value={formData.roofAge} onChange={handleChange} placeholder="Year or age" className={fieldError('roofAge') ? 'quote-request__input--invalid' : ''} />{fieldError('roofAge') ? <span className="quote-request__validation-message">{fieldError('roofAge')}</span> : null}</label>
+          <label className="quote-request__field"><span className="quote-request__field-label">Roof Age (Year Last Replaced) <span className="quote-request__required-mark">*</span></span><input name="roofAge" value={formData.roofAge} onChange={handleChange} placeholder="YYYY" inputMode="numeric" maxLength={4} pattern="\d{4}" className={fieldError('roofAge') ? 'quote-request__input--invalid' : ''} />{fieldError('roofAge') ? <span className="quote-request__validation-message">{fieldError('roofAge')}</span> : null}</label>
           <label className="quote-request__field"><span className="quote-request__field-label">Roof Condition</span><select name="roofCondition" value={formData.roofCondition} onChange={handleChange}>{ROOF_CONDITION_OPTIONS.map((opt) => <option key={opt.value || 'blank'} value={opt.value}>{opt.label}</option>)}</select></label>
           <label className="quote-request__field"><span className="quote-request__field-label">Number of Bathrooms <span className="quote-request__required-mark">*</span></span><select name="numberOfBathrooms" value={formData.numberOfBathrooms} onChange={handleChange} className={fieldError('numberOfBathrooms') ? 'quote-request__input--invalid' : ''}>{BATHROOM_OPTIONS.map((opt) => <option key={opt.value || 'blank'} value={opt.value}>{opt.label}</option>)}</select>{fieldError('numberOfBathrooms') ? <span className="quote-request__validation-message">{fieldError('numberOfBathrooms')}</span> : null}</label>
           <label className="quote-request__field"><span className="quote-request__field-label">Garage Type</span><select name="garageType" value={formData.garageType} onChange={handleChange}>{GARAGE_TYPE_OPTIONS.map((opt) => <option key={opt.value || 'blank'} value={opt.value}>{opt.label}</option>)}</select></label>

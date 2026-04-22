@@ -130,7 +130,10 @@ const initialForm = {
   dbaName: '',
   businessEntityType: '',
   federalEin: '',
-  businessAddress: '',
+  businessStreetAddress: '',
+  businessCity: '',
+  businessState: '',
+  businessZip: '',
   yearBusinessEstablished: '',
   industryType: '',
   naicsCode: '',
@@ -149,7 +152,8 @@ const initialForm = {
   vehicleRadiusOfOperation: '',
   vehicleAnnualMileage: '',
   vehicleGaragingZip: '',
-  vehicleLienholderLessor: '',
+  vehicleLienholderLessorName: '',
+  vehicleLienholderLessorAddress: '',
   vehicleCurrentMarketValue: '',
   dotNumber: '',
   mcNumber: '',
@@ -182,7 +186,10 @@ const requiredFields = [
   'legalBusinessName',
   'businessEntityType',
   'federalEin',
-  'businessAddress',
+  'businessStreetAddress',
+  'businessCity',
+  'businessState',
+  'businessZip',
   'yearBusinessEstablished',
   'industryType',
   'primaryContactName',
@@ -211,6 +218,30 @@ const requiredFields = [
 ];
 
 const isBlank = (value) => String(value ?? '').trim() === '';
+const isFourDigitYear = (value) => /^\d{4}$/.test(String(value || '').trim());
+const isDigitsOnly = (value) => /^\d+$/.test(String(value || '').trim());
+const EMAIL_REGEX = /^[a-zA-Z0-9!#$%&'*+/=?^_`{|}~.-]+@(?:[a-zA-Z0-9](?:[a-zA-Z0-9-]{0,61}[a-zA-Z0-9])?\.)+[a-zA-Z]{2,}$/;
+
+const isValidEmailFormat = (emailValue = '') => {
+  const email = String(emailValue).trim();
+  if (!email || !EMAIL_REGEX.test(email)) {
+    return false;
+  }
+
+  const [localPart = '', domainPart = ''] = email.split('@');
+  if (
+    localPart.startsWith('.') ||
+    localPart.endsWith('.') ||
+    localPart.includes('..') ||
+    domainPart.startsWith('.') ||
+    domainPart.endsWith('.') ||
+    domainPart.includes('..')
+  ) {
+    return false;
+  }
+
+  return true;
+};
 
 const formatPhoneNumber = (rawValue) => {
   const digits = String(rawValue ?? '').replace(/\D/g, '').slice(0, 10);
@@ -273,6 +304,14 @@ const formatCurrencyInput = (rawValue) => {
   return `${wholeFormatted || '0'}.${decimalRaw}`;
 };
 
+const formatWholeNumberWithCommas = (rawValue) => {
+  const digits = String(rawValue ?? '').replace(/\D/g, '');
+  if (!digits) {
+    return '';
+  }
+  return digits.replace(/\B(?=(\d{3})+(?!\d))/g, ',');
+};
+
 function CommercialAutoForm({ onBack }) {
   const formRef = useRef(null);
   const [formData, setFormData] = useState(initialForm);
@@ -290,7 +329,7 @@ function CommercialAutoForm({ onBack }) {
       }
     });
 
-    if (!isBlank(nextForm.primaryContactEmail) && !/^[^\s@]+@[^\s@]+\.[^\s@]+$/.test(nextForm.primaryContactEmail)) {
+    if (!isBlank(nextForm.primaryContactEmail) && !isValidEmailFormat(nextForm.primaryContactEmail)) {
       nextErrors.primaryContactEmail = 'Enter a valid email address.';
     }
 
@@ -308,6 +347,38 @@ function CommercialAutoForm({ onBack }) {
 
     if (!isBlank(nextForm.vehicleGaragingZip) && !/^\d{5}(-\d{4})?$/.test(nextForm.vehicleGaragingZip)) {
       nextErrors.vehicleGaragingZip = 'Use ZIP format 12345 or 12345-6789.';
+    }
+
+    if (!isBlank(nextForm.businessZip) && !/^\d{5}(-\d{4})?$/.test(nextForm.businessZip)) {
+      nextErrors.businessZip = 'Use ZIP format 12345 or 12345-6789.';
+    }
+
+    if (!isBlank(nextForm.yearBusinessEstablished) && !isFourDigitYear(nextForm.yearBusinessEstablished)) {
+      nextErrors.yearBusinessEstablished = 'Enter a valid 4-digit year.';
+    }
+
+    if (!isBlank(nextForm.numberOfVehiclesToInsure) && !isDigitsOnly(nextForm.numberOfVehiclesToInsure)) {
+      nextErrors.numberOfVehiclesToInsure = 'Enter numbers only.';
+    }
+
+    if (!isBlank(nextForm.vehicleYear) && !isFourDigitYear(nextForm.vehicleYear)) {
+      nextErrors.vehicleYear = 'Enter a valid 4-digit year.';
+    }
+
+    if (!isBlank(nextForm.vehicleAnnualMileage) && !isDigitsOnly(nextForm.vehicleAnnualMileage.replace(/,/g, ''))) {
+      nextErrors.vehicleAnnualMileage = 'Enter numbers only.';
+    }
+
+    if (!isBlank(nextForm.dotNumber) && !isDigitsOnly(nextForm.dotNumber)) {
+      nextErrors.dotNumber = 'Enter numbers only.';
+    }
+
+    if (!isBlank(nextForm.mcNumber) && !isDigitsOnly(nextForm.mcNumber)) {
+      nextErrors.mcNumber = 'Enter numbers only.';
+    }
+
+    if (!isBlank(nextForm.driverYearsLicensedUs) && !isDigitsOnly(nextForm.driverYearsLicensedUs)) {
+      nextErrors.driverYearsLicensedUs = 'Enter numbers only.';
     }
 
     if (nextForm.comprehensiveCoverage === 'yes' && isBlank(nextForm.comprehensiveDeductible)) {
@@ -414,11 +485,36 @@ function CommercialAutoForm({ onBack }) {
       normalizedValue = formatZipCode(value);
     }
 
+    if (name === 'businessZip') {
+      normalizedValue = formatZipCode(value);
+    }
+
     if ([
       'vehicleCurrentMarketValue',
       'rentalReimbursementDailyLimit',
     ].includes(name)) {
       normalizedValue = formatCurrencyInput(value);
+    }
+
+    if (name === 'yearBusinessEstablished') {
+      normalizedValue = String(value ?? '').replace(/\D/g, '').slice(0, 4);
+    }
+
+    if ([
+      'numberOfVehiclesToInsure',
+      'driverYearsLicensedUs',
+      'dotNumber',
+      'mcNumber',
+    ].includes(name)) {
+      normalizedValue = String(value ?? '').replace(/\D/g, '');
+    }
+
+    if (name === 'vehicleAnnualMileage') {
+      normalizedValue = formatWholeNumberWithCommas(value);
+    }
+
+    if (name === 'vehicleYear') {
+      normalizedValue = String(value ?? '').replace(/\D/g, '').slice(0, 4);
     }
 
     const nextForm = {
@@ -561,14 +657,32 @@ function CommercialAutoForm({ onBack }) {
           </label>
 
           <label className="quote-request__field quote-request__field--full">
-            <span className="quote-request__field-label">Business Address (Principal Location) <span className="quote-request__required-mark">*</span></span>
-            <input name="businessAddress" value={formData.businessAddress} onChange={handleChange} className={fieldError('businessAddress') ? 'quote-request__input--invalid' : ''} />
-            {fieldError('businessAddress') ? <span className="quote-request__validation-message">{fieldError('businessAddress')}</span> : null}
+            <span className="quote-request__field-label">Business Street Address (Principal Location) <span className="quote-request__required-mark">*</span></span>
+            <input name="businessStreetAddress" value={formData.businessStreetAddress} onChange={handleChange} className={fieldError('businessStreetAddress') ? 'quote-request__input--invalid' : ''} />
+            {fieldError('businessStreetAddress') ? <span className="quote-request__validation-message">{fieldError('businessStreetAddress')}</span> : null}
+          </label>
+
+          <label className="quote-request__field">
+            <span className="quote-request__field-label">Business City <span className="quote-request__required-mark">*</span></span>
+            <input name="businessCity" value={formData.businessCity} onChange={handleChange} className={fieldError('businessCity') ? 'quote-request__input--invalid' : ''} />
+            {fieldError('businessCity') ? <span className="quote-request__validation-message">{fieldError('businessCity')}</span> : null}
+          </label>
+
+          <label className="quote-request__field">
+            <span className="quote-request__field-label">Business State <span className="quote-request__required-mark">*</span></span>
+            <input name="businessState" value={formData.businessState} onChange={handleChange} className={fieldError('businessState') ? 'quote-request__input--invalid' : ''} />
+            {fieldError('businessState') ? <span className="quote-request__validation-message">{fieldError('businessState')}</span> : null}
+          </label>
+
+          <label className="quote-request__field">
+            <span className="quote-request__field-label">Business ZIP <span className="quote-request__required-mark">*</span></span>
+            <input name="businessZip" value={formData.businessZip} onChange={handleChange} inputMode="numeric" maxLength={10} className={fieldError('businessZip') ? 'quote-request__input--invalid' : ''} />
+            {fieldError('businessZip') ? <span className="quote-request__validation-message">{fieldError('businessZip')}</span> : null}
           </label>
 
           <label className="quote-request__field">
             <span className="quote-request__field-label">Year Business Established <span className="quote-request__required-mark">*</span></span>
-            <input name="yearBusinessEstablished" value={formData.yearBusinessEstablished} onChange={handleChange} placeholder="YYYY" className={fieldError('yearBusinessEstablished') ? 'quote-request__input--invalid' : ''} />
+            <input name="yearBusinessEstablished" value={formData.yearBusinessEstablished} onChange={handleChange} placeholder="YYYY" inputMode="numeric" maxLength={4} pattern="\d{4}" className={fieldError('yearBusinessEstablished') ? 'quote-request__input--invalid' : ''} />
             {fieldError('yearBusinessEstablished') ? <span className="quote-request__validation-message">{fieldError('yearBusinessEstablished')}</span> : null}
           </label>
 
@@ -604,7 +718,7 @@ function CommercialAutoForm({ onBack }) {
 
           <label className="quote-request__field">
             <span className="quote-request__field-label">Primary Business Contact Email <span className="quote-request__required-mark">*</span></span>
-            <input name="primaryContactEmail" value={formData.primaryContactEmail} onChange={handleChange} className={fieldError('primaryContactEmail') ? 'quote-request__input--invalid' : ''} />
+            <input name="primaryContactEmail" value={formData.primaryContactEmail} onChange={handleChange} type="email" pattern="[a-zA-Z0-9!#$%&'*+/=?^_`{|}~.-]+@(?:[a-zA-Z0-9](?:[a-zA-Z0-9-]{0,61}[a-zA-Z0-9])?\.)+[a-zA-Z]{2,}" className={fieldError('primaryContactEmail') ? 'quote-request__input--invalid' : ''} />
             {fieldError('primaryContactEmail') ? <span className="quote-request__validation-message">{fieldError('primaryContactEmail')}</span> : null}
           </label>
         </div>
@@ -615,13 +729,13 @@ function CommercialAutoForm({ onBack }) {
         <div className="quote-request__grid">
           <label className="quote-request__field">
             <span className="quote-request__field-label">Number of Vehicles to Insure <span className="quote-request__required-mark">*</span></span>
-            <input name="numberOfVehiclesToInsure" value={formData.numberOfVehiclesToInsure} onChange={handleChange} className={fieldError('numberOfVehiclesToInsure') ? 'quote-request__input--invalid' : ''} />
+            <input name="numberOfVehiclesToInsure" value={formData.numberOfVehiclesToInsure} onChange={handleChange} inputMode="numeric" pattern="\d+" className={fieldError('numberOfVehiclesToInsure') ? 'quote-request__input--invalid' : ''} />
             {fieldError('numberOfVehiclesToInsure') ? <span className="quote-request__validation-message">{fieldError('numberOfVehiclesToInsure')}</span> : null}
           </label>
 
           <label className="quote-request__field">
             <span className="quote-request__field-label">Vehicle 1 - Year <span className="quote-request__required-mark">*</span></span>
-            <input name="vehicleYear" value={formData.vehicleYear} onChange={handleChange} placeholder="YYYY" className={fieldError('vehicleYear') ? 'quote-request__input--invalid' : ''} />
+            <input name="vehicleYear" value={formData.vehicleYear} onChange={handleChange} placeholder="YYYY" inputMode="numeric" maxLength={4} pattern="\d{4}" className={fieldError('vehicleYear') ? 'quote-request__input--invalid' : ''} />
             {fieldError('vehicleYear') ? <span className="quote-request__validation-message">{fieldError('vehicleYear')}</span> : null}
           </label>
 
@@ -669,7 +783,7 @@ function CommercialAutoForm({ onBack }) {
 
           <label className="quote-request__field">
             <span className="quote-request__field-label">Vehicle 1 - Annual Mileage <span className="quote-request__required-mark">*</span></span>
-            <input name="vehicleAnnualMileage" value={formData.vehicleAnnualMileage} onChange={handleChange} className={fieldError('vehicleAnnualMileage') ? 'quote-request__input--invalid' : ''} />
+            <input name="vehicleAnnualMileage" value={formData.vehicleAnnualMileage} onChange={handleChange} inputMode="numeric" pattern="[\d,]+" className={fieldError('vehicleAnnualMileage') ? 'quote-request__input--invalid' : ''} />
             {fieldError('vehicleAnnualMileage') ? <span className="quote-request__validation-message">{fieldError('vehicleAnnualMileage')}</span> : null}
           </label>
 
@@ -679,9 +793,14 @@ function CommercialAutoForm({ onBack }) {
             {fieldError('vehicleGaragingZip') ? <span className="quote-request__validation-message">{fieldError('vehicleGaragingZip')}</span> : null}
           </label>
 
+          <label className="quote-request__field">
+            <span className="quote-request__field-label">Vehicle 1 - Lienholder / Lessor Name</span>
+            <input name="vehicleLienholderLessorName" value={formData.vehicleLienholderLessorName} onChange={handleChange} />
+          </label>
+
           <label className="quote-request__field quote-request__field--full">
-            <span className="quote-request__field-label">Vehicle 1 - Lienholder / Lessor Name and Address</span>
-            <input name="vehicleLienholderLessor" value={formData.vehicleLienholderLessor} onChange={handleChange} />
+            <span className="quote-request__field-label">Vehicle 1 - Lienholder / Lessor Address</span>
+            <input name="vehicleLienholderLessorAddress" value={formData.vehicleLienholderLessorAddress} onChange={handleChange} />
           </label>
 
           <label className="quote-request__field">
@@ -691,12 +810,14 @@ function CommercialAutoForm({ onBack }) {
 
           <label className="quote-request__field">
             <span className="quote-request__field-label">DOT Number (If Applicable)</span>
-            <input name="dotNumber" value={formData.dotNumber} onChange={handleChange} />
+            <input name="dotNumber" value={formData.dotNumber} onChange={handleChange} inputMode="numeric" pattern="\d+" className={fieldError('dotNumber') ? 'quote-request__input--invalid' : ''} />
+            {fieldError('dotNumber') ? <span className="quote-request__validation-message">{fieldError('dotNumber')}</span> : null}
           </label>
 
           <label className="quote-request__field">
             <span className="quote-request__field-label">MC Number (Motor Carrier)</span>
-            <input name="mcNumber" value={formData.mcNumber} onChange={handleChange} />
+            <input name="mcNumber" value={formData.mcNumber} onChange={handleChange} inputMode="numeric" pattern="\d+" className={fieldError('mcNumber') ? 'quote-request__input--invalid' : ''} />
+            {fieldError('mcNumber') ? <span className="quote-request__validation-message">{fieldError('mcNumber')}</span> : null}
           </label>
         </div>
       </div>
@@ -732,7 +853,7 @@ function CommercialAutoForm({ onBack }) {
 
           <label className="quote-request__field">
             <span className="quote-request__field-label">Driver 1 - Years Licensed in US <span className="quote-request__required-mark">*</span></span>
-            <input name="driverYearsLicensedUs" value={formData.driverYearsLicensedUs} onChange={handleChange} className={fieldError('driverYearsLicensedUs') ? 'quote-request__input--invalid' : ''} />
+            <input name="driverYearsLicensedUs" value={formData.driverYearsLicensedUs} onChange={handleChange} inputMode="numeric" pattern="\d+" className={fieldError('driverYearsLicensedUs') ? 'quote-request__input--invalid' : ''} />
             {fieldError('driverYearsLicensedUs') ? <span className="quote-request__validation-message">{fieldError('driverYearsLicensedUs')}</span> : null}
           </label>
 
