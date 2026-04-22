@@ -678,12 +678,16 @@ const createTransporter = () => {
   const SMTP_HOST = (process.env.SMTP_HOST || '').trim();
   const SMTP_PORT = (process.env.SMTP_PORT || '').trim();
   const SMTP_USER = (process.env.SMTP_USER || process.env.EMAIL_USER || '').trim();
-  const SMTP_PASS = (
+  const rawSmtpPass = (
     process.env.SMTP_PASS ||
     process.env.GMAIL_APP_PASSWORD ||
     process.env.EMAIL_PASSWORD ||
     ''
   ).trim();
+  const isGmailTransport =
+    SMTP_HOST.toLowerCase().includes('gmail.com') ||
+    (!SMTP_HOST && SMTP_USER.toLowerCase().endsWith('@gmail.com'));
+  const SMTP_PASS = isGmailTransport ? rawSmtpPass.replace(/\s+/g, '') : rawSmtpPass;
   const SMTP_SECURE = (process.env.SMTP_SECURE || '').trim();
 
   if (SMTP_HOST && SMTP_PORT && SMTP_USER && SMTP_PASS) {
