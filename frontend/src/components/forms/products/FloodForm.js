@@ -35,6 +35,12 @@ const FLOOR_OPTIONS = [
   { value: '4+', label: '4+' },
 ];
 
+const BASEMENT_TYPE_OPTIONS = [
+  { value: '', label: 'Select basement type' },
+  { value: 'finished', label: 'Finished' },
+  { value: 'unfinished', label: 'Unfinished' },
+];
+
 const DEDUCTIBLE_BUILDING_OPTIONS = [
   { value: '', label: 'Select building deductible' },
   { value: '1000', label: '$1,000' },
@@ -66,6 +72,11 @@ const PREFERRED_RISK_OPTIONS = [
 ];
 
 const initialForm = {
+  propertyStreetAddress: '',
+  propertyUnitNumber: '',
+  propertyCity: '',
+  propertyState: '',
+  propertyZip: '',
   propertyAddress: '',
   femaFloodZone: '',
   baseFloodElevation: '',
@@ -76,6 +87,7 @@ const initialForm = {
   yearBuilt: '',
   numberOfFloors: '',
   basement: '',
+  basementType: '',
   enclosureBelowElevatedBuilding: '',
   buildingCoverage: '',
   contentsCoverage: '',
@@ -88,8 +100,16 @@ const initialForm = {
   effectiveDate: '',
 };
 
+const initialPriorClaim = {
+  date: '',
+  amountPaid: '',
+};
+
 const requiredFields = [
-  'propertyAddress',
+  'propertyStreetAddress',
+  'propertyCity',
+  'propertyState',
+  'propertyZip',
   'femaFloodZone',
   'propertyType',
   'yearBuilt',
@@ -104,6 +124,22 @@ const requiredFields = [
 const currencyFields = new Set(['buildingCoverage', 'contentsCoverage']);
 
 const isBlank = (value) => String(value ?? '').trim() === '';
+const isFourDigitYear = (value) => /^\d{4}$/.test(String(value ?? '').trim());
+const getTodayIsoDate = () => {
+  const now = new Date();
+  const year = now.getFullYear();
+  const month = String(now.getMonth() + 1).padStart(2, '0');
+  const day = String(now.getDate()).padStart(2, '0');
+  return `${year}-${month}-${day}`;
+};
+
+const formatZipCode = (rawValue) => {
+  const digits = String(rawValue ?? '').replace(/\D/g, '').slice(0, 9);
+  if (digits.length <= 5) {
+    return digits;
+  }
+  return `${digits.slice(0, 5)}-${digits.slice(5)}`;
+};
 
 const formatCurrencyInput = (rawValue) => {
   const sanitized = String(rawValue ?? '')
@@ -130,13 +166,29 @@ const formatCurrencyInput = (rawValue) => {
   return `${formattedInteger || '0'}.${decimalRaw}`;
 };
 
+const formatWholeNumberWithCommas = (rawValue) => {
+  const digits = String(rawValue ?? '').replace(/\D/g, '');
+  if (!digits) {
+    return '';
+  }
+  return digits.replace(/\B(?=(\d{3})+(?!\d))/g, ',');
+};
+
+const buildAddressSummary = ({ streetAddress, unitNumber, city, state, zip }) => (
+  [streetAddress, unitNumber, city, state, zip]
+    .map((value) => String(value ?? '').trim())
+    .filter(Boolean)
+    .join(', ')
+);
+
 function FloodForm({ onBack }) {
   const formRef = useRef(null);
   const [formData, setFormData] = useState(initialForm);
+  const [priorClaims, setPriorClaims] = useState([{ ...initialPriorClaim }]);
   const [errors, setErrors] = useState({});
   const [hasSubmitted, setHasSubmitted] = useState(false);
 
-  const validate = (nextForm) => {
+  const validate = (nextForm, nextPriorClaims) => {
     const nextErrors = {};
 
     requiredFields.forEach((field) => {
@@ -145,16 +197,63 @@ function FloodForm({ onBack }) {
       }
     });
 
+    if (!isBlank(nextForm.propertyZip) && !/^\d{5}(-\d{4})?$/.test(nextForm.propertyZip)) {
+      nextErrors.propertyZip = 'Use ZIP format 12345 or 12345-6789.';
+    }
+
+    if (!isBlank(nextForm.yearBuilt) && !isFourDigitYear(nextForm.yearBuilt)) {
+      nextErrors.yearBuilt = 'Enter a valid 4-digit year.';
+    }
+
+    if (nextForm.basement === 'yes' && isBlank(nextForm.basementType)) {
+      nextErrors.basementType = REQUIRED_MESSAGE;
+    }
+
+    if (nextForm.priorFloodClaims === 'yes') {
+      const todayIsoDate = getTodayIsoDate();
+      const hasRequiredClaimData = !isBlank(nextPriorClaims[0].date) || !isBlank(nextPriorClaims[0].amountPaid);
+      if (!hasRequiredClaimData) {
+        nextErrors.priorClaim0 = 'At least one prior flood claim is required.';
+      }
+
+      nextPriorClaims.forEach((row, index) => {
+        const hasAny = !isBlank(row.date) || !isBlank(row.amountPaid);
+        const hasAll = !isBlank(row.date) && !isBlank(row.amountPaid);
+        if (hasAny && !hasAll) {
+          nextErrors[`priorClaim${index}`] = 'Complete claim date and amount paid for this row.';
+          return;
+        }
+
+        if (!isBlank(row.date) && row.date > todayIsoDate) {
+          nextErrors[`priorClaim${index}`] = 'Claim date cannot be in the future.';
+        }
+      });
+    }
+
     return nextErrors;
   };
 
   const focusFirstError = (nextErrors) => {
-    const firstErrorField = requiredFields.find((field) => nextErrors[field]);
+    const orderedKeys = [
+      ...requiredFields,
+      'basementType',
+      'priorClaim0',
+    ];
+    const firstErrorField = orderedKeys.find((field) => nextErrors[field]);
     if (!firstErrorField) {
       return;
     }
 
     requestAnimationFrame(() => {
+      if (firstErrorField.startsWith('priorClaim')) {
+        const node = formRef.current?.querySelector('[name="priorClaimDate0"]');
+        if (node) {
+          node.scrollIntoView({ behavior: 'smooth', block: 'center' });
+          node.focus({ preventScroll: true });
+        }
+        return;
+      }
+
       const node = formRef.current?.querySelector(`[name="${firstErrorField}"]`);
       if (!node) {
         return;
@@ -166,7 +265,20 @@ function FloodForm({ onBack }) {
 
   const handleChange = (event) => {
     const { name, value } = event.target;
-    const normalizedValue = currencyFields.has(name) ? formatCurrencyInput(value) : value;
+    let normalizedValue = currencyFields.has(name) ? formatCurrencyInput(value) : value;
+
+    if (name === 'yearBuilt') {
+      normalizedValue = String(value ?? '').replace(/\D/g, '').slice(0, 4);
+    }
+
+    if (['baseFloodElevation', 'firstFloorElevationAboveBFE'].includes(name)) {
+      normalizedValue = formatWholeNumberWithCommas(value);
+    }
+
+    if (name === 'propertyZip') {
+      normalizedValue = formatZipCode(value);
+    }
+
     const nextForm = {
       ...formData,
       [name]: normalizedValue,
@@ -176,16 +288,66 @@ function FloodForm({ onBack }) {
       nextForm.priorFloodClaimsDetails = '';
     }
 
+    if (name === 'basement' && value !== 'yes') {
+      nextForm.basementType = '';
+    }
+
+    if ([
+      'propertyStreetAddress',
+      'propertyUnitNumber',
+      'propertyCity',
+      'propertyState',
+      'propertyZip',
+    ].includes(name)) {
+      nextForm.propertyAddress = buildAddressSummary({
+        streetAddress: name === 'propertyStreetAddress' ? normalizedValue : formData.propertyStreetAddress,
+        unitNumber: name === 'propertyUnitNumber' ? normalizedValue : formData.propertyUnitNumber,
+        city: name === 'propertyCity' ? normalizedValue : formData.propertyCity,
+        state: name === 'propertyState' ? normalizedValue : formData.propertyState,
+        zip: name === 'propertyZip' ? normalizedValue : formData.propertyZip,
+      });
+    }
+
     setFormData(nextForm);
 
     if (hasSubmitted) {
-      setErrors(validate(nextForm));
+      setErrors(validate(nextForm, priorClaims));
+    }
+  };
+
+  const updatePriorClaim = (index, field, value) => {
+    const normalized = field === 'amountPaid' ? formatCurrencyInput(value) : value;
+    const nextPriorClaims = priorClaims.map((row, rowIndex) => (
+      rowIndex === index ? { ...row, [field]: normalized } : row
+    ));
+    setPriorClaims(nextPriorClaims);
+    if (hasSubmitted) {
+      setErrors(validate(formData, nextPriorClaims));
+    }
+  };
+
+  const addPriorClaim = () => {
+    const nextPriorClaims = [...priorClaims, { ...initialPriorClaim }];
+    setPriorClaims(nextPriorClaims);
+    if (hasSubmitted) {
+      setErrors(validate(formData, nextPriorClaims));
+    }
+  };
+
+  const removePriorClaim = (index) => {
+    if (priorClaims.length <= 1) {
+      return;
+    }
+    const nextPriorClaims = priorClaims.filter((_, rowIndex) => rowIndex !== index);
+    setPriorClaims(nextPriorClaims);
+    if (hasSubmitted) {
+      setErrors(validate(formData, nextPriorClaims));
     }
   };
 
   const handleContinue = () => {
     setHasSubmitted(true);
-    const nextErrors = validate(formData);
+    const nextErrors = validate(formData, priorClaims);
     setErrors(nextErrors);
 
     if (Object.keys(nextErrors).length > 0) {
@@ -194,6 +356,7 @@ function FloodForm({ onBack }) {
   };
 
   const fieldError = (name) => errors[name];
+  const todayIsoDate = getTodayIsoDate();
 
   return (
     <section className="quote-request__form quote-request__product-form" ref={formRef}>
@@ -213,16 +376,65 @@ function FloodForm({ onBack }) {
         <div className="quote-request__grid">
           <label className="quote-request__field quote-request__field--full">
             <span className="quote-request__field-label">
-              Property Address <span className="quote-request__required-mark">*</span>
+              Property Street Address <span className="quote-request__required-mark">*</span>
             </span>
             <input
-              name="propertyAddress"
-              value={formData.propertyAddress}
+              name="propertyStreetAddress"
+              value={formData.propertyStreetAddress}
               onChange={handleChange}
-              placeholder="Street, city, state, ZIP"
-              className={fieldError('propertyAddress') ? 'quote-request__input--invalid' : ''}
+              className={fieldError('propertyStreetAddress') ? 'quote-request__input--invalid' : ''}
             />
-            {fieldError('propertyAddress') ? <span className="quote-request__validation-message">{fieldError('propertyAddress')}</span> : null}
+            {fieldError('propertyStreetAddress') ? <span className="quote-request__validation-message">{fieldError('propertyStreetAddress')}</span> : null}
+          </label>
+
+          <label className="quote-request__field">
+            <span className="quote-request__field-label">Property Unit Number</span>
+            <input
+              name="propertyUnitNumber"
+              value={formData.propertyUnitNumber}
+              onChange={handleChange}
+            />
+          </label>
+
+          <label className="quote-request__field">
+            <span className="quote-request__field-label">
+              Property City <span className="quote-request__required-mark">*</span>
+            </span>
+            <input
+              name="propertyCity"
+              value={formData.propertyCity}
+              onChange={handleChange}
+              className={fieldError('propertyCity') ? 'quote-request__input--invalid' : ''}
+            />
+            {fieldError('propertyCity') ? <span className="quote-request__validation-message">{fieldError('propertyCity')}</span> : null}
+          </label>
+
+          <label className="quote-request__field">
+            <span className="quote-request__field-label">
+              Property State <span className="quote-request__required-mark">*</span>
+            </span>
+            <input
+              name="propertyState"
+              value={formData.propertyState}
+              onChange={handleChange}
+              className={fieldError('propertyState') ? 'quote-request__input--invalid' : ''}
+            />
+            {fieldError('propertyState') ? <span className="quote-request__validation-message">{fieldError('propertyState')}</span> : null}
+          </label>
+
+          <label className="quote-request__field">
+            <span className="quote-request__field-label">
+              Property ZIP <span className="quote-request__required-mark">*</span>
+            </span>
+            <input
+              name="propertyZip"
+              value={formData.propertyZip}
+              onChange={handleChange}
+              inputMode="numeric"
+              maxLength={10}
+              className={fieldError('propertyZip') ? 'quote-request__input--invalid' : ''}
+            />
+            {fieldError('propertyZip') ? <span className="quote-request__validation-message">{fieldError('propertyZip')}</span> : null}
           </label>
 
           <label className="quote-request__field">
@@ -246,6 +458,8 @@ function FloodForm({ onBack }) {
               name="baseFloodElevation"
               value={formData.baseFloodElevation}
               onChange={handleChange}
+              inputMode="numeric"
+              pattern="[\d,]+"
               placeholder="Feet above sea level"
             />
           </label>
@@ -263,6 +477,8 @@ function FloodForm({ onBack }) {
               name="firstFloorElevationAboveBFE"
               value={formData.firstFloorElevationAboveBFE}
               onChange={handleChange}
+              inputMode="numeric"
+              pattern="[\d,]+"
               placeholder="Feet above BFE"
             />
           </label>
@@ -301,6 +517,9 @@ function FloodForm({ onBack }) {
               value={formData.yearBuilt}
               onChange={handleChange}
               placeholder="YYYY"
+              inputMode="numeric"
+              maxLength={4}
+              pattern="\d{4}"
               className={fieldError('yearBuilt') ? 'quote-request__input--invalid' : ''}
             />
             {fieldError('yearBuilt') ? <span className="quote-request__validation-message">{fieldError('yearBuilt')}</span> : null}
@@ -327,6 +546,23 @@ function FloodForm({ onBack }) {
             </select>
             {fieldError('basement') ? <span className="quote-request__validation-message">{fieldError('basement')}</span> : null}
           </label>
+
+          {formData.basement === 'yes' ? (
+            <label className="quote-request__field">
+              <span className="quote-request__field-label">
+                Basement Type <span className="quote-request__required-mark">*</span>
+              </span>
+              <select
+                name="basementType"
+                value={formData.basementType}
+                onChange={handleChange}
+                className={fieldError('basementType') ? 'quote-request__input--invalid' : ''}
+              >
+                {BASEMENT_TYPE_OPTIONS.map((opt) => <option key={opt.value || 'blank'} value={opt.value}>{opt.label}</option>)}
+              </select>
+              {fieldError('basementType') ? <span className="quote-request__validation-message">{fieldError('basementType')}</span> : null}
+            </label>
+          ) : null}
 
           <label className="quote-request__field">
             <span className="quote-request__field-label">Enclosure Below Elevated Building?</span>
@@ -426,15 +662,40 @@ function FloodForm({ onBack }) {
           </label>
 
           {formData.priorFloodClaims === 'yes' ? (
-            <label className="quote-request__field quote-request__field--full">
-              <span className="quote-request__field-label">Prior Flood Claim Details</span>
-              <input
-                name="priorFloodClaimsDetails"
-                value={formData.priorFloodClaimsDetails}
-                onChange={handleChange}
-                placeholder="Repeat date, amount paid, and claim notes"
-              />
-            </label>
+            <div className="quote-request__field quote-request__field--full">
+              <span className="quote-request__field-label">Prior Flood Claims (Date and Amount Paid) <span className="quote-request__required-mark">*</span></span>
+              {priorClaims.map((row, index) => (
+                <div className="quote-request__claim-row" key={`prior-claim-${index}`}>
+                  <label className="quote-request__field">
+                    <span className="quote-request__field-label">Claim Date</span>
+                    <input
+                      name={`priorClaimDate${index}`}
+                      type="date"
+                      value={row.date}
+                      onChange={(event) => updatePriorClaim(index, 'date', event.target.value)}
+                      max={todayIsoDate}
+                    />
+                  </label>
+                  <label className="quote-request__field">
+                    <span className="quote-request__field-label">Amount Paid</span>
+                    <input
+                      name={`priorClaimAmountPaid${index}`}
+                      value={row.amountPaid}
+                      onChange={(event) => updatePriorClaim(index, 'amountPaid', event.target.value)}
+                      placeholder="0.00"
+                      inputMode="decimal"
+                    />
+                  </label>
+                  {priorClaims.length > 1 ? (
+                    <button className="quote-request__inline-secondary quote-request__inline-secondary--remove-row" type="button" onClick={() => removePriorClaim(index)}>
+                      Remove Row
+                    </button>
+                  ) : null}
+                  {fieldError(`priorClaim${index}`) ? <span className="quote-request__validation-message">{fieldError(`priorClaim${index}`)}</span> : null}
+                </div>
+              ))}
+              <button className="quote-request__inline-secondary" style={{ width: 'fit-content' }} type="button" onClick={addPriorClaim}>Add Another Claim</button>
+            </div>
           ) : null}
 
           <label className="quote-request__field">

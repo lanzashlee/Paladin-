@@ -72,6 +72,11 @@ const LOSS_OF_USE_DEDUCTIBLE_OPTIONS = [
 ];
 
 const initialForm = {
+  propertyStreetAddress: '',
+  propertyUnitNumber: '',
+  propertyCity: '',
+  propertyState: '',
+  propertyZip: '',
   propertyAddress: '',
   propertyType: '',
   yearBuilt: '',
@@ -93,7 +98,10 @@ const initialForm = {
 };
 
 const requiredFields = [
-  'propertyAddress',
+  'propertyStreetAddress',
+  'propertyCity',
+  'propertyState',
+  'propertyZip',
   'propertyType',
   'yearBuilt',
   'storiesBuildingHeight',
@@ -114,6 +122,22 @@ const currencyFields = new Set([
 ]);
 
 const isBlank = (value) => String(value ?? '').trim() === '';
+const isFourDigitYear = (value) => /^\d{4}$/.test(String(value ?? '').trim());
+
+const formatZipCode = (rawValue) => {
+  const digits = String(rawValue ?? '').replace(/\D/g, '').slice(0, 9);
+  if (digits.length <= 5) {
+    return digits;
+  }
+  return `${digits.slice(0, 5)}-${digits.slice(5)}`;
+};
+
+const buildAddressSummary = ({ streetAddress, unitNumber, city, state, zip }) => (
+  [streetAddress, unitNumber, city, state, zip]
+    .map((value) => String(value ?? '').trim())
+    .filter(Boolean)
+    .join(', ')
+);
 
 const formatCurrencyInput = (rawValue) => {
   const sanitized = String(rawValue ?? '')
@@ -155,6 +179,18 @@ function EarthquakeForm({ onBack }) {
       }
     });
 
+    if (!isBlank(nextForm.propertyZip) && !/^\d{5}(-\d{4})?$/.test(nextForm.propertyZip)) {
+      nextErrors.propertyZip = 'Use ZIP format 12345 or 12345-6789.';
+    }
+
+    if (!isBlank(nextForm.yearBuilt) && !isFourDigitYear(nextForm.yearBuilt)) {
+      nextErrors.yearBuilt = 'Enter a valid 4-digit year.';
+    }
+
+    if (!isBlank(nextForm.yearOfLastMajorRenovation) && !isFourDigitYear(nextForm.yearOfLastMajorRenovation)) {
+      nextErrors.yearOfLastMajorRenovation = 'Enter a valid 4-digit year.';
+    }
+
     return nextErrors;
   };
 
@@ -176,7 +212,16 @@ function EarthquakeForm({ onBack }) {
 
   const handleChange = (event) => {
     const { name, value } = event.target;
-    const normalizedValue = currencyFields.has(name) ? formatCurrencyInput(value) : value;
+    let normalizedValue = currencyFields.has(name) ? formatCurrencyInput(value) : value;
+
+    if (['yearBuilt', 'yearOfLastMajorRenovation'].includes(name)) {
+      normalizedValue = String(value ?? '').replace(/\D/g, '').slice(0, 4);
+    }
+
+    if (name === 'propertyZip') {
+      normalizedValue = formatZipCode(value);
+    }
+
     const nextForm = {
       ...formData,
       [name]: normalizedValue,
@@ -184,6 +229,22 @@ function EarthquakeForm({ onBack }) {
 
     if (name === 'hasSeismicRetrofit' && value !== 'yes') {
       nextForm.retrofitType = '';
+    }
+
+    if ([
+      'propertyStreetAddress',
+      'propertyUnitNumber',
+      'propertyCity',
+      'propertyState',
+      'propertyZip',
+    ].includes(name)) {
+      nextForm.propertyAddress = buildAddressSummary({
+        streetAddress: name === 'propertyStreetAddress' ? normalizedValue : formData.propertyStreetAddress,
+        unitNumber: name === 'propertyUnitNumber' ? normalizedValue : formData.propertyUnitNumber,
+        city: name === 'propertyCity' ? normalizedValue : formData.propertyCity,
+        state: name === 'propertyState' ? normalizedValue : formData.propertyState,
+        zip: name === 'propertyZip' ? normalizedValue : formData.propertyZip,
+      });
     }
 
     setFormData(nextForm);
@@ -223,16 +284,65 @@ function EarthquakeForm({ onBack }) {
         <div className="quote-request__grid">
           <label className="quote-request__field quote-request__field--full">
             <span className="quote-request__field-label">
-              Property Address <span className="quote-request__required-mark">*</span>
+              Property Street Address <span className="quote-request__required-mark">*</span>
             </span>
             <input
-              name="propertyAddress"
-              value={formData.propertyAddress}
+              name="propertyStreetAddress"
+              value={formData.propertyStreetAddress}
               onChange={handleChange}
-              placeholder="Street, city, state, ZIP"
-              className={fieldError('propertyAddress') ? 'quote-request__input--invalid' : ''}
+              className={fieldError('propertyStreetAddress') ? 'quote-request__input--invalid' : ''}
             />
-            {fieldError('propertyAddress') ? <span className="quote-request__validation-message">{fieldError('propertyAddress')}</span> : null}
+            {fieldError('propertyStreetAddress') ? <span className="quote-request__validation-message">{fieldError('propertyStreetAddress')}</span> : null}
+          </label>
+
+          <label className="quote-request__field">
+            <span className="quote-request__field-label">Property Unit Number</span>
+            <input
+              name="propertyUnitNumber"
+              value={formData.propertyUnitNumber}
+              onChange={handleChange}
+            />
+          </label>
+
+          <label className="quote-request__field">
+            <span className="quote-request__field-label">
+              Property City <span className="quote-request__required-mark">*</span>
+            </span>
+            <input
+              name="propertyCity"
+              value={formData.propertyCity}
+              onChange={handleChange}
+              className={fieldError('propertyCity') ? 'quote-request__input--invalid' : ''}
+            />
+            {fieldError('propertyCity') ? <span className="quote-request__validation-message">{fieldError('propertyCity')}</span> : null}
+          </label>
+
+          <label className="quote-request__field">
+            <span className="quote-request__field-label">
+              Property State <span className="quote-request__required-mark">*</span>
+            </span>
+            <input
+              name="propertyState"
+              value={formData.propertyState}
+              onChange={handleChange}
+              className={fieldError('propertyState') ? 'quote-request__input--invalid' : ''}
+            />
+            {fieldError('propertyState') ? <span className="quote-request__validation-message">{fieldError('propertyState')}</span> : null}
+          </label>
+
+          <label className="quote-request__field">
+            <span className="quote-request__field-label">
+              Property ZIP <span className="quote-request__required-mark">*</span>
+            </span>
+            <input
+              name="propertyZip"
+              value={formData.propertyZip}
+              onChange={handleChange}
+              inputMode="numeric"
+              maxLength={10}
+              className={fieldError('propertyZip') ? 'quote-request__input--invalid' : ''}
+            />
+            {fieldError('propertyZip') ? <span className="quote-request__validation-message">{fieldError('propertyZip')}</span> : null}
           </label>
 
           <label className="quote-request__field">
@@ -259,6 +369,9 @@ function EarthquakeForm({ onBack }) {
               value={formData.yearBuilt}
               onChange={handleChange}
               placeholder="YYYY"
+              inputMode="numeric"
+              maxLength={4}
+              pattern="\d{4}"
               className={fieldError('yearBuilt') ? 'quote-request__input--invalid' : ''}
             />
             {fieldError('yearBuilt') ? <span className="quote-request__validation-message">{fieldError('yearBuilt')}</span> : null}
@@ -355,7 +468,12 @@ function EarthquakeForm({ onBack }) {
               value={formData.yearOfLastMajorRenovation}
               onChange={handleChange}
               placeholder="YYYY"
+              inputMode="numeric"
+              maxLength={4}
+              pattern="\d{4}"
+              className={fieldError('yearOfLastMajorRenovation') ? 'quote-request__input--invalid' : ''}
             />
+            {fieldError('yearOfLastMajorRenovation') ? <span className="quote-request__validation-message">{fieldError('yearOfLastMajorRenovation')}</span> : null}
           </label>
 
           <label className="quote-request__field">

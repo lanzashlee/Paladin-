@@ -42,14 +42,17 @@ const MEDICAL_PAYMENTS_OPTIONS = [
 
 const DEDUCTIBLE_OPTIONS = [
   { value: '', label: 'Select deductible' },
-  { value: '250', label: '$250' },
   { value: '500', label: '$500' },
   { value: '1000', label: '$1,000' },
   { value: '2500', label: '$2,500' },
 ];
 
 const initialForm = {
-  rentalPropertyAddress: '',
+  rentalStreetAddress: '',
+  rentalCity: '',
+  rentalState: '',
+  rentalZip: '',
+  rentalUnitNumber: '',
   typeOfRentalUnit: '',
   yearBuildingBuilt: '',
   floorOfUnit: '',
@@ -69,7 +72,11 @@ const initialForm = {
 };
 
 const requiredFields = [
-  'rentalPropertyAddress',
+  'rentalStreetAddress',
+  'rentalCity',
+  'rentalState',
+  'rentalZip',
+  'rentalUnitNumber',
   'typeOfRentalUnit',
   'personalPropertyCoverage',
   'liabilityCoverage',
@@ -78,6 +85,17 @@ const requiredFields = [
 ];
 
 const isBlank = (value) => String(value ?? '').trim() === '';
+const isFourDigitYear = (value) => /^\d{4}$/.test(String(value || '').trim());
+const isDigitsOnly = (value) => /^\d+$/.test(String(value || '').trim());
+const normalizeUsZipDigits = (value = '') => String(value).replace(/\D/g, '').slice(0, 9);
+const formatUsZipDisplay = (value = '') => {
+  const digits = normalizeUsZipDigits(value);
+  if (digits.length <= 5) {
+    return digits;
+  }
+  return `${digits.slice(0, 5)}-${digits.slice(5)}`;
+};
+const isValidUsZipFormat = (value = '') => /^\d{5}(-\d{4})?$/.test(String(value || '').trim());
 
 const formatCurrencyInput = (rawValue) => {
   const sanitized = String(rawValue ?? '')
@@ -119,6 +137,18 @@ function HO4Form({ onBack }) {
       }
     });
 
+    if (nextForm.yearBuildingBuilt && !isFourDigitYear(nextForm.yearBuildingBuilt)) {
+      nextErrors.yearBuildingBuilt = 'Please enter a valid 4-digit year.';
+    }
+
+    if (nextForm.floorOfUnit && !isDigitsOnly(nextForm.floorOfUnit)) {
+      nextErrors.floorOfUnit = 'Please enter numbers only.';
+    }
+
+    if (nextForm.rentalZip && !isValidUsZipFormat(nextForm.rentalZip)) {
+      nextErrors.rentalZip = 'Please enter a valid US ZIP (12345 or 12345-6789).';
+    }
+
     return nextErrors;
   };
 
@@ -148,6 +178,10 @@ function HO4Form({ onBack }) {
       'lossOfUseCoverage',
     ].includes(name)) {
       normalizedValue = formatCurrencyInput(value);
+    } else if (name === 'yearBuildingBuilt' || name === 'floorOfUnit') {
+      normalizedValue = String(value).replace(/\D/g, '');
+    } else if (name === 'rentalZip') {
+      normalizedValue = formatUsZipDisplay(value);
     }
 
     const nextForm = {
@@ -194,10 +228,34 @@ function HO4Form({ onBack }) {
       <div className="quote-request__section">
         <h4 className="quote-request__section-title">Rental Property Details</h4>
         <div className="quote-request__grid">
-          <label className="quote-request__field quote-request__field--full">
-            <span className="quote-request__field-label">Rental Property Address (Unit Number if Required) <span className="quote-request__required-mark">*</span></span>
-            <input name="rentalPropertyAddress" value={formData.rentalPropertyAddress} onChange={handleChange} placeholder="Full address and unit number" className={fieldError('rentalPropertyAddress') ? 'quote-request__input--invalid' : ''} />
-            {fieldError('rentalPropertyAddress') ? <span className="quote-request__validation-message">{fieldError('rentalPropertyAddress')}</span> : null}
+          <label className="quote-request__field">
+            <span className="quote-request__field-label">Street Address <span className="quote-request__required-mark">*</span></span>
+            <input name="rentalStreetAddress" value={formData.rentalStreetAddress} onChange={handleChange} placeholder="Street address" className={fieldError('rentalStreetAddress') ? 'quote-request__input--invalid' : ''} />
+            {fieldError('rentalStreetAddress') ? <span className="quote-request__validation-message">{fieldError('rentalStreetAddress')}</span> : null}
+          </label>
+
+          <label className="quote-request__field">
+            <span className="quote-request__field-label">Unit Number <span className="quote-request__required-mark">*</span></span>
+            <input name="rentalUnitNumber" value={formData.rentalUnitNumber} onChange={handleChange} placeholder="Unit / Apt #" className={fieldError('rentalUnitNumber') ? 'quote-request__input--invalid' : ''} />
+            {fieldError('rentalUnitNumber') ? <span className="quote-request__validation-message">{fieldError('rentalUnitNumber')}</span> : null}
+          </label>
+
+          <label className="quote-request__field">
+            <span className="quote-request__field-label">City <span className="quote-request__required-mark">*</span></span>
+            <input name="rentalCity" value={formData.rentalCity} onChange={handleChange} placeholder="City" className={fieldError('rentalCity') ? 'quote-request__input--invalid' : ''} />
+            {fieldError('rentalCity') ? <span className="quote-request__validation-message">{fieldError('rentalCity')}</span> : null}
+          </label>
+
+          <label className="quote-request__field">
+            <span className="quote-request__field-label">State <span className="quote-request__required-mark">*</span></span>
+            <input name="rentalState" value={formData.rentalState} onChange={handleChange} placeholder="State" className={fieldError('rentalState') ? 'quote-request__input--invalid' : ''} />
+            {fieldError('rentalState') ? <span className="quote-request__validation-message">{fieldError('rentalState')}</span> : null}
+          </label>
+
+          <label className="quote-request__field">
+            <span className="quote-request__field-label">ZIP <span className="quote-request__required-mark">*</span></span>
+            <input name="rentalZip" value={formData.rentalZip} onChange={handleChange} placeholder="ZIP" inputMode="numeric" maxLength={10} pattern="\d{5}(-\d{4})?" className={fieldError('rentalZip') ? 'quote-request__input--invalid' : ''} />
+            {fieldError('rentalZip') ? <span className="quote-request__validation-message">{fieldError('rentalZip')}</span> : null}
           </label>
 
           <label className="quote-request__field">
@@ -210,12 +268,14 @@ function HO4Form({ onBack }) {
 
           <label className="quote-request__field">
             <span className="quote-request__field-label">Year Building Built</span>
-            <input name="yearBuildingBuilt" value={formData.yearBuildingBuilt} onChange={handleChange} placeholder="YYYY" />
+            <input name="yearBuildingBuilt" value={formData.yearBuildingBuilt} onChange={handleChange} placeholder="YYYY" inputMode="numeric" maxLength={4} pattern="\d{4}" className={fieldError('yearBuildingBuilt') ? 'quote-request__input--invalid' : ''} />
+            {fieldError('yearBuildingBuilt') ? <span className="quote-request__validation-message">{fieldError('yearBuildingBuilt')}</span> : null}
           </label>
 
           <label className="quote-request__field">
             <span className="quote-request__field-label">Floor of Unit</span>
-            <input name="floorOfUnit" value={formData.floorOfUnit} onChange={handleChange} placeholder="Floor number" />
+            <input name="floorOfUnit" value={formData.floorOfUnit} onChange={handleChange} placeholder="Floor number" inputMode="numeric" pattern="\d+" className={fieldError('floorOfUnit') ? 'quote-request__input--invalid' : ''} />
+            {fieldError('floorOfUnit') ? <span className="quote-request__validation-message">{fieldError('floorOfUnit')}</span> : null}
           </label>
 
           <label className="quote-request__field">

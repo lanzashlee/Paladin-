@@ -61,6 +61,11 @@ const initialForm = {
   fein: '',
   stateOfPrimaryOperations: '',
   additionalStatesOfOperation: '',
+  businessStreetAddress: '',
+  businessUnitNumber: '',
+  businessCity: '',
+  businessState: '',
+  businessZip: '',
   businessAddress: '',
   yearsInBusiness: '',
   typeOfLegalEntity: '',
@@ -100,7 +105,10 @@ const requiredFields = [
   'legalBusinessName',
   'fein',
   'stateOfPrimaryOperations',
-  'businessAddress',
+  'businessStreetAddress',
+  'businessCity',
+  'businessState',
+  'businessZip',
   'yearsInBusiness',
   'typeOfLegalEntity',
   'numberOfEmployeesFullTime',
@@ -122,6 +130,23 @@ const requiredFields = [
 ];
 
 const isBlank = (value) => String(value ?? '').trim() === '';
+const isDigitsOnly = (value) => /^\d+$/.test(String(value ?? '').trim());
+const isFourDigitYear = (value) => /^\d{4}$/.test(String(value ?? '').trim());
+
+const formatZipCode = (rawValue) => {
+  const digits = String(rawValue ?? '').replace(/\D/g, '').slice(0, 9);
+  if (digits.length <= 5) {
+    return digits;
+  }
+  return `${digits.slice(0, 5)}-${digits.slice(5)}`;
+};
+
+const buildAddressSummary = ({ streetAddress, unitNumber, city, state, zip }) => (
+  [streetAddress, unitNumber, city, state, zip]
+    .map((value) => String(value ?? '').trim())
+    .filter(Boolean)
+    .join(', ')
+);
 
 const formatEin = (rawValue) => {
   const digits = String(rawValue ?? '').replace(/\D/g, '').slice(0, 9);
@@ -177,6 +202,22 @@ function WorkersCompForm({ onBack }) {
       nextErrors.fein = 'Use FEIN format XX-XXXXXXX.';
     }
 
+    if (!isBlank(nextForm.businessZip) && !/^\d{5}(-\d{4})?$/.test(nextForm.businessZip)) {
+      nextErrors.businessZip = 'Use ZIP format 12345 or 12345-6789.';
+    }
+
+    if (!isBlank(nextForm.yearsInBusiness) && !isDigitsOnly(nextForm.yearsInBusiness)) {
+      nextErrors.yearsInBusiness = 'Enter numbers only.';
+    }
+
+    if (!isBlank(nextForm.numberOfEmployeesFullTime) && !isDigitsOnly(nextForm.numberOfEmployeesFullTime)) {
+      nextErrors.numberOfEmployeesFullTime = 'Enter numbers only.';
+    }
+
+    if (!isBlank(nextForm.numberOfEmployeesPartTime) && !isDigitsOnly(nextForm.numberOfEmployeesPartTime)) {
+      nextErrors.numberOfEmployeesPartTime = 'Enter numbers only.';
+    }
+
     if (nextForm.officerOwnerExclusionRequest === 'yes' && isBlank(nextForm.excludedOfficersNames)) {
       nextErrors.excludedOfficersNames = REQUIRED_MESSAGE;
     }
@@ -228,6 +269,14 @@ function WorkersCompForm({ onBack }) {
       if (hasAny && !hasAll) {
         nextErrors[`classification${index}`] = 'Complete job title, employees, and payroll for this classification row.';
       }
+
+      if (!isBlank(row.ncciClassCode) && !isFourDigitYear(row.ncciClassCode)) {
+        nextErrors[`classification${index}`] = 'NCCI class code must be exactly 4 digits.';
+      }
+
+      if (!isBlank(row.numberOfEmployees) && !isDigitsOnly(row.numberOfEmployees)) {
+        nextErrors[`classification${index}`] = 'Number of employees must be numeric.';
+      }
     });
 
     const hasRequiredClaimData = !isBlank(nextClaims[0].year)
@@ -250,6 +299,14 @@ function WorkersCompForm({ onBack }) {
         && !isBlank(row.openClosed);
       if (hasAny && !hasAll) {
         nextErrors[`claim${index}`] = 'Complete year, claims count, total incurred, and status for this row.';
+      }
+
+      if (!isBlank(row.year) && !isFourDigitYear(row.year)) {
+        nextErrors[`claim${index}`] = 'Year must be a valid 4-digit year.';
+      }
+
+      if (!isBlank(row.numberOfClaims) && !isDigitsOnly(row.numberOfClaims)) {
+        nextErrors[`claim${index}`] = 'Number of claims must be numeric.';
       }
     });
 
@@ -312,12 +369,24 @@ function WorkersCompForm({ onBack }) {
       normalizedValue = formatEin(value);
     }
 
+    if (name === 'businessZip') {
+      normalizedValue = formatZipCode(value);
+    }
+
     if ([
       'totalEstimatedAnnualPayroll',
       'subcontractorAnnualPayrollCost',
       'seasonalPayrollEstimate',
     ].includes(name)) {
       normalizedValue = formatCurrencyInput(value);
+    }
+
+    if ([
+      'yearsInBusiness',
+      'numberOfEmployeesFullTime',
+      'numberOfEmployeesPartTime',
+    ].includes(name)) {
+      normalizedValue = String(value ?? '').replace(/\D/g, '');
     }
 
     const nextForm = {
@@ -357,6 +426,22 @@ function WorkersCompForm({ onBack }) {
       nextForm.priorDeclinationsReason = '';
     }
 
+    if ([
+      'businessStreetAddress',
+      'businessUnitNumber',
+      'businessCity',
+      'businessState',
+      'businessZip',
+    ].includes(name)) {
+      nextForm.businessAddress = buildAddressSummary({
+        streetAddress: name === 'businessStreetAddress' ? normalizedValue : formData.businessStreetAddress,
+        unitNumber: name === 'businessUnitNumber' ? normalizedValue : formData.businessUnitNumber,
+        city: name === 'businessCity' ? normalizedValue : formData.businessCity,
+        state: name === 'businessState' ? normalizedValue : formData.businessState,
+        zip: name === 'businessZip' ? normalizedValue : formData.businessZip,
+      });
+    }
+
     setFormData(nextForm);
 
     if (hasSubmitted) {
@@ -365,7 +450,20 @@ function WorkersCompForm({ onBack }) {
   };
 
   const updateClassification = (index, field, value) => {
-    const normalized = field === 'estimatedAnnualPayroll' ? formatCurrencyInput(value) : value;
+    let normalized = value;
+
+    if (field === 'estimatedAnnualPayroll') {
+      normalized = formatCurrencyInput(value);
+    }
+
+    if (field === 'ncciClassCode') {
+      normalized = String(value ?? '').replace(/\D/g, '').slice(0, 4);
+    }
+
+    if (field === 'numberOfEmployees') {
+      normalized = String(value ?? '').replace(/\D/g, '');
+    }
+
     const nextRows = classifications.map((row, rowIndex) => (
       rowIndex === index ? { ...row, [field]: normalized } : row
     ));
@@ -397,7 +495,20 @@ function WorkersCompForm({ onBack }) {
   };
 
   const updateClaim = (index, field, value) => {
-    const normalized = field === 'totalIncurred' ? formatCurrencyInput(value) : value;
+    let normalized = value;
+
+    if (field === 'totalIncurred') {
+      normalized = formatCurrencyInput(value);
+    }
+
+    if (field === 'year') {
+      normalized = String(value ?? '').replace(/\D/g, '').slice(0, 4);
+    }
+
+    if (field === 'numberOfClaims') {
+      normalized = String(value ?? '').replace(/\D/g, '');
+    }
+
     const nextRows = wcClaims.map((row, rowIndex) => (
       rowIndex === index ? { ...row, [field]: normalized } : row
     ));
@@ -482,14 +593,37 @@ function WorkersCompForm({ onBack }) {
           </label>
 
           <label className="quote-request__field quote-request__field--full">
-            <span className="quote-request__field-label">Business Address <span className="quote-request__required-mark">*</span></span>
-            <input name="businessAddress" value={formData.businessAddress} onChange={handleChange} className={fieldError('businessAddress') ? 'quote-request__input--invalid' : ''} />
-            {fieldError('businessAddress') ? <span className="quote-request__validation-message">{fieldError('businessAddress')}</span> : null}
+            <span className="quote-request__field-label">Business Street Address <span className="quote-request__required-mark">*</span></span>
+            <input name="businessStreetAddress" value={formData.businessStreetAddress} onChange={handleChange} className={fieldError('businessStreetAddress') ? 'quote-request__input--invalid' : ''} />
+            {fieldError('businessStreetAddress') ? <span className="quote-request__validation-message">{fieldError('businessStreetAddress')}</span> : null}
+          </label>
+
+          <label className="quote-request__field">
+            <span className="quote-request__field-label">Business Unit Number</span>
+            <input name="businessUnitNumber" value={formData.businessUnitNumber} onChange={handleChange} />
+          </label>
+
+          <label className="quote-request__field">
+            <span className="quote-request__field-label">Business City <span className="quote-request__required-mark">*</span></span>
+            <input name="businessCity" value={formData.businessCity} onChange={handleChange} className={fieldError('businessCity') ? 'quote-request__input--invalid' : ''} />
+            {fieldError('businessCity') ? <span className="quote-request__validation-message">{fieldError('businessCity')}</span> : null}
+          </label>
+
+          <label className="quote-request__field">
+            <span className="quote-request__field-label">Business State <span className="quote-request__required-mark">*</span></span>
+            <input name="businessState" value={formData.businessState} onChange={handleChange} className={fieldError('businessState') ? 'quote-request__input--invalid' : ''} />
+            {fieldError('businessState') ? <span className="quote-request__validation-message">{fieldError('businessState')}</span> : null}
+          </label>
+
+          <label className="quote-request__field">
+            <span className="quote-request__field-label">Business ZIP <span className="quote-request__required-mark">*</span></span>
+            <input name="businessZip" value={formData.businessZip} onChange={handleChange} inputMode="numeric" maxLength={10} className={fieldError('businessZip') ? 'quote-request__input--invalid' : ''} />
+            {fieldError('businessZip') ? <span className="quote-request__validation-message">{fieldError('businessZip')}</span> : null}
           </label>
 
           <label className="quote-request__field">
             <span className="quote-request__field-label">Years in Business <span className="quote-request__required-mark">*</span></span>
-            <input name="yearsInBusiness" value={formData.yearsInBusiness} onChange={handleChange} className={fieldError('yearsInBusiness') ? 'quote-request__input--invalid' : ''} />
+            <input name="yearsInBusiness" value={formData.yearsInBusiness} onChange={handleChange} inputMode="numeric" pattern="\d+" className={fieldError('yearsInBusiness') ? 'quote-request__input--invalid' : ''} />
             {fieldError('yearsInBusiness') ? <span className="quote-request__validation-message">{fieldError('yearsInBusiness')}</span> : null}
           </label>
 
@@ -518,13 +652,13 @@ function WorkersCompForm({ onBack }) {
 
           <label className="quote-request__field">
             <span className="quote-request__field-label">Number of Employees — Full Time <span className="quote-request__required-mark">*</span></span>
-            <input name="numberOfEmployeesFullTime" value={formData.numberOfEmployeesFullTime} onChange={handleChange} className={fieldError('numberOfEmployeesFullTime') ? 'quote-request__input--invalid' : ''} />
+            <input name="numberOfEmployeesFullTime" value={formData.numberOfEmployeesFullTime} onChange={handleChange} inputMode="numeric" pattern="\d+" className={fieldError('numberOfEmployeesFullTime') ? 'quote-request__input--invalid' : ''} />
             {fieldError('numberOfEmployeesFullTime') ? <span className="quote-request__validation-message">{fieldError('numberOfEmployeesFullTime')}</span> : null}
           </label>
 
           <label className="quote-request__field">
             <span className="quote-request__field-label">Number of Employees — Part Time <span className="quote-request__required-mark">*</span></span>
-            <input name="numberOfEmployeesPartTime" value={formData.numberOfEmployeesPartTime} onChange={handleChange} className={fieldError('numberOfEmployeesPartTime') ? 'quote-request__input--invalid' : ''} />
+            <input name="numberOfEmployeesPartTime" value={formData.numberOfEmployeesPartTime} onChange={handleChange} inputMode="numeric" pattern="\d+" className={fieldError('numberOfEmployeesPartTime') ? 'quote-request__input--invalid' : ''} />
             {fieldError('numberOfEmployeesPartTime') ? <span className="quote-request__validation-message">{fieldError('numberOfEmployeesPartTime')}</span> : null}
           </label>
 
@@ -536,7 +670,7 @@ function WorkersCompForm({ onBack }) {
 
           <label className="quote-request__field quote-request__field--full">
             <span className="quote-request__field-label">Primary Business Activity / Operations <span className="quote-request__required-mark">*</span></span>
-            <textarea name="primaryBusinessActivityOperations" value={formData.primaryBusinessActivityOperations} onChange={handleChange} rows={4} className={fieldError('primaryBusinessActivityOperations') ? 'quote-request__input--invalid' : ''} />
+            <textarea name="primaryBusinessActivityOperations" value={formData.primaryBusinessActivityOperations} onChange={handleChange} rows={7} className={fieldError('primaryBusinessActivityOperations') ? 'quote-request__input--invalid' : ''} />
             {fieldError('primaryBusinessActivityOperations') ? <span className="quote-request__validation-message">{fieldError('primaryBusinessActivityOperations')}</span> : null}
           </label>
         </div>
@@ -552,6 +686,9 @@ function WorkersCompForm({ onBack }) {
                   value={row.ncciClassCode}
                   onChange={(event) => updateClassification(index, 'ncciClassCode', event.target.value)}
                   placeholder="4-digit code"
+                  inputMode="numeric"
+                  maxLength={4}
+                  pattern="\d{4}"
                 />
               </label>
               <label className="quote-request__field quote-request__field--full">
@@ -568,6 +705,8 @@ function WorkersCompForm({ onBack }) {
                   name={`classificationEmployees${index}`}
                   value={row.numberOfEmployees}
                   onChange={(event) => updateClassification(index, 'numberOfEmployees', event.target.value)}
+                  inputMode="numeric"
+                  pattern="\d+"
                 />
               </label>
               <label className="quote-request__field">
@@ -577,6 +716,7 @@ function WorkersCompForm({ onBack }) {
                   value={row.estimatedAnnualPayroll}
                   onChange={(event) => updateClassification(index, 'estimatedAnnualPayroll', event.target.value)}
                   inputMode="decimal"
+                  pattern="[\d,.]+"
                   placeholder="0.00"
                 />
               </label>
@@ -726,6 +866,9 @@ function WorkersCompForm({ onBack }) {
                   value={row.year}
                   onChange={(event) => updateClaim(index, 'year', event.target.value)}
                   placeholder="YYYY"
+                  inputMode="numeric"
+                  maxLength={4}
+                  pattern="\d{4}"
                 />
               </label>
               <label className="quote-request__field">
@@ -734,6 +877,8 @@ function WorkersCompForm({ onBack }) {
                   name={`wcClaimCount${index}`}
                   value={row.numberOfClaims}
                   onChange={(event) => updateClaim(index, 'numberOfClaims', event.target.value)}
+                  inputMode="numeric"
+                  pattern="\d+"
                 />
               </label>
               <label className="quote-request__field">
