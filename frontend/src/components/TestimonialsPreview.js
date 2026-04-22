@@ -4,24 +4,53 @@ import { Quote, Star } from 'lucide-react';
 
 const previewTestimonials = [
   {
-    name: 'Olivia Ramirez',
-    title: 'Owner, Ventura Coastal Cafe',
+    name: 'Jelitza Gutierrez',
+    title: '',
     quote:
-      'Paladin made our renewal process clear and stress-free. They found gaps we did not know existed and fixed them before busy season started.',
+      'I had a great experience with Paladin Professional Insurance Solutions. Denise and Lionel are incredibly kind, knowledgeable, and professional throughout the entire process. They truly go above and beyond and work hard to find a solution that fits your needs.',
   },
   {
-    name: 'Jason Kim',
-    title: 'Operations Manager, Brightline Logistics',
+    name: 'Plumbing Done Right',
+    title: '',
     quote:
-      'Their team explained every recommendation in plain language. We now have stronger commercial auto protection without increasing confusion for our team.',
+      'Since I have started my Plumbing Business a few years ago Paladin Insurance Services Solutions has been absolutely great. Denise, Lionel, and all their staff are professional and handle my insurance needs and short notice requests quickly.',
   },
   {
-    name: 'Monica Alvarez',
-    title: 'Principal, Alvarez Property Group',
+    name: 'Keoshi Delivery LLC',
+    title: '',
     quote:
-      'The responsiveness is outstanding. Every policy change and certificate request is handled quickly, and we always know who to call.',
+      'Paladin is the best insurance company I have worked with thus far. As a transportation company, we know how difficult it is to find a great agency that will find us great carriers. Paladin is a one stop shop for everything I need.',
   },
 ];
+
+function getInitials(name) {
+  const parts = name
+    .split(' ')
+    .map((part) => part.trim())
+    .filter(Boolean);
+
+  if (parts.length === 0) {
+    return 'U';
+  }
+
+  if (parts.length === 1) {
+    return parts[0].slice(0, 1).toUpperCase();
+  }
+
+  return `${parts[0][0]}${parts[1][0]}`.toUpperCase();
+}
+
+function getAvatarStyle(name) {
+  const palette = [
+    'from-[#0f3f91] to-[#245dc1]',
+    'from-[#0a5f7f] to-[#1185b0]',
+    'from-[#1f4f2c] to-[#2f7a3f]',
+    'from-[#7d3b0d] to-[#b35a1a]',
+    'from-[#6f1d6d] to-[#9c34a2]'
+  ];
+
+  return palette[name.length % palette.length];
+}
 
 function TestimonialsPreview() {
   return (
@@ -57,8 +86,18 @@ function TestimonialsPreview() {
               <p className="text-[#010407]/80 leading-relaxed text-sm md:text-base flex-1">&ldquo;{item.quote}&rdquo;</p>
 
               <div className="mt-6 pt-4 border-t border-[#efe6d7]">
-                <p className="font-bold text-[#012E72] text-base">{item.name}</p>
-                <p className="text-sm text-[#010407]/70">{item.title}</p>
+                <div className="flex items-center gap-3">
+                  <div
+                    className={`h-10 w-10 rounded-full bg-gradient-to-br ${getAvatarStyle(item.name)} text-white text-sm font-extrabold flex items-center justify-center border border-white shadow-[0_4px_10px_rgba(1,46,114,0.2)]`}
+                    aria-hidden="true"
+                  >
+                    {getInitials(item.name)}
+                  </div>
+                  <div>
+                    <p className="font-bold text-[#012E72] text-base leading-tight">{item.name}</p>
+                    {item.title ? <p className="text-sm text-[#010407]/70">{item.title}</p> : null}
+                  </div>
+                </div>
               </div>
             </article>
           ))}

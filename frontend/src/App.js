@@ -8,6 +8,7 @@ import FAQ from './pages/FAQ';
 import Service from './pages/Service';
 import Contact from './pages/Contact';
 import Blog from './pages/Blog';
+import Article from './pages/Article';
 import Testimonials from './pages/Testimonials';
 import VoiceChatWidget from './components/VoiceChatWidget';
 
@@ -61,6 +62,7 @@ function App() {
         <Route path="/about" element={<About />} />
         <Route path="/faq" element={<FAQ />} />
         <Route path="/blog" element={<Blog />} />
+        <Route path="/blog/:slug" element={<Article />} />
         <Route path="/testimonials" element={<Testimonials />} />
         <Route path="/contact" element={<Contact />} />
         {/* Add more routes here */}
