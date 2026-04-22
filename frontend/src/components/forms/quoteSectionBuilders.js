@@ -292,6 +292,82 @@ const buildHo6Sections = (form = {}) => [
   ])),
 ];
 
+const EMPLOYERS_LIABILITY_LABELS = {
+  '100k-100k-100k': '$100K / $100K / $100K',
+  '500k-500k-500k': '$500K / $500K / $500K',
+  '1m-1m-1m': '$1M / $1M / $1M',
+};
+
+const buildWorkersCompSections = (form = {}) => [
+  buildSection('Business and Payroll Details', (() => {
+    const baseRows = mapRows(form, [
+      { key: 'legalBusinessName', label: 'Legal Business Name (as registered with state)' },
+      { key: 'fein', label: 'FEIN (Federal Employer Identification Number)' },
+      { key: 'stateOfPrimaryOperations', label: 'State of Primary Operations' },
+      { key: 'additionalStatesOfOperation', label: 'Additional States of Operation' },
+      { key: 'businessAddress', label: 'Business Address' },
+      { key: 'yearsInBusiness', label: 'Years in Business' },
+      { key: 'typeOfLegalEntity', label: 'Type of Legal Entity' },
+      { key: 'officerOwnerExclusionRequest', label: 'Officer/Owner Exclusion Request?' },
+      { key: 'excludedOfficersNames', label: 'Names of Excluded Officers' },
+      { key: 'numberOfEmployeesFullTime', label: 'Number of Employees - Full Time' },
+      { key: 'numberOfEmployeesPartTime', label: 'Number of Employees - Part Time' },
+      { key: 'totalEstimatedAnnualPayroll', label: 'Total Estimated Annual Payroll' },
+      { key: 'primaryBusinessActivityOperations', label: 'Primary Business Activity / Operations' },
+    ]);
+
+    const classificationRows = (Array.isArray(form.classifications) ? form.classifications : [])
+      .flatMap((entry, index) => [
+        { label: `Classification ${index + 1} - NCCI Class Code (if known)`, value: valueLabel(entry?.ncciClassCode) },
+        { label: `Classification ${index + 1} - Job Title / Duty Description`, value: valueLabel(entry?.jobTitleDutyDescription) },
+        { label: `Classification ${index + 1} - Number of Employees in this Role`, value: valueLabel(entry?.numberOfEmployees) },
+        { label: `Classification ${index + 1} - Estimated Annual Payroll`, value: valueLabel(entry?.estimatedAnnualPayroll) },
+      ]);
+
+    return [...baseRows, ...classificationRows];
+  })()),
+  buildSection('Risk, Exposure, and Claims History', (() => {
+    const baseRows = mapRows(form, [
+      { key: 'workPerformedAtHeights', label: 'Work Performed at Heights? (over 15 ft)' },
+      { key: 'workPerformedInTrenches', label: 'Work Performed in Trenches or Excavations?' },
+      { key: 'roofingWorkPerformed', label: 'Roofing Work Performed?' },
+      { key: 'workPerformedOnLadders', label: 'Work Performed on Ladders?' },
+      { key: 'ladderMaxHeight', label: 'Max Ladder Height' },
+      { key: 'workWithExplosivesHazardousMaterials', label: 'Work with Explosives or Hazardous Materials?' },
+      { key: 'hazardousMaterialsDescription', label: 'Hazardous Materials Description' },
+      { key: 'workPerformedOutsideCalifornia', label: 'Work Performed Outside California?' },
+      { key: 'outsideCaliforniaStates', label: 'States of Operation (Outside CA)' },
+      { key: 'seasonalFluctuationsInEmployment', label: 'Seasonal Fluctuations in Employment?' },
+      { key: 'seasonalPayrollEstimate', label: 'Seasonal Payroll Estimate' },
+      { key: 'useOfSubcontractors', label: 'Use of Subcontractors?' },
+      { key: 'subcontractorAnnualPayrollCost', label: 'Subcontractor Annual Payroll / Cost' },
+      { key: 'experienceModificationRate', label: 'Experience Modification Rate (EMR / X-Mod)' },
+      { key: 'priorWcCarrier', label: 'Prior WC Carrier (most recent)' },
+      { key: 'priorWcPolicyExpirationDate', label: 'Prior WC Policy Expiration Date' },
+      { key: 'anyOpenOngoingClaims', label: 'Any Open/Ongoing Claims?' },
+      { key: 'openOngoingClaimsDescription', label: 'Open/Ongoing Claims Description' },
+      { key: 'priorDeclinationsOrNonRenewalsForWc', label: 'Prior Declinations or Non-Renewals for WC?' },
+      { key: 'priorDeclinationsReason', label: 'Declinations / Non-Renewals Reason' },
+    ]);
+
+    const claimsRows = (Array.isArray(form.wcClaims) ? form.wcClaims : [])
+      .flatMap((entry, index) => [
+        { label: `WC Claim ${index + 1} - Year`, value: valueLabel(entry?.year) },
+        { label: `WC Claim ${index + 1} - Number of Claims`, value: valueLabel(entry?.numberOfClaims) },
+        { label: `WC Claim ${index + 1} - Total Incurred`, value: valueLabel(entry?.totalIncurred) },
+        { label: `WC Claim ${index + 1} - Status`, value: valueLabel(entry?.openClosed) },
+      ]);
+
+    return [...baseRows, ...claimsRows];
+  })()),
+  buildSection('Coverage Selection', mapRows(form, [
+    { key: 'workersCompensationStatutory', label: 'Part 1 - Workers Compensation (Statutory)?' },
+    { key: 'employersLiabilityLimit', label: 'Part 2 - Employers Liability Limit', valueMap: EMPLOYERS_LIABILITY_LABELS },
+    { key: 'effectiveDate', label: 'Effective Date' },
+    { key: 'stateFundReferral', label: 'State Fund Referral?' },
+  ])),
+];
+
 const SPECIALTY_TYPE_LABELS = {
   cyber: 'Cyber Liability',
   eo: 'Professional Liability (E&O)',
@@ -471,6 +547,10 @@ export const buildHomeownersQuotationSections = (selectedProduct, form = {}) => 
 export const buildQuotationSections = (selectedProduct, form = {}) => {
   if (selectedProduct === 'specialty') {
     return buildSpecialtySections(form);
+  }
+
+  if (selectedProduct === 'workersComp') {
+    return buildWorkersCompSections(form);
   }
 
   const homeownersSections = buildHomeownersQuotationSections(selectedProduct, form);
