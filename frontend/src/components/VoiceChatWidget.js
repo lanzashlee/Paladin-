@@ -627,6 +627,8 @@ function VoiceChatWidget() {
         }
       }
 
+      // Keep provider details out of user-facing UI; fallback messaging is handled in speak().
+      console.warn('ElevenLabs TTS unavailable, using browser voice fallback.');
       throw new Error(errorMessage);
     }
 
@@ -694,12 +696,7 @@ function VoiceChatWidget() {
         await speakWithBrowserVoice(text);
       }
     } catch (error) {
-      const reason = String(error?.message || '').trim();
-      setStatus(
-        reason
-          ? `ElevenLabs unavailable (${reason}). Using browser voice fallback.`
-          : 'ElevenLabs unavailable. Using browser voice fallback.'
-      );
+      setStatus('Voice service is temporarily unavailable. Using browser voice fallback.');
       await speakWithBrowserVoice(text);
     } finally {
       setIsSpeaking(false);
