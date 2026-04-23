@@ -303,6 +303,80 @@ const buildHo6Sections = (form = {}) => [
   ])),
 ];
 
+const buildCommercialAutoSections = (form = {}) => [
+  buildSection('Business Information', mapRows(form, [
+    { key: 'legalBusinessName', label: 'Legal Business Name' },
+    { key: 'dbaName', label: 'DBA (Doing Business As)' },
+    { key: 'businessEntityType', label: 'Business Entity Type' },
+    { key: 'federalEin', label: 'Federal EIN (Tax ID)' },
+    { key: 'businessStreetAddress', label: 'Business Street Address (Principal Location)' },
+    { key: 'businessCity', label: 'Business City' },
+    { key: 'businessState', label: 'Business State' },
+    { key: 'businessZip', label: 'Business ZIP' },
+    { key: 'yearBusinessEstablished', label: 'Year Business Established' },
+    { key: 'industryType', label: 'Industry / Type of Business' },
+    { key: 'naicsCode', label: 'NAICS Code' },
+    { key: 'businessWebsiteUrl', label: 'Business Website URL' },
+    { key: 'primaryContactName', label: 'Primary Business Contact Name' },
+    { key: 'primaryContactPhone', label: 'Primary Business Contact Phone' },
+    { key: 'primaryContactEmail', label: 'Primary Business Contact Email' },
+  ])),
+  buildSection('Vehicle Information (Vehicle 1)', mapRows(form, [
+    { key: 'numberOfVehiclesToInsure', label: 'Number of Vehicles to Insure' },
+    { key: 'vehicleYear', label: 'Vehicle 1 - Year' },
+    { key: 'vehicleMake', label: 'Vehicle 1 - Make' },
+    { key: 'vehicleModel', label: 'Vehicle 1 - Model' },
+    { key: 'vehicleVin', label: 'Vehicle 1 - VIN' },
+    { key: 'vehicleGvwr', label: 'Vehicle 1 - GVWR' },
+    { key: 'vehiclePrimaryUse', label: 'Vehicle 1 - Primary Use' },
+    { key: 'vehicleRadiusOfOperation', label: 'Vehicle 1 - Radius of Operation' },
+    { key: 'vehicleAnnualMileage', label: 'Vehicle 1 - Annual Mileage' },
+    { key: 'vehicleGaragingZip', label: 'Vehicle 1 - Garaging ZIP Code' },
+    { key: 'vehicleLienholderLessorName', label: 'Vehicle 1 - Lienholder / Lessor Name' },
+    { key: 'vehicleLienholderLessorAddress', label: 'Vehicle 1 - Lienholder / Lessor Address' },
+    { key: 'vehicleCurrentMarketValue', label: 'Vehicle 1 - Current Market Value / Cost New' },
+    { key: 'dotNumber', label: 'DOT Number (If Applicable)' },
+    { key: 'mcNumber', label: 'MC Number (Motor Carrier)' },
+  ])),
+  buildSection('Driver Information (Driver 1)', [
+    ...mapRows(form, [
+      { key: 'driverFullLegalName', label: 'Driver 1 - Full Legal Name' },
+      { key: 'driverDateOfBirth', label: 'Driver 1 - Date of Birth' },
+      { key: 'driverLicenseNumber', label: 'Driver 1 - Driver License Number' },
+      { key: 'driverLicenseState', label: 'Driver 1 - License State' },
+      { key: 'driverYearsLicensedUs', label: 'Driver 1 - Years Licensed in US' },
+      { key: 'driverCdlHolder', label: 'Driver 1 - CDL Holder?' },
+      { key: 'driverSr22Required', label: 'Driver 1 - SR-22 Required?' },
+    ]),
+    ...formatCollectionRows(form.accidents, 'Accident', [
+      { key: 'date', label: 'Date' },
+      { key: 'atFault', label: 'At-Fault' },
+      { key: 'description', label: 'Description' },
+    ]),
+    ...formatCollectionRows(form.violations, 'Violation', [
+      { key: 'date', label: 'Date' },
+      { key: 'type', label: 'Type' },
+      { key: 'description', label: 'Description' },
+    ]),
+  ]),
+  buildSection('Coverage Selection', mapRows(form, [
+    { key: 'bodilyInjuryLiabilityLimits', label: 'Bodily Injury Liability Limits' },
+    { key: 'propertyDamageLiability', label: 'Property Damage Liability' },
+    { key: 'uninsuredUnderinsuredMotorist', label: 'Uninsured / Underinsured Motorist' },
+    { key: 'medicalPaymentsPip', label: 'Medical Payments / PIP' },
+    { key: 'comprehensiveCoverage', label: 'Comprehensive Coverage (Per Vehicle)?' },
+    { key: 'comprehensiveDeductible', label: 'Comprehensive Deductible' },
+    { key: 'collisionCoverage', label: 'Collision Coverage (Per Vehicle)?' },
+    { key: 'collisionDeductible', label: 'Collision Deductible' },
+    { key: 'rentalReimbursement', label: 'Rental Reimbursement?' },
+    { key: 'rentalReimbursementDailyLimit', label: 'Rental Reimbursement Daily Limit' },
+    { key: 'towingRoadsideAssistance', label: 'Towing and Roadside Assistance?' },
+    { key: 'hiredNonOwnedAutoCoverage', label: 'Hired and Non-Owned Auto Coverage?' },
+    { key: 'mcs90EndorsementRequired', label: 'MCS-90 Endorsement Required?' },
+    { key: 'effectiveDate', label: 'Effective Date' },
+  ])),
+];
+
 const EMPLOYERS_LIABILITY_LABELS = {
   '100k-100k-100k': '$100K / $100K / $100K',
   '500k-500k-500k': '$500K / $500K / $500K',
@@ -539,6 +613,10 @@ export const buildHomeownersQuotationSections = (selectedProduct, form = {}) => 
 export const buildQuotationSections = (selectedProduct, form = {}) => {
   if (selectedProduct === 'specialty') {
     return buildSpecialtySections(form);
+  }
+
+  if (selectedProduct === 'commercialAuto') {
+    return buildCommercialAutoSections(form);
   }
 
   if (selectedProduct === 'workersComp') {
