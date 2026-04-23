@@ -976,7 +976,7 @@ function GeneralLiabilityForm({ onBack, onFormChange, onValidityChange, onPrevie
       </div>
 
       <div className="quote-request__actions" style={{ justifyContent: 'flex-end' }}>
-        <button type="button" onClick={handleValidate}>Preview Form</button>
+        <button className="quote-request__preview-trigger" type="button" onClick={handleValidate}>Preview Form</button>
       </div>
     </section>
   );

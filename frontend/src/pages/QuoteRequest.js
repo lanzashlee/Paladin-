@@ -1,4 +1,4 @@
-import React, { useState } from 'react';
+import React, { useRef, useState } from 'react';
 import { Link } from 'react-router-dom';
 import './QuoteRequest.css';
 import Header from '../components/Header';
@@ -49,6 +49,7 @@ function QuoteRequest() {
   const [showPreview, setShowPreview] = useState(false);
   const [submitting, setSubmitting] = useState(false);
   const [submitError, setSubmitError] = useState('');
+  const productFormContainerRef = useRef(null);
   const selectedProductLabel = PRODUCT_OPTIONS.find((option) => option.id === selectedProduct)?.label || selectedProduct;
   const universalSections = buildUniversalSections(form);
   const quotationSections = buildQuotationSections(selectedProduct, selectedProductFormData);
@@ -56,6 +57,13 @@ function QuoteRequest() {
   const handlePreview = () => {
     if (!selectedProduct) {
       setSubmitError('Please select an insurance product before previewing.');
+      return;
+    }
+
+    const previewTriggerButton = productFormContainerRef.current?.querySelector('.quote-request__preview-trigger');
+    if (previewTriggerButton) {
+      setSubmitError('');
+      previewTriggerButton.click();
       return;
     }
 
@@ -203,7 +211,7 @@ function QuoteRequest() {
           />
         ) : SelectedProductForm ? (
           <>
-            <div style={{ display: showPreview ? 'none' : 'block' }}>
+            <div ref={productFormContainerRef} style={{ display: showPreview ? 'none' : 'block' }}>
               <SelectedProductForm
                 onBack={() => setStep(2)}
                 onFormChange={setSelectedProductFormData}
