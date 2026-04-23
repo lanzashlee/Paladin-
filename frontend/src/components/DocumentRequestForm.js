@@ -17,7 +17,7 @@ const stepFields = [
   ['additionalInsuredStatus'],
   [],
 ];
-const EMAIL_REGEX = /^[a-zA-Z0-9!#$%&'*+/=?^_`{|}~.-]+@[a-zA-Z0-9](?:[a-zA-Z0-9-]{0,61}[a-zA-Z0-9])?(?:\.[a-zA-Z]{2,})+$/;
+const EMAIL_REGEX = /^[a-zA-Z0-9!#$%&'*+/=?^_`{|}~.-]+@(?:[a-zA-Z0-9](?:[a-zA-Z0-9-]{0,61}[a-zA-Z0-9])?\.)+[a-zA-Z]{2,}$/;
 
 const isValidEmailFormat = (emailValue = '') => {
   const email = String(emailValue).trim();
@@ -39,6 +39,18 @@ const isValidEmailFormat = (emailValue = '') => {
 
   return true;
 };
+
+const fileToBase64 = (file) =>
+  new Promise((resolve, reject) => {
+    const reader = new FileReader();
+    reader.onload = () => {
+      const raw = String(reader.result || '');
+      const base64Data = raw.includes(',') ? raw.split(',')[1] : '';
+      resolve(base64Data);
+    };
+    reader.onerror = () => reject(new Error('Unable to read the selected file.'));
+    reader.readAsDataURL(file);
+  });
 
 const documentTypeOptions = [
   { value: 'coi-acord25', label: 'COI / ACORD 25 (General Liability / Auto / Workers\' Comp)' },
@@ -70,11 +82,13 @@ const additionalInsuredStatusLabelMap = {
 };
 
 function DocumentRequestForm({ onClose }) {
+  const [coiAttachment, setCoiAttachment] = useState(null);
   const [formData, setFormData] = useState({
     formType: 'document-request',
     fullName: '',
     email: '',
     documentType: 'coi-acord25',
+    coiAttachmentName: '',
     otherDocumentTypeDescription: '',
     coveragesToShow: [],
     operationsDescription: '',
@@ -142,13 +156,54 @@ function DocumentRequestForm({ onClose }) {
     setFormData((current) => ({
       ...current,
       [name]: value,
+      ...(name === 'documentType' && value !== 'coi-acord25' ? { coiAttachmentName: '' } : {}),
     }));
+
+    if (name === 'documentType' && value !== 'coi-acord25') {
+      setCoiAttachment(null);
+    }
 
     if (errors[name]) {
       setErrors((current) => ({
         ...current,
         [name]: undefined,
       }));
+    }
+  };
+
+  const handleFileChange = async (event) => {
+    const nextFile = event.target.files && event.target.files[0] ? event.target.files[0] : null;
+
+    setSaved(false);
+    setSubmitError(null);
+
+    if (!nextFile) {
+      setCoiAttachment(null);
+      setFormData((current) => ({
+        ...current,
+        coiAttachmentName: '',
+      }));
+      return;
+    }
+
+    try {
+      const dataBase64 = await fileToBase64(nextFile);
+      setCoiAttachment({
+        filename: nextFile.name,
+        contentType: nextFile.type || 'application/octet-stream',
+        dataBase64,
+      });
+      setFormData((current) => ({
+        ...current,
+        coiAttachmentName: nextFile.name,
+      }));
+    } catch (error) {
+      setCoiAttachment(null);
+      setFormData((current) => ({
+        ...current,
+        coiAttachmentName: '',
+      }));
+      setSubmitError(error.message || 'Unable to read the selected file. Please try again.');
     }
   };
 
@@ -184,12 +239,21 @@ function DocumentRequestForm({ onClose }) {
 
     try {
       const apiUrl = process.env.REACT_APP_API_BASE_URL || 'http://localhost:5000';
+      const payload = {
+        ...formData,
+        ...(coiAttachment
+          ? {
+              coiAttachment,
+            }
+          : {}),
+      };
+
       const response = await fetch(`${apiUrl}/api/contact`, {
         method: 'POST',
         headers: {
           'Content-Type': 'application/json',
         },
-        body: JSON.stringify(formData),
+        body: JSON.stringify(payload),
       });
 
       if (!response.ok) {
@@ -202,6 +266,7 @@ function DocumentRequestForm({ onClose }) {
         fullName: '',
         email: '',
         documentType: 'coi-acord25',
+        coiAttachmentName: '',
         otherDocumentTypeDescription: '',
         coveragesToShow: [],
         operationsDescription: '',
@@ -212,6 +277,7 @@ function DocumentRequestForm({ onClose }) {
         certificateHolderAddress: '',
         deadlineInstructions: '',
       });
+      setCoiAttachment(null);
     } catch (error) {
       setSubmitError(error.message || 'Failed to submit your request. Please try again.');
     } finally {
@@ -302,7 +368,7 @@ documents."
                   value={formData.email}
                   onChange={handleChange}
                   placeholder="your@email.com"
-                  pattern="[a-zA-Z0-9!#$%&'*+/=?^_`{|}~.-]+@[a-zA-Z0-9](?:[a-zA-Z0-9-]{0,61}[a-zA-Z0-9])?(?:\.[a-zA-Z]{2,})+"
+                  pattern="[a-zA-Z0-9!#$%&'*+/=?^_`{|}~.-]+@(?:[a-zA-Z0-9](?:[a-zA-Z0-9-]{0,61}[a-zA-Z0-9])?\.)+[a-zA-Z]{2,}"
                   className={getFieldClass('email')}
                   disabled={loading}
                 />
@@ -350,6 +416,32 @@ documents."
                     className={`${getFieldClass('otherDocumentTypeDescription')} resize-none`}
                     disabled={loading}
                   />
+                </FieldGroup>
+              )}
+
+              {formData.documentType === 'coi-acord25' && (
+                <FieldGroup
+                  label="Attach file (optional)"
+                  htmlFor="documents-coiAttachment"
+                  hint="Only shown for COI / ACORD 25 requests."
+                >
+                  <input
+                    id="documents-coiAttachment"
+                    name="coiAttachment"
+                    type="file"
+                    accept=".pdf,.doc,.docx,.jpg,.jpeg,.png"
+                    onChange={handleFileChange}
+                    className={`${getFieldClass('coiAttachmentName')} cursor-pointer file:mr-3 file:rounded-full file:border-0 file:bg-[#012E72] file:px-4 file:py-2 file:text-xs file:font-semibold file:text-white hover:file:bg-[#002DB5]`}
+                    disabled={loading}
+                  />
+                  <p className="mt-2 text-xs text-[#010407]/70">
+                    Optional: attach any COI requirement sheet, contract excerpt, or holder instructions.
+                  </p>
+                  {formData.coiAttachmentName && (
+                    <p className="mt-1 rounded-xl border border-[#d8cbb8] bg-[#F7F4EF]/60 px-3 py-2 text-xs text-[#012E72]">
+                      Selected file: {formData.coiAttachmentName}
+                    </p>
+                  )}
                 </FieldGroup>
               )}
 
@@ -467,7 +559,7 @@ Operations box on the certificate."
                     value={formData.certificateHolderEmail}
                     onChange={handleChange}
                     placeholder="holder@company.com"
-                    pattern="[a-zA-Z0-9!#$%&'*+/=?^_`{|}~.-]+@[a-zA-Z0-9](?:[a-zA-Z0-9-]{0,61}[a-zA-Z0-9])?(?:\.[a-zA-Z]{2,})+"
+                    pattern="[a-zA-Z0-9!#$%&'*+/=?^_`{|}~.-]+@(?:[a-zA-Z0-9](?:[a-zA-Z0-9-]{0,61}[a-zA-Z0-9])?\.)+[a-zA-Z]{2,}"
                     className={getFieldClass('certificateHolderEmail')}
                     disabled={loading}
                   />
@@ -537,6 +629,9 @@ Operations box on the certificate."
               </p>
               <p className="text-sm text-[#010407]/80">
                 <span className="font-semibold">Operations / locations / vehicles:</span> {formData.operationsDescription || '-'}
+              </p>
+              <p className="text-sm text-[#010407]/80">
+                <span className="font-semibold">Attached file:</span> {formData.coiAttachmentName || '-'}
               </p>
               <p className="text-sm text-[#010407]/80">
                 <span className="font-semibold">Holder address:</span> {formData.certificateHolderAddress || '-'}

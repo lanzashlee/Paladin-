@@ -1170,6 +1170,22 @@ const sendServiceRequestEmail = async (contactData) => {
     title: formatLabel(formType),
     label: formatLabel(formType).toLowerCase(),
   };
+  const coiAttachmentPayload =
+    formType === 'document-request' &&
+    contactData.coiAttachment &&
+    typeof contactData.coiAttachment === 'object' &&
+    contactData.coiAttachment.filename &&
+    contactData.coiAttachment.dataBase64
+      ? contactData.coiAttachment
+      : null;
+
+  const coiAttachment = coiAttachmentPayload
+    ? {
+        filename: String(coiAttachmentPayload.filename),
+        content: Buffer.from(String(coiAttachmentPayload.dataBase64), 'base64'),
+        contentType: String(coiAttachmentPayload.contentType || 'application/octet-stream'),
+      }
+    : null;
 
   const preferredFields = FORM_FIELD_ORDER[formType] || [];
   const appendedFields = Object.keys(contactData).filter(
@@ -1226,7 +1242,10 @@ const sendServiceRequestEmail = async (contactData) => {
     to: recipient,
     subject: `${metadata.title} • ${normalizeContactFieldValue('fullName', contactData.fullName) || 'New Request'}`,
     replyTo: normalizeContactFieldValue('email', contactData.email) || undefined,
-    attachments: getLogoAttachment(logoAsset),
+    attachments: [
+      ...getLogoAttachment(logoAsset),
+      ...(coiAttachment ? [coiAttachment] : []),
+    ],
     html: renderEmailLayout({
       title: metadata.title,
       intro: `A new lead has submitted the ${metadata.label} form.`,

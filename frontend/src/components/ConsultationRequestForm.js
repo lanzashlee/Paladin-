@@ -10,7 +10,7 @@ const wizardSteps = [
 ];
 
 const stepFields = [['fullName', 'email', 'address', 'phone'], []];
-const EMAIL_REGEX = /^[a-zA-Z0-9!#$%&'*+/=?^_`{|}~.-]+@[a-zA-Z0-9](?:[a-zA-Z0-9-]{0,61}[a-zA-Z0-9])?(?:\.[a-zA-Z]{2,})+$/;
+const EMAIL_REGEX = /^[a-zA-Z0-9!#$%&'*+/=?^_`{|}~.-]+@(?:[a-zA-Z0-9](?:[a-zA-Z0-9-]{0,61}[a-zA-Z0-9])?\.)+[a-zA-Z]{2,}$/;
 
 const isValidEmailFormat = (emailValue = '') => {
   const email = String(emailValue).trim();
@@ -227,7 +227,7 @@ function ConsultationRequestForm({ onClose }) {
                     value={formData.email}
                     onChange={handleChange}
                     placeholder="john@example.com"
-                    pattern="[a-zA-Z0-9!#$%&'*+/=?^_`{|}~.-]+@[a-zA-Z0-9](?:[a-zA-Z0-9-]{0,61}[a-zA-Z0-9])?(?:\.[a-zA-Z]{2,})+"
+                    pattern="[a-zA-Z0-9!#$%&'*+/=?^_`{|}~.-]+@(?:[a-zA-Z0-9](?:[a-zA-Z0-9-]{0,61}[a-zA-Z0-9])?\.)+[a-zA-Z]{2,}"
                     className={getFieldClass('email')}
                     disabled={loading}
                   />

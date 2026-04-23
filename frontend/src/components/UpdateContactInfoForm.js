@@ -90,7 +90,7 @@ const getRequestedUpdateTypeLabels = (requestedUpdateTypes) =>
   requestedUpdateTypes.map((requestedType) => requestedUpdateLabelMap[requestedType] || requestedType).join(', ');
 
 const getApplyChangesToLabel = (applyChangesTo) => applyChangesToLabelMap[applyChangesTo] || applyChangesTo;
-const EMAIL_REGEX = /^[a-zA-Z0-9!#$%&'*+/=?^_`{|}~.-]+@[a-zA-Z0-9](?:[a-zA-Z0-9-]{0,61}[a-zA-Z0-9])?(?:\.[a-zA-Z]{2,})+$/;
+const EMAIL_REGEX = /^[a-zA-Z0-9!#$%&'*+/=?^_`{|}~.-]+@(?:[a-zA-Z0-9](?:[a-zA-Z0-9-]{0,61}[a-zA-Z0-9])?\.)+[a-zA-Z]{2,}$/;
 
 const isValidEmailFormat = (emailValue = '') => {
   const email = String(emailValue).trim();
@@ -393,7 +393,7 @@ across your active policies."
                     value={formData.email}
                     onChange={handleChange}
                     placeholder="So we can locate your account"
-                    pattern="[a-zA-Z0-9!#$%&'*+/=?^_`{|}~.-]+@[a-zA-Z0-9](?:[a-zA-Z0-9-]{0,61}[a-zA-Z0-9])?(?:\.[a-zA-Z]{2,})+"
+                    pattern="[a-zA-Z0-9!#$%&'*+/=?^_`{|}~.-]+@(?:[a-zA-Z0-9](?:[a-zA-Z0-9-]{0,61}[a-zA-Z0-9])?\.)+[a-zA-Z]{2,}"
                     className={getFieldClass('email')}
                     disabled={loading}
                   />
