@@ -46,9 +46,32 @@ function QuoteRequest() {
   const [selectedProductFormData, setSelectedProductFormData] = useState({});
   const [isSelectedProductFormValid, setIsSelectedProductFormValid] = useState(false);
   const [submitted, setSubmitted] = useState(false);
+  const [showPreview, setShowPreview] = useState(false);
   const [submitting, setSubmitting] = useState(false);
   const [submitError, setSubmitError] = useState('');
   const selectedProductLabel = PRODUCT_OPTIONS.find((option) => option.id === selectedProduct)?.label || selectedProduct;
+  const universalSections = buildUniversalSections(form);
+  const quotationSections = buildQuotationSections(selectedProduct, selectedProductFormData);
+
+  const handlePreview = () => {
+    if (!selectedProduct) {
+      setSubmitError('Please select an insurance product before previewing.');
+      return;
+    }
+
+    if (!isSelectedProductFormValid) {
+      setSubmitError('Please complete all required quotation fields before previewing.');
+      return;
+    }
+
+    setSubmitError('');
+    setShowPreview(true);
+  };
+
+  const handlePreviewFromProductForm = () => {
+    setSubmitError('');
+    setShowPreview(true);
+  };
 
   const handleFinalSubmit = async () => {
     if (!selectedProduct) {
@@ -74,8 +97,8 @@ function QuoteRequest() {
       phone: form.contactPhone,
       universalApplicant: form,
       insuranceQuotation: selectedProductFormData,
-      universalApplicantSections: buildUniversalSections(form),
-      insuranceQuotationSections: buildQuotationSections(selectedProduct, selectedProductFormData),
+      universalApplicantSections: universalSections,
+      insuranceQuotationSections: quotationSections,
     };
 
     try {
@@ -112,6 +135,7 @@ function QuoteRequest() {
     setSelectedProduct('');
     setSelectedProductFormData({});
     setIsSelectedProductFormValid(false);
+    setShowPreview(false);
     setSubmitError('');
     setStep(2);
   };
@@ -172,29 +196,88 @@ function QuoteRequest() {
             onNext={() => {
               setSelectedProductFormData({});
               setIsSelectedProductFormValid(false);
+              setShowPreview(false);
               setSubmitError('');
               setStep(3);
             }}
           />
         ) : SelectedProductForm ? (
           <>
-            <SelectedProductForm
-              onBack={() => setStep(2)}
-              onFormChange={setSelectedProductFormData}
-              onValidityChange={setIsSelectedProductFormValid}
-            />
+            <div style={{ display: showPreview ? 'none' : 'block' }}>
+              <SelectedProductForm
+                onBack={() => setStep(2)}
+                onFormChange={setSelectedProductFormData}
+                onValidityChange={setIsSelectedProductFormValid}
+                onPreviewRequest={handlePreviewFromProductForm}
+              />
+            </div>
+            {showPreview ? (
+              <div className="quote-request__form quote-request__preview">
+                <h3>Application Preview</h3>
+                <p className="quote-request__form-intro">
+                  Review all entered details below before submitting.
+                </p>
+
+                <div className="quote-request__section">
+                  <h4 className="quote-request__section-title">Universal Applicant Form</h4>
+                  {universalSections.map((section) => (
+                    <div className="quote-request__preview-section" key={`universal-${section.title}`}>
+                      <h5 className="quote-request__preview-section-title">{section.title}</h5>
+                      <div className="quote-request__preview-table">
+                        {section.fields.map((field) => (
+                          <div className="quote-request__preview-row" key={`universal-${section.title}-${field.label}`}>
+                            <div className="quote-request__preview-label">{field.label}</div>
+                            <div className="quote-request__preview-value">{field.value}</div>
+                          </div>
+                        ))}
+                      </div>
+                    </div>
+                  ))}
+                </div>
+
+                <div className="quote-request__section">
+                  <h4 className="quote-request__section-title">{selectedProductLabel} Quotation Form</h4>
+                  {quotationSections.map((section) => (
+                    <div className="quote-request__preview-section" key={`quotation-${section.title}`}>
+                      <h5 className="quote-request__preview-section-title">{section.title}</h5>
+                      <div className="quote-request__preview-table">
+                        {section.fields.map((field) => (
+                          <div className="quote-request__preview-row" key={`quotation-${section.title}-${field.label}`}>
+                            <div className="quote-request__preview-label">{field.label}</div>
+                            <div className="quote-request__preview-value">{field.value}</div>
+                          </div>
+                        ))}
+                      </div>
+                    </div>
+                  ))}
+                </div>
+              </div>
+            ) : null}
             {submitError ? (
               <div className="quote-request__error" role="alert">
                 {submitError}
               </div>
             ) : null}
             <div className="quote-request__actions quote-request__actions--final">
-              <button className="quote-request__secondary" type="button" onClick={() => setStep(2)}>
-                Change Insurance Type
-              </button>
-              <button type="button" onClick={handleFinalSubmit} disabled={submitting}>
-                {submitting ? 'Submitting...' : 'Submit Application'}
-              </button>
+              {showPreview ? (
+                <>
+                  <button className="quote-request__secondary" type="button" onClick={() => setShowPreview(false)}>
+                    Back to Edit Form
+                  </button>
+                  <button type="button" onClick={handleFinalSubmit} disabled={submitting}>
+                    {submitting ? 'Submitting...' : 'Submit Application'}
+                  </button>
+                </>
+              ) : (
+                <>
+                  <button className="quote-request__secondary" type="button" onClick={() => setStep(2)}>
+                    Change Insurance Type
+                  </button>
+                  <button type="button" onClick={handlePreview}>
+                    Preview Application
+                  </button>
+                </>
+              )}
             </div>
           </>
         ) : (

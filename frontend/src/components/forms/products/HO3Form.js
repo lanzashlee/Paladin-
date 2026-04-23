@@ -332,7 +332,7 @@ const getTodayIsoDate = () => {
   return new Date(now.getTime() - timezoneOffsetMs).toISOString().slice(0, 10);
 };
 
-function HO3Form({ onBack, onFormChange, onValidityChange }) {
+function HO3Form({ onBack, onFormChange, onValidityChange, onPreviewRequest }) {
   const todayIsoDate = getTodayIsoDate();
   const formRef = useRef(null);
   const [formData, setFormData] = useState(initialForm);
@@ -431,6 +431,11 @@ function HO3Form({ onBack, onFormChange, onValidityChange }) {
 
     if (Object.keys(nextErrors).length > 0) {
       focusFirstError(nextErrors);
+      return;
+    }
+
+    if (typeof onPreviewRequest === 'function') {
+      onPreviewRequest();
     }
   };
 
@@ -601,7 +606,7 @@ function HO3Form({ onBack, onFormChange, onValidityChange }) {
       </div>
 
       <div className="quote-request__actions" style={{ justifyContent: 'flex-end' }}>
-        <button type="button" onClick={handleContinue}>Validate HO3 Form</button>
+        <button type="button" onClick={handleContinue}>Preview Form</button>
       </div>
     </section>
   );

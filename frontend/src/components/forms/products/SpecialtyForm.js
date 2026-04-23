@@ -445,7 +445,7 @@ const formatWholeNumberWithCommas = (rawValue) => {
   return digits.replace(/\B(?=(\d{3})+(?!\d))/g, ',');
 };
 
-function SpecialtyForm({ onBack, onFormChange, onValidityChange }) {
+function SpecialtyForm({ onBack, onFormChange, onValidityChange, onPreviewRequest }) {
   const formRef = useRef(null);
   const suretyBusinessFinancialStatementFileInputRef = useRef(null);
   const [formData, setFormData] = useState(initialForm);
@@ -1020,6 +1020,11 @@ function SpecialtyForm({ onBack, onFormChange, onValidityChange }) {
     setErrors(nextErrors);
     if (Object.keys(nextErrors).length > 0) {
       focusFirstError(nextErrors);
+      return;
+    }
+
+    if (typeof onPreviewRequest === 'function') {
+      onPreviewRequest();
     }
   };
 
@@ -1380,7 +1385,7 @@ function SpecialtyForm({ onBack, onFormChange, onValidityChange }) {
       ) : null}
 
       <div className="quote-request__actions" style={{ justifyContent: 'flex-end' }}>
-        <button type="button" onClick={handleContinue}>Validate Specialty Form</button>
+        <button type="button" onClick={handleContinue}>Preview Form</button>
       </div>
     </section>
   );

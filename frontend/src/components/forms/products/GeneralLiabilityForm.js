@@ -220,7 +220,7 @@ const buildAddressSummary = ({ streetAddress, unitNumber, city, state, zip }) =>
     .join(', ')
 );
 
-function GeneralLiabilityForm({ onBack, onFormChange, onValidityChange }) {
+function GeneralLiabilityForm({ onBack, onFormChange, onValidityChange, onPreviewRequest }) {
   const formRef = useRef(null);
   const [formData, setFormData] = useState(initialForm);
   const [priorClaims, setPriorClaims] = useState([{ ...initialClaim }]);
@@ -522,6 +522,11 @@ function GeneralLiabilityForm({ onBack, onFormChange, onValidityChange }) {
 
     if (Object.keys(nextErrors).length > 0) {
       focusFirstError(nextErrors);
+      return;
+    }
+
+    if (typeof onPreviewRequest === 'function') {
+      onPreviewRequest();
     }
   };
 
@@ -971,7 +976,7 @@ function GeneralLiabilityForm({ onBack, onFormChange, onValidityChange }) {
       </div>
 
       <div className="quote-request__actions" style={{ justifyContent: 'flex-end' }}>
-        <button type="button" onClick={handleValidate}>Validate GL Form</button>
+        <button type="button" onClick={handleValidate}>Preview Form</button>
       </div>
     </section>
   );

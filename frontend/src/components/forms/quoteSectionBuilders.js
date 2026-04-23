@@ -13,6 +13,143 @@ const YES_NO_LABELS = {
   no: 'No',
 };
 
+const FIELD_VALUE_LABELS = {
+  businessEntityType: {
+    'sole-proprietor': 'Sole Proprietor',
+    llc: 'LLC',
+    partnership: 'Partnership',
+    's-corp': 'S-Corp',
+    'c-corp': 'C-Corp',
+    'non-profit': 'Non-Profit',
+  },
+  industryType: {
+    contractor: 'Contractor',
+    'delivery-logistics': 'Delivery / Logistics',
+    'artisan-trade': 'Artisan Trade',
+    'professional-services': 'Professional Services',
+    'retail-wholesale': 'Retail / Wholesale',
+    other: 'Other',
+  },
+  industryTypeOfBusiness: {
+    contractor: 'Contractor',
+    'retail-wholesale': 'Retail / Wholesale',
+    'professional-services': 'Professional Services',
+    'hospitality-food': 'Hospitality / Food',
+    manufacturing: 'Manufacturing',
+    other: 'Other',
+  },
+  policyTerm: {
+    'annual-12-months': 'Annual (12 Months)',
+    'short-term': 'Short-Term',
+    other: 'Other',
+  },
+  personalAdvertisingInjuryLimit: {
+    'match-occurrence': 'Standard (Match Occurrence)',
+    custom: 'Custom Amount',
+  },
+  umbrellaPolicyType: {
+    'personal-umbrella': 'Personal Umbrella',
+    'commercial-umbrella': 'Commercial Umbrella',
+    'excess-liability': 'Excess Liability',
+  },
+  underlyingAutoBiPdLimits: {
+    '100-300': '100/300',
+    '250-500': '250/500',
+    '300-csl': '300 CSL',
+    '500-csl': '500 CSL',
+  },
+  underlyingGlLimits: {
+    '1m': '$1M',
+    '2m': '$2M',
+  },
+  umbrellaLimit: {
+    '1m': '$1M',
+    '2m': '$2M',
+    '3m': '$3M',
+    '5m': '$5M',
+    '10m': '$10M',
+  },
+  selfInsuredRetentionSir: {
+    '0': '$0',
+    '250': '$250',
+    '500': '$500',
+    '1000': '$1,000',
+  },
+  vehicleGvwr: {
+    'under-10000': 'Under 10,000',
+    '10001-26000': '10,001-26,000',
+    'over-26000': 'Over 26,000',
+  },
+  vehiclePrimaryUse: {
+    'transport-goods': 'Transport of Goods',
+    'service-repair-calls': 'Service / Repair Calls',
+    'employee-transport': 'Employee Transport',
+    'pickup-delivery': 'Pickup / Delivery',
+    farm: 'Farm',
+    other: 'Other',
+  },
+  vehicleRadiusOfOperation: {
+    'local-under-50': 'Local (<50 miles)',
+    'intermediate-50-200': 'Intermediate (50-200 miles)',
+    'long-haul-200-plus': 'Long-Haul (200+)',
+  },
+  bodilyInjuryLiabilityLimits: {
+    '25-50': '25/50',
+    '50-100': '50/100',
+    '100-300': '100/300',
+    'csl-300000': 'CSL $300,000',
+    'csl-500000': 'CSL $500,000',
+    'csl-1000000': 'CSL $1,000,000',
+  },
+  specialtyType: {
+    cyber: 'Cyber Liability',
+    eo: 'Professional Liability (E&O)',
+    'inland-marine': 'Inland Marine',
+    'surety-bond': 'Surety Bond',
+    pet: 'Pet Insurance',
+  },
+  femaFloodZone: {
+    x: 'Zone X',
+    ae: 'Zone AE',
+    ao: 'Zone AO',
+    ve: 'Zone VE',
+    a: 'Zone A',
+    other: 'Other',
+  },
+  propertyType: {
+    'single-family': 'Single Family',
+    '2-4-unit-condo-ho6': '2-4 Unit / Condo (HO6)',
+    renters: 'Renters',
+    commercial: 'Commercial',
+    other: 'Other',
+  },
+  maritalStatus: {
+    single: 'Single',
+    married: 'Married',
+    divorced: 'Divorced',
+    widowed: 'Widowed',
+    separated: 'Separated',
+    'domestic-partner': 'Domestic Partner',
+    other: 'Other',
+  },
+  gender: {
+    female: 'Female',
+    male: 'Male',
+    'non-binary': 'Non-binary',
+    other: 'Other',
+    'prefer-not-to-say': 'Prefer not to say',
+  },
+  preferredLanguage: {
+    english: 'English',
+    spanish: 'Spanish',
+    tagalog: 'Tagalog',
+    mandarin: 'Mandarin',
+    vietnamese: 'Vietnamese',
+    korean: 'Korean',
+    other: 'Other',
+  },
+};
+
 const valueLabel = (rawValue, map = null) => {
   const value = String(rawValue ?? '').trim();
   if (!value) {
@@ -42,10 +179,6 @@ const valueLabel = (rawValue, map = null) => {
     return toTitleCase(value);
   }
 
-  if (value === value.toLowerCase() && /^[a-z]+$/.test(value)) {
-    return toTitleCase(value);
-  }
-
   return value;
 };
 
@@ -62,7 +195,7 @@ const buildSection = (title, rows) => ({
 const mapRows = (form, definitions) =>
   definitions.map((definition) => ({
     label: definition.label,
-    value: valueLabel(form[definition.key], definition.valueMap),
+    value: valueLabel(form[definition.key], definition.valueMap || FIELD_VALUE_LABELS[definition.key]),
   }));
 
 const formatCollection = (items = [], fieldDefs = []) => {
@@ -84,7 +217,7 @@ const formatCollectionRows = (items = [], entryLabel = 'Item', fieldDefs = []) =
   return safeItems.flatMap((item, index) =>
     fieldDefs.map((field) => ({
       label: `${entryLabel} ${index + 1} - ${field.label}`,
-      value: valueLabel(item?.[field.key]),
+      value: valueLabel(item?.[field.key], field.valueMap || FIELD_VALUE_LABELS[field.key]),
     }))
   );
 };
@@ -355,7 +488,17 @@ const buildCommercialAutoSections = (form = {}) => [
     ]),
     ...formatCollectionRows(form.violations, 'Violation', [
       { key: 'date', label: 'Date' },
-      { key: 'type', label: 'Type' },
+      {
+        key: 'type',
+        label: 'Type',
+        valueMap: {
+          speeding: 'Speeding',
+          dui: 'DUI',
+          'reckless-driving': 'Reckless Driving',
+          'cell-phone': 'Cell Phone / Distracted Driving',
+          other: 'Other',
+        },
+      },
       { key: 'description', label: 'Description' },
     ]),
   ]),
@@ -496,6 +639,41 @@ const buildUmbrellaSections = (form = {}) => [
     { key: 'effectiveDate', label: 'Effective Date' },
     { key: 'selfInsuredRetentionSir', label: 'Self-Insured Retention (SIR)' },
   ])),
+];
+
+const buildFloodSections = (form = {}) => [
+  buildSection('Flood Insurance Intake', [
+    ...mapRows(form, [
+      { key: 'propertyStreetAddress', label: 'Property Address - Street' },
+      { key: 'propertyUnitNumber', label: 'Property Address - Unit Number' },
+      { key: 'propertyCity', label: 'Property Address - City' },
+      { key: 'propertyState', label: 'Property Address - State' },
+      { key: 'propertyZip', label: 'Property Address - ZIP' },
+      { key: 'femaFloodZone', label: 'FEMA Flood Zone' },
+      { key: 'baseFloodElevation', label: 'Base Flood Elevation (BFE)' },
+      { key: 'elevationCertificateAvailable', label: 'Elevation Certificate Available' },
+      { key: 'firstFloorElevationAboveBFE', label: 'First Floor Elevation Above BFE' },
+      { key: 'communityNfipParticipationStatus', label: 'Community NFIP Participation Status' },
+      { key: 'propertyType', label: 'Property Type' },
+      { key: 'yearBuilt', label: 'Year Built' },
+      { key: 'numberOfFloors', label: 'Number of Floors' },
+      { key: 'basement', label: 'Basement' },
+      { key: 'basementType', label: 'Basement Type' },
+      { key: 'enclosureBelowElevatedBuilding', label: 'Enclosure Below Elevated Building' },
+      { key: 'buildingCoverage', label: 'Building Coverage' },
+      { key: 'contentsCoverage', label: 'Contents Coverage' },
+      { key: 'deductibleBuilding', label: 'Deductible Building' },
+      { key: 'deductibleContents', label: 'Deductible Contents' },
+      { key: 'nfipOrPrivateFlood', label: 'Nfip Or Private Flood' },
+      { key: 'preferredRiskEligibility', label: 'Preferred Risk Eligibility' },
+      { key: 'priorFloodClaims', label: 'Prior Flood Claims' },
+      { key: 'effectiveDate', label: 'Effective Date' },
+    ]),
+    ...formatCollectionRows(form.priorClaims, 'Claim', [
+      { key: 'date', label: 'Date' },
+      { key: 'amountPaid', label: 'Amount Paid' },
+    ]),
+  ]),
 ];
 
 const EMPLOYERS_LIABILITY_LABELS = {
@@ -746,6 +924,10 @@ export const buildQuotationSections = (selectedProduct, form = {}) => {
 
   if (selectedProduct === 'umbrella') {
     return buildUmbrellaSections(form);
+  }
+
+  if (selectedProduct === 'flood') {
+    return buildFloodSections(form);
   }
 
   if (selectedProduct === 'workersComp') {

@@ -164,7 +164,7 @@ const formatCurrencyInput = (rawValue) => {
   return `${formattedInteger || '0'}.${decimalRaw}`;
 };
 
-function EarthquakeForm({ onBack, onFormChange, onValidityChange }) {
+function EarthquakeForm({ onBack, onFormChange, onValidityChange, onPreviewRequest }) {
   const formRef = useRef(null);
   const [formData, setFormData] = useState(initialForm);
   const [errors, setErrors] = useState({});
@@ -261,6 +261,11 @@ function EarthquakeForm({ onBack, onFormChange, onValidityChange }) {
 
     if (Object.keys(nextErrors).length > 0) {
       focusFirstError(nextErrors);
+      return;
+    }
+
+    if (typeof onPreviewRequest === 'function') {
+      onPreviewRequest();
     }
   };
 
@@ -584,7 +589,7 @@ function EarthquakeForm({ onBack, onFormChange, onValidityChange }) {
       </div>
 
       <div className="quote-request__actions" style={{ justifyContent: 'flex-end' }}>
-        <button type="button" onClick={handleContinue}>Validate Earthquake Form</button>
+        <button type="button" onClick={handleContinue}>Preview Form</button>
       </div>
     </section>
   );
