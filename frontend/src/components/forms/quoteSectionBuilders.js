@@ -442,6 +442,62 @@ const buildGeneralLiabilitySections = (form = {}) => [
   ])),
 ];
 
+const buildUmbrellaSections = (form = {}) => [
+  buildSection('Applicant and Policy Type', mapRows(form, [
+    { key: 'fullNameOrBusinessName', label: 'Full Name (Personal) or Business Name (Commercial)' },
+    { key: 'dateOfBirthOrEin', label: 'Date of Birth (Personal) or EIN (Commercial)' },
+    { key: 'addressStreet', label: 'Address - Street' },
+    { key: 'addressUnit', label: 'Address - Unit Number' },
+    { key: 'addressCity', label: 'Address - City' },
+    { key: 'addressState', label: 'Address - State' },
+    { key: 'addressZip', label: 'Address - ZIP' },
+    { key: 'umbrellaPolicyType', label: 'Type of Umbrella Policy' },
+  ])),
+  buildSection('Underlying Policy Information (Optional)', mapRows(form, [
+    { key: 'underlyingHomeownersPolicyCarrier', label: 'Underlying Homeowners Policy Carrier' },
+    { key: 'underlyingHomeownersPolicyNumber', label: 'Underlying Homeowners Policy Number' },
+    { key: 'underlyingHomeownersLiabilityLimit', label: 'Underlying Homeowners Liability Limit' },
+    { key: 'underlyingAutoPolicyCarrier', label: 'Underlying Auto Policy Carrier' },
+    { key: 'underlyingAutoPolicyNumber', label: 'Underlying Auto Policy Number' },
+    { key: 'underlyingAutoBiPdLimits', label: 'Underlying Auto BI/PD Limits' },
+    { key: 'underlyingGlPolicyCarrier', label: 'Underlying GL Policy Carrier' },
+    { key: 'underlyingGlLimits', label: 'Underlying GL Limits' },
+    { key: 'underlyingCommercialAutoPolicy', label: 'Underlying Commercial Auto Policy (if applicable)' },
+    { key: 'underlyingWcPolicy', label: 'Underlying WC Policy (if applicable)' },
+  ])),
+  buildSection('Exposure and Risk Triggers', [
+    ...mapRows(form, [
+      { key: 'watercraftOwned', label: 'Watercraft Owned?' },
+      { key: 'watercraftDetails', label: 'Watercraft Details' },
+      { key: 'recreationalVehiclesAtvs', label: 'Recreational Vehicles / ATVs?' },
+      { key: 'recreationalVehiclesAtvsDetails', label: 'Recreational Vehicle / ATV Details' },
+      { key: 'rentalPropertiesOwned', label: 'Rental Properties Owned?' },
+      { key: 'rentalPropertiesCount', label: 'Number of Rental Units' },
+      { key: 'numberOfDriversInHousehold', label: 'Number of Drivers in Household (Personal)' },
+      { key: 'youngDriversUnder25', label: 'Young Drivers (under 25) in Household?' },
+      { key: 'duiOrSeriousViolationsAnyDriver', label: 'DUI or Serious Violations - Any Driver?' },
+      { key: 'priorUmbrellaClaimsPast5Years', label: 'Prior Umbrella Claims (past 5 years)?' },
+      { key: 'swimmingPool', label: 'Swimming Pool?' },
+      { key: 'trampoline', label: 'Trampoline?' },
+      { key: 'dogsBreedAndCount', label: 'Dogs (breed and count)?' },
+      { key: 'boardMemberships', label: 'Board Memberships?' },
+      { key: 'boardMembershipsDetails', label: 'Board Membership Details' },
+      { key: 'homeBasedBusiness', label: 'Home-Based Business?' },
+      { key: 'homeBasedBusinessDetails', label: 'Home-Based Business Details' },
+    ]),
+    ...formatCollectionRows(form.priorClaims, 'Claim', [
+      { key: 'date', label: 'Date' },
+      { key: 'amount', label: 'Amount' },
+      { key: 'description', label: 'Description' },
+    ]),
+  ]),
+  buildSection('Limit and Effective Date', mapRows(form, [
+    { key: 'umbrellaLimit', label: 'Umbrella Limit' },
+    { key: 'effectiveDate', label: 'Effective Date' },
+    { key: 'selfInsuredRetentionSir', label: 'Self-Insured Retention (SIR)' },
+  ])),
+];
+
 const EMPLOYERS_LIABILITY_LABELS = {
   '100k-100k-100k': '$100K / $100K / $100K',
   '500k-500k-500k': '$500K / $500K / $500K',
@@ -686,6 +742,10 @@ export const buildQuotationSections = (selectedProduct, form = {}) => {
 
   if (selectedProduct === 'generalLiability') {
     return buildGeneralLiabilitySections(form);
+  }
+
+  if (selectedProduct === 'umbrella') {
+    return buildUmbrellaSections(form);
   }
 
   if (selectedProduct === 'workersComp') {
