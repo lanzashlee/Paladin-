@@ -332,27 +332,39 @@
 .quote-request__form button:not(.quote-request__inline-secondary),
 .quote-request__actions button,
 .quote-request__placeholder button {
-  background: linear-gradient(135deg, var(--paladin-navy), var(--paladin-royal));
+  background: #012e72;
   color: #fff;
-  border: none;
-  padding: 0.75rem 1rem;
-  border-radius: 10px;
-  font-size: 1rem;
+  border: 1px solid #012e72;
+  padding: 0.7rem 1.25rem;
+  border-radius: 999px;
+  font-size: 0.95rem;
   font-weight: 700;
   cursor: pointer;
-  transition: transform 0.2s, filter 0.2s;
+  box-shadow: 0 10px 22px rgba(1, 46, 114, 0.2);
+  transition: background-color 0.2s, border-color 0.2s, transform 0.2s, box-shadow 0.2s;
 }
 .quote-request__form > button[type="submit"] {
   margin-top: 0.4rem;
   min-height: 46px;
   letter-spacing: 0.01em;
-  box-shadow: 0 8px 20px rgba(1, 46, 114, 0.23);
 }
 .quote-request__form button:not(.quote-request__inline-secondary):hover,
 .quote-request__actions button:hover,
 .quote-request__placeholder button:hover {
-  transform: translateY(-1px);
-  filter: brightness(1.05);
+  background: #002db5;
+  border-color: #002db5;
+  transform: translateY(-2px);
+  box-shadow: 0 14px 28px rgba(1, 46, 114, 0.24);
+}
+.quote-request__form button:disabled,
+.quote-request__actions button:disabled,
+.quote-request__placeholder button:disabled {
+  background: #9fb1cd;
+  border-color: #9fb1cd;
+  color: #eff4fb;
+  cursor: not-allowed;
+  transform: none;
+  box-shadow: none;
 }
 .quote-request__selector {
   max-width: 920px;
@@ -416,14 +428,39 @@
 .quote-request__actions--final {
   margin-top: 1rem;
 }
+
+/* Product forms already have page-level actions in QuoteRequest.
+   Hide each form's trailing local action row to avoid duplicate preview triggers. */
+.quote-request__product-form > .quote-request__actions:last-of-type {
+  display: none;
+}
 .quote-request__secondary {
-  background: #fff;
-  color: var(--paladin-navy);
-  border: 1px solid var(--paladin-navy);
+  background: #fff !important;
+  color: #012e72 !important;
+  border: 1px solid #012e72 !important;
+  box-shadow: 0 8px 18px rgba(1, 46, 114, 0.14) !important;
 }
 .quote-request__secondary:hover {
-  background: #edf4ff;
-  color: var(--paladin-navy);
+  background: #eef4ff !important;
+  color: #002db5 !important;
+  border-color: #002db5 !important;
+  box-shadow: 0 12px 24px rgba(1, 46, 114, 0.18) !important;
+}
+.quote-request__actions .quote-request__inline-secondary {
+  background: #fff;
+  color: #012e72;
+  border: 1px solid #012e72;
+  border-radius: 999px;
+  padding: 0.7rem 1.25rem;
+  font-size: 0.95rem;
+  box-shadow: 0 8px 18px rgba(1, 46, 114, 0.14);
+}
+.quote-request__actions .quote-request__inline-secondary:hover {
+  background: #eef4ff;
+  color: #002db5;
+  border-color: #002db5;
+  transform: translateY(-2px);
+  box-shadow: 0 12px 24px rgba(1, 46, 114, 0.18);
 }
 .quote-request__placeholder {
   max-width: 720px;
@@ -454,6 +491,57 @@
   border: 1px solid #b8dfb9;
 }
 
+.quote-request__preview {
+  text-align: left;
+}
+
+.quote-request__preview-section {
+  margin-top: 1rem;
+}
+
+.quote-request__preview-section-title {
+  margin: 0 0 0.6rem;
+  color: #1f3851;
+  font-size: 0.96rem;
+}
+
+.quote-request__preview-table {
+  border: 1px solid #d5e1f0;
+  border-radius: 10px;
+  overflow: hidden;
+  background: #fff;
+}
+
+.quote-request__preview-row {
+  display: grid;
+  grid-template-columns: minmax(220px, 38%) minmax(0, 62%);
+  border-top: 1px solid #e6edf7;
+}
+
+.quote-request__preview-row:first-child {
+  border-top: none;
+}
+
+.quote-request__preview-label,
+.quote-request__preview-value {
+  padding: 0.65rem 0.8rem;
+  font-size: 0.9rem;
+  line-height: 1.35;
+  white-space: pre-wrap;
+  word-break: break-word;
+}
+
+.quote-request__preview-label {
+  font-weight: 700;
+  color: #1d4b8f;
+  background: #f7faff;
+  border-right: 1px solid #e6edf7;
+}
+
+.quote-request__preview-value {
+  color: #1f2a36;
+}
+
 @media (max-width: 640px) {
   .quote-request {
     padding: 1.5rem 0.8rem 2.6rem;
@@ -482,5 +570,14 @@
   .quote-request__actions button,
   .quote-request__placeholder button {
     width: 100%;
+  }
+
+  .quote-request__preview-row {
+    grid-template-columns: 1fr;
+  }
+
+  .quote-request__preview-label {
+    border-right: none;
+    border-bottom: 1px solid #e6edf7;
   }
 }

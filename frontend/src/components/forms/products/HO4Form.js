@@ -122,7 +122,7 @@ const formatCurrencyInput = (rawValue) => {
   return `${wholeFormatted || '0'}.${decimalRaw}`;
 };
 
-function HO4Form({ onBack, onFormChange, onValidityChange }) {
+function HO4Form({ onBack, onFormChange, onValidityChange, onPreviewRequest }) {
   const formRef = useRef(null);
   const [formData, setFormData] = useState(initialForm);
   const [errors, setErrors] = useState({});
@@ -207,6 +207,11 @@ function HO4Form({ onBack, onFormChange, onValidityChange }) {
 
     if (Object.keys(nextErrors).length > 0) {
       focusFirstError(nextErrors);
+      return;
+    }
+
+    if (typeof onPreviewRequest === 'function') {
+      onPreviewRequest();
     }
   };
 
@@ -383,7 +388,7 @@ function HO4Form({ onBack, onFormChange, onValidityChange }) {
       </div>
 
       <div className="quote-request__actions" style={{ justifyContent: 'flex-end' }}>
-        <button type="button" onClick={handleValidate}>Validate HO4 Form</button>
+        <button type="button" onClick={handleValidate}>Preview Form</button>
       </div>
     </section>
   );
