@@ -13,7 +13,7 @@ import ClaimReportForm from '../components/ClaimReportForm';
 import CallRequestForm from '../components/CallRequestForm';
 
 const API_BASE_URL = process.env.REACT_APP_API_BASE_URL || 'http://localhost:5000';
-const EMAIL_REGEX = /^[a-zA-Z0-9!#$%&'*+/=?^_`{|}~.-]+@[a-zA-Z0-9](?:[a-zA-Z0-9-]{0,61}[a-zA-Z0-9])?(?:\.[a-zA-Z]{2,})+$/;
+const EMAIL_REGEX = /^[a-zA-Z0-9!#$%&'*+/=?^_`{|}~.-]+@(?:[a-zA-Z0-9](?:[a-zA-Z0-9-]{0,61}[a-zA-Z0-9])?\.)+[a-zA-Z]{2,}$/;
 
 const isValidEmailFormat = (emailValue = '') => {
   const email = String(emailValue).trim();
@@ -302,12 +302,13 @@ function Contact() {
                     Email Address <span className="text-[#002DB5]">*</span>
                   </label>
                   <input 
-                    type="email" 
+                    type="text"
+                    inputMode="email"
+                    autoComplete="email"
                     id="email"
                     placeholder="john@example.com"
                     value={formData.email}
                     onChange={handleChange}
-                    pattern="[a-zA-Z0-9!#$%&'*+/=?^_`{|}~.-]+@[a-zA-Z0-9](?:[a-zA-Z0-9-]{0,61}[a-zA-Z0-9])?(?:\.[a-zA-Z]{2,})+"
                     className={`px-4 py-3 rounded-xl border bg-[#F7F4EF]/40 focus:bg-white focus:outline-none focus:ring-2 transition-colors ${
                       errors.email
                         ? 'border-red-500 focus:ring-red-300 focus:border-red-500'

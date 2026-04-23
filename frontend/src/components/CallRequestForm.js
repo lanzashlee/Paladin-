@@ -28,7 +28,7 @@ const topicLabelMap = {
   'billing-or-payment-question': 'Billing or payment question',
   other: 'Other',
 };
-const EMAIL_REGEX = /^[a-zA-Z0-9!#$%&'*+/=?^_`{|}~.-]+@[a-zA-Z0-9](?:[a-zA-Z0-9-]{0,61}[a-zA-Z0-9])?(?:\.[a-zA-Z]{2,})+$/;
+const EMAIL_REGEX = /^[a-zA-Z0-9!#$%&'*+/=?^_`{|}~.-]+@(?:[a-zA-Z0-9](?:[a-zA-Z0-9-]{0,61}[a-zA-Z0-9])?\.)+[a-zA-Z]{2,}$/;
 
 const isValidEmailFormat = (emailValue = '') => {
   const email = String(emailValue).trim();
@@ -315,7 +315,7 @@ function CallRequestForm({ onClose }) {
                     value={formData.email}
                     onChange={handleChange}
                     placeholder="your@email.com"
-                    pattern="[a-zA-Z0-9!#$%&'*+/=?^_`{|}~.-]+@[a-zA-Z0-9](?:[a-zA-Z0-9-]{0,61}[a-zA-Z0-9])?(?:\.[a-zA-Z]{2,})+"
+                    pattern="[a-zA-Z0-9!#$%&'*+/=?^_`{|}~.-]+@(?:[a-zA-Z0-9](?:[a-zA-Z0-9-]{0,61}[a-zA-Z0-9])?\.)+[a-zA-Z]{2,}"
                     className={getFieldClass('email')}
                     disabled={loading}
                   />
