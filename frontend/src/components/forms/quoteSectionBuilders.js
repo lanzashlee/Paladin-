@@ -377,6 +377,71 @@ const buildCommercialAutoSections = (form = {}) => [
   ])),
 ];
 
+const buildGeneralLiabilitySections = (form = {}) => [
+  buildSection('Business and Operations Profile', [
+    ...mapRows(form, [
+      { key: 'legalBusinessName', label: 'Legal Business Name' },
+      { key: 'dbaName', label: 'DBA (Doing Business As)' },
+      { key: 'businessEntityType', label: 'Business Entity Type' },
+      { key: 'federalEin', label: 'Federal EIN' },
+      { key: 'primaryBusinessStreetAddress', label: 'Primary Business Street Address' },
+      { key: 'primaryBusinessUnitNumber', label: 'Primary Business Unit Number' },
+      { key: 'primaryBusinessCity', label: 'Primary Business City' },
+      { key: 'primaryBusinessState', label: 'Primary Business State' },
+      { key: 'primaryBusinessZip', label: 'Primary Business ZIP' },
+      { key: 'yearBusinessEstablished', label: 'Year Business Established' },
+      { key: 'industryTypeOfBusiness', label: 'Industry / Type of Business' },
+      { key: 'naicsCsicCode', label: 'NAICS / CSIC Code' },
+      { key: 'detailedDescriptionOfOperations', label: 'Detailed Description of Operations' },
+      { key: 'productsManufacturedOrDistributed', label: 'Products Manufactured or Distributed?' },
+      { key: 'descriptionOfProducts', label: 'Description of Products' },
+      { key: 'estimatedAnnualRevenueGrossSales', label: 'Estimated Annual Revenue / Gross Sales' },
+      { key: 'estimatedAnnualPayroll', label: 'Estimated Annual Payroll (If Applicable)' },
+      { key: 'numberOfEmployeesFullTime', label: 'Number of Employees (Full-Time)' },
+      { key: 'numberOfEmployeesPartTimeSeasonal', label: 'Number of Employees (Part-Time / Seasonal)' },
+      { key: 'numberOfSubcontractorsUsedAnnually', label: 'Number of Subcontractors Used Annually' },
+      { key: 'subcontractorsCarryOwnInsurance', label: 'Do Subcontractors Carry Their Own Insurance?' },
+      { key: 'subcontractorAnnualCost', label: 'Subcontractor Annual Cost' },
+      { key: 'workPerformedOnResidentialProperties', label: 'Work Performed on Residential Properties?' },
+      { key: 'workPerformedOnCommercialProperties', label: 'Work Performed on Commercial Properties?' },
+      { key: 'businessInvolvesLiquorSalesOrService', label: 'Does Business Involve Liquor Sales or Service?' },
+      { key: 'businessInvolvesFirearms', label: 'Does Business Involve Firearms?' },
+      { key: 'businessInvolvesMedicalServices', label: 'Does Business Involve Medical Services?' },
+    ]),
+    ...formatCollectionRows(form.additionalLocations, 'Additional Location', [
+      { key: 'streetAddress', label: 'Street Address' },
+      { key: 'unitNumber', label: 'Unit Number' },
+      { key: 'city', label: 'City' },
+      { key: 'state', label: 'State' },
+      { key: 'zip', label: 'ZIP' },
+    ]),
+    ...formatCollectionRows(form.priorClaims, 'Claim', [
+      { key: 'date', label: 'Date' },
+      { key: 'description', label: 'Description' },
+      { key: 'paidAmount', label: 'Paid Amount' },
+      { key: 'status', label: 'Status' },
+    ]),
+  ]),
+  buildSection('Coverage Limits and Endorsements', mapRows(form, [
+    { key: 'eachOccurrenceLimit', label: 'Each Occurrence Limit' },
+    { key: 'generalAggregateLimit', label: 'General Aggregate Limit' },
+    { key: 'productsCompletedOperationsAggregate', label: 'Products and Completed Operations Aggregate' },
+    { key: 'personalAdvertisingInjuryLimit', label: 'Personal and Advertising Injury Limit' },
+    { key: 'damageToRentedPremisesLimit', label: 'Damage to Rented Premises (Fire Legal Liability)' },
+    { key: 'medicalExpenseLimit', label: 'Medical Expense Limit' },
+    { key: 'hiredNonOwnedAutoLiability', label: 'Hired and Non-Owned Auto Liability?' },
+    { key: 'employeeBenefitsLiability', label: 'Employee Benefits Liability?' },
+    { key: 'liquorLiabilityEndorsement', label: 'Liquor Liability Endorsement?' },
+    { key: 'professionalLiabilityEo', label: 'Professional Liability / E&O?' },
+    { key: 'additionalInsuredRequirements', label: 'Additional Insured Requirements' },
+    { key: 'waiverOfSubrogationRequired', label: 'Waiver of Subrogation Required?' },
+    { key: 'waiverOfSubrogationEntityName', label: 'Waiver Entity Name' },
+    { key: 'primaryAndNonContributoryRequired', label: 'Primary and Non-Contributory Required?' },
+    { key: 'effectiveDate', label: 'Effective Date' },
+    { key: 'policyTerm', label: 'Policy Term' },
+  ])),
+];
+
 const EMPLOYERS_LIABILITY_LABELS = {
   '100k-100k-100k': '$100K / $100K / $100K',
   '500k-500k-500k': '$500K / $500K / $500K',
@@ -617,6 +682,10 @@ export const buildQuotationSections = (selectedProduct, form = {}) => {
 
   if (selectedProduct === 'commercialAuto') {
     return buildCommercialAutoSections(form);
+  }
+
+  if (selectedProduct === 'generalLiability') {
+    return buildGeneralLiabilitySections(form);
   }
 
   if (selectedProduct === 'workersComp') {
