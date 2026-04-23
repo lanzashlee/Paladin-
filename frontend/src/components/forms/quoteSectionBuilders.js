@@ -78,6 +78,17 @@ const formatCollection = (items = [], fieldDefs = []) => {
   return normalizedItems.length > 0 ? normalizedItems.join('\n') : '';
 };
 
+const formatCollectionRows = (items = [], entryLabel = 'Item', fieldDefs = []) => {
+  const safeItems = Array.isArray(items) ? items : [];
+
+  return safeItems.flatMap((item, index) =>
+    fieldDefs.map((field) => ({
+      label: `${entryLabel} ${index + 1} - ${field.label}`,
+      value: valueLabel(item?.[field.key]),
+    }))
+  );
+};
+
 const valueToDisplay = (value) => {
   if (value === null || value === undefined || value === '') {
     return '';
@@ -402,18 +413,14 @@ const buildSpecialtySections = (form = {}) => {
           { key: 'dataBackupProcedures', label: 'Data Backup Procedures' },
           { key: 'encryptionSensitiveData', label: 'Encryption of Sensitive Data' },
           { key: 'priorCyberIncidentsClaims', label: 'Prior Cyber Incidents / Claims' },
-          { key: 'priorCyberIncidentsDetails', label: 'Prior Cyber Incidents Details' },
           { key: 'annualRansomwareDemandLimit', label: 'Annual Ransomware Demand Limit' },
         ]),
-        {
-          label: 'Cyber Incidents',
-          value: formatCollection(form.cyberIncidents, [
-            { key: 'date', label: 'Date' },
-            { key: 'description', label: 'Description' },
-            { key: 'costs', label: 'Costs' },
-            { key: 'resolution', label: 'Resolution' },
-          ]),
-        },
+        ...formatCollectionRows(form.cyberIncidents, 'Incident', [
+          { key: 'date', label: 'Date' },
+          { key: 'description', label: 'Description' },
+          { key: 'costs', label: 'Costs' },
+          { key: 'resolution', label: 'Resolution' },
+        ]),
       ])
     );
   } else if (specialtyType === 'eo') {
@@ -427,19 +434,15 @@ const buildSpecialtySections = (form = {}) => {
           { key: 'numberLicensedProfessionals', label: 'Number of Licensed Professionals' },
           { key: 'annualRevenueProfessionalServices', label: 'Annual Revenue (Professional Services)' },
           { key: 'priorEoClaims', label: 'Prior E&O Claims' },
-          { key: 'priorEoClaimsDetails', label: 'Prior E&O Claims Details' },
           { key: 'servicesProvidedOutsideUs', label: 'Services Provided Outside US' },
           { key: 'servicesProvidedOutsideUsCountries', label: 'Countries Outside US' },
           { key: 'retroactiveDateRequested', label: 'Retroactive Date Requested' },
         ]),
-        {
-          label: 'E&O Claims',
-          value: formatCollection(form.eoClaims, [
-            { key: 'date', label: 'Date' },
-            { key: 'amount', label: 'Amount' },
-            { key: 'status', label: 'Status' },
-          ]),
-        },
+        ...formatCollectionRows(form.eoClaims, 'Claim', [
+          { key: 'date', label: 'Date' },
+          { key: 'amount', label: 'Amount' },
+          { key: 'status', label: 'Status' },
+        ]),
       ])
     );
   } else if (specialtyType === 'inland-marine') {
@@ -448,7 +451,6 @@ const buildSpecialtySections = (form = {}) => {
         ...mapRows(form, [
           { key: 'equipmentPropertyType', label: 'Equipment / Property Type' },
           { key: 'equipmentPropertyTypeOther', label: 'Equipment / Property Type (Other)' },
-          { key: 'scheduleOfItems', label: 'Schedule of Items' },
           { key: 'totalInsuredValue', label: 'Total Insured Value' },
           { key: 'storageStreetAddress', label: 'Storage Street Address' },
           { key: 'storageUnitNumber', label: 'Storage Unit Number' },
@@ -459,24 +461,18 @@ const buildSpecialtySections = (form = {}) => {
           { key: 'inTransitOrStored', label: 'In Transit or Stored' },
           { key: 'priorInlandMarineClaims', label: 'Prior Inland Marine Claims' },
         ]),
-        {
-          label: 'Inland Marine Items',
-          value: formatCollection(form.inlandMarineItems, [
-            { key: 'itemDescription', label: 'Item Description' },
-            { key: 'year', label: 'Year' },
-            { key: 'makeModel', label: 'Make / Model' },
-            { key: 'serialNumber', label: 'Serial Number' },
-            { key: 'value', label: 'Value' },
-          ]),
-        },
-        {
-          label: 'Inland Marine Claims',
-          value: formatCollection(form.inlandMarineClaims, [
-            { key: 'date', label: 'Date' },
-            { key: 'amount', label: 'Amount' },
-            { key: 'description', label: 'Description' },
-          ]),
-        },
+        ...formatCollectionRows(form.inlandMarineItems, 'Item', [
+          { key: 'itemDescription', label: 'Description' },
+          { key: 'year', label: 'Year' },
+          { key: 'makeModel', label: 'Make / Model' },
+          { key: 'serialNumber', label: 'Serial Number' },
+          { key: 'value', label: 'Value' },
+        ]),
+        ...formatCollectionRows(form.inlandMarineClaims, 'Claim', [
+          { key: 'date', label: 'Date' },
+          { key: 'amount', label: 'Amount' },
+          { key: 'description', label: 'Description' },
+        ]),
       ])
     );
   } else if (specialtyType === 'surety-bond') {
@@ -509,21 +505,17 @@ const buildSpecialtySections = (form = {}) => {
           { key: 'petColorMarkings', label: 'Pet Color Markings' },
           { key: 'microchipped', label: 'Microchipped' },
           { key: 'priorVeterinaryConditions', label: 'Prior Veterinary Conditions' },
-          { key: 'priorVeterinaryConditionsDetails', label: 'Prior Veterinary Conditions Details' },
           { key: 'coverageType', label: 'Coverage Type' },
           { key: 'annualDeductible', label: 'Annual Deductible' },
           { key: 'reimbursementPercentage', label: 'Reimbursement Percentage' },
           { key: 'annualBenefitLimit', label: 'Annual Benefit Limit' },
           { key: 'veterinarianClinic', label: 'Veterinarian Clinic' },
         ]),
-        {
-          label: 'Pet Veterinary Conditions',
-          value: formatCollection(form.petVeterinaryConditions, [
-            { key: 'condition', label: 'Condition' },
-            { key: 'diagnosisDate', label: 'Diagnosis Date' },
-            { key: 'treatmentCost', label: 'Treatment Cost' },
-          ]),
-        },
+        ...formatCollectionRows(form.petVeterinaryConditions, 'Condition', [
+          { key: 'condition', label: 'Condition' },
+          { key: 'diagnosisDate', label: 'Diagnosis Date' },
+          { key: 'treatmentCost', label: 'Treatment Cost' },
+        ]),
       ])
     );
   }
