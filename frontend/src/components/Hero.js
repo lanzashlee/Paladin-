@@ -4,77 +4,78 @@ import heroImage from '../assets/hero-image.png';
 
 function Hero() {
   return (
-    <section id="hero" className="relative bg-[linear-gradient(180deg,#f9fbff_0%,#f1f5fb_62%,#ffffff_100%)] overflow-hidden">
-      <div className="max-w-[1320px] mx-auto px-4 sm:px-6 lg:px-10 pt-4 sm:pt-6 lg:pt-5 pb-6 lg:pb-3">
-        <div className="grid grid-cols-1 lg:grid-cols-[0.95fr_0.95fr_0.45fr] lg:grid-rows-[auto_auto] gap-5 sm:gap-6 lg:gap-x-8 lg:gap-y-6 items-start">
-          <div className="pt-1 sm:pt-3 lg:pt-14 lg:col-start-1 lg:row-start-1">
-            <p className="text-[#123f93] text-xl sm:text-2xl mb-2">Welcome to</p>
-            <h1 className="leading-[0.96] tracking-tight text-[#0b3a89]">
-              <span className="block text-[2.9rem] sm:text-6xl lg:text-7xl font-black">PALADIN</span>
-              <span className="block text-[1.3rem] sm:text-[2rem] lg:text-[2.9rem] font-medium text-[#11346f] mt-1 leading-tight max-w-[18ch]">
+    <section id="hero" className="relative overflow-hidden bg-[#f4f4f4]">
+      <div className="mx-auto max-w-[1380px] px-4 sm:px-6 lg:px-8 pt-5 pb-8 lg:pb-0">
+        <div className="grid grid-cols-1 lg:grid-cols-[0.9fr_1.02fr_0.54fr] lg:min-h-[640px] gap-6 lg:gap-8 items-start">
+          <div className="pt-3 lg:pt-16 order-1">
+            <p className="text-[#0f3a88] text-lg sm:text-xl font-medium mb-2">Welcome to</p>
+
+            <h1 className="leading-[0.92] tracking-tight text-[#0b347f]">
+              <span className="block font-serif text-[3rem] sm:text-[4.4rem] lg:text-[5.2rem] font-bold">PALADIN</span>
+              <span className="block mt-1 text-[1.55rem] sm:text-[2.1rem] lg:text-[2.35rem] font-serif text-[#103472] max-w-[15ch] leading-[1.05]">
                 Professional Insurance Solutions
               </span>
             </h1>
 
-            <p className="mt-5 sm:mt-7 text-[#14161d] text-sm sm:text-base leading-relaxed max-w-[40ch] font-medium">
+            <p className="mt-5 text-[#181818] text-sm sm:text-[15px] leading-relaxed max-w-[44ch]">
               Coverage built for professionals, businesses, property owners, and families who want a clear path to the right protection.
             </p>
+
+            <div className="mt-6 flex flex-wrap gap-x-3 gap-y-2.5 max-w-[440px]">
+              {['Professional', 'Commercial', 'Landlord', 'Contractors', 'Watercraft', 'Auto'].map((item) => (
+                <span
+                  key={item}
+                  className="inline-flex items-center rounded-full bg-[#f0efec] px-4 py-1 text-[11px] sm:text-xs font-medium text-[#1e1e1e] shadow-[0_3px_8px_rgba(0,0,0,0.18)]"
+                >
+                  {item}
+                </span>
+              ))}
+              <Link
+                to="/service"
+                className="inline-flex items-center rounded-full bg-[#f0efec] px-4 py-1 text-[11px] sm:text-xs font-medium text-[#1e1e1e] shadow-[0_3px_8px_rgba(0,0,0,0.18)] transition-colors hover:bg-[#0b3a89] hover:text-white"
+              >
+                and More
+              </Link>
+            </div>
           </div>
 
-          <div className="flex justify-center lg:justify-start self-start overflow-visible lg:col-start-2 lg:row-span-2">
+          <div className="order-2 lg:self-end">
             <img
               src={heroImage}
-              alt="Paladin building"
-              className="w-full max-w-[560px] sm:max-w-[640px] lg:w-[145%] lg:max-w-none h-auto object-contain object-top lg:-ml-8"
+              alt="Paladin Insurance tower"
+              className="mx-auto w-full max-w-[660px] lg:max-w-none lg:w-[112%] lg:-ml-10 object-contain object-bottom"
             />
           </div>
 
-          <div className="grid grid-cols-3 gap-2 pt-1 sm:pt-3 lg:pt-14 lg:grid-cols-1 lg:gap-2 lg:items-end lg:col-start-3 lg:row-start-1">
+          <div className="order-3 flex flex-col gap-3 lg:pt-16">
             {[
-              ['30+', 'Coverage Option'],
+              ['30 +', 'Coverage Option'],
               ['9', 'States Served'],
-              ['FAST', 'Quote  Turnaround'],
+              ['FAST', 'Quote Turnaround'],
             ].map(([value, label]) => (
               <div
                 key={label}
-                className="w-full lg:max-w-[188px] rounded-2xl px-2.5 sm:px-3.5 py-2.5 bg-[#f4f2ed] shadow-[0_7px_11px_rgba(0,0,0,0.17)]"
+                className="w-full sm:max-w-[220px] lg:max-w-[210px] rounded-2xl bg-[#f0efec] px-4 py-3 shadow-[0_8px_14px_rgba(0,0,0,0.18)]"
               >
-                <p className="text-[1.35rem] sm:text-[1.85rem] font-extrabold text-[#0b3a89] leading-none">{value}</p>
-                <p className="mt-0.5 text-[0.62rem] sm:text-[0.82rem] uppercase tracking-[0.06em] text-[#787878] font-semibold leading-snug">{label}</p>
+                <p className="text-[#0b3a89] font-extrabold text-[1.9rem] leading-none">{value}</p>
+                <p className="mt-1 text-[0.78rem] uppercase tracking-[0.08em] text-[#7b7b7b] font-semibold">{label}</p>
               </div>
             ))}
-          </div>
 
-          <div className="mt-2 sm:mt-4 lg:mt-0 flex flex-wrap gap-2.5 max-w-[430px] lg:col-start-1 lg:row-start-2">
-            {['Professional', 'Commercial', 'Landlord', 'Contractors', 'Watercraft', 'Auto'].map((item) => (
-              <span
-                key={item}
-                className="inline-flex items-center rounded-full px-4 py-1 text-xs font-medium shadow-[0_4px_7px_rgba(0,0,0,0.16)] bg-[#f4f2ed] text-[#1b1f26]"
+            <div className="mt-1 lg:mt-auto grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-1 gap-2.5 lg:pb-8">
+              <Link
+                to="/quote"
+                className="inline-flex items-center justify-center rounded-full bg-[#f0efec] text-[#161a22] text-xs py-2.5 shadow-[0_6px_10px_rgba(0,0,0,0.16)]"
               >
-                {item}
-              </span>
-            ))}
-            <Link
-              to="/service"
-              className="inline-flex items-center rounded-full px-4 py-1 text-xs font-medium shadow-[0_4px_7px_rgba(0,0,0,0.16)] bg-[#f4f2ed] text-[#1b1f26] hover:bg-[#0b3a89] hover:text-white transition-colors"
-            >
-              and More
-            </Link>
-          </div>
-
-          <div className="mt-2 sm:mt-3 lg:mt-0 grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-1 gap-2 w-full lg:max-w-[188px] lg:col-start-3 lg:row-start-2 lg:justify-self-end">
-            <Link
-              to="/quote"
-              className="inline-flex items-center justify-center rounded-full bg-[#f4f2ed] text-[#161a22] text-xs py-2 shadow-[0_6px_9px_rgba(0,0,0,0.16)]"
-            >
-              Get <span className="text-[#0b3a89] font-bold ml-1">Free Quote</span>
-            </Link>
-            <a
-              href="tel:8056926900"
-              className="inline-flex items-center justify-center rounded-full bg-[#f4f2ed] text-[#161a22] text-xs py-2 shadow-[0_6px_9px_rgba(0,0,0,0.16)]"
-            >
-              Call <span className="text-[#0b3a89] font-bold ml-1">805 - 692 - 6900</span>
-            </a>
+                Get <span className="ml-1 font-bold text-[#0b3a89]">Free Quote</span>
+              </Link>
+              <a
+                href="tel:8056926900"
+                className="inline-flex items-center justify-center rounded-full bg-[#f0efec] text-[#161a22] text-xs py-2.5 shadow-[0_6px_10px_rgba(0,0,0,0.16)]"
+              >
+                Call <span className="ml-1 font-bold text-[#0b3a89]">805 - 692 - 6900</span>
+              </a>
+            </div>
           </div>
         </div>
       </div>
