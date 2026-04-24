@@ -384,48 +384,51 @@ function Contact() {
         </div>
 
         {/* Service Request Cards Section */}
-        <section id="quick-actions" className="relative mt-20 left-1/2 w-screen -translate-x-1/2 overflow-hidden bg-[#F7F4EF] px-5 py-14 sm:px-8 sm:py-16 border-y border-[#e7dccb]">
-          <div className="pointer-events-none absolute -top-20 left-1/2 -translate-x-1/2 w-[620px] h-[240px] rounded-full bg-[#002DB5]/10 blur-3xl" />
+        <section id="quick-actions" className="relative mt-20 left-1/2 w-screen -translate-x-1/2 overflow-hidden bg-[#f4eee6] px-4 py-14 sm:px-6 sm:py-16 border-y border-[#e6dac9]">
+          <div className="pointer-events-none absolute -top-24 right-0 h-64 w-64 rounded-full bg-[#002DB5]/8 blur-3xl" />
+          <div className="pointer-events-none absolute bottom-0 left-10 h-56 w-56 rounded-full bg-white/45 blur-3xl" />
 
-          <div className="relative z-10 max-w-7xl mx-auto w-full">
-            <div className="text-center mb-12">
-              <p className="inline-flex items-center px-4 py-1.5 rounded-full bg-white text-[#002DB5] text-xs font-semibold tracking-widest uppercase mb-4 border border-[#d8cbb8] shadow-sm">
+          <div className="relative z-10 mx-auto grid max-w-7xl grid-cols-1 gap-10 lg:grid-cols-[0.95fr_1.05fr] lg:items-center">
+            <div className="max-w-[420px] lg:self-center">
+              <p className="inline-flex items-center rounded-full border border-[#012E72] bg-transparent px-4 py-1.5 text-xs font-medium text-[#012E72] shadow-sm">
                 Quick Actions
               </p>
-              <h2 className="text-3xl md:text-4xl font-extrabold text-[#012E72] tracking-tight mb-3">
-                How Can We Help You Today?
+              <h2 className="mt-5 font-serif text-[2.4rem] leading-[0.95] font-semibold tracking-tight text-[#111111] sm:text-[3rem] md:text-[3.4rem]">
+                HOW CAN WE HELP YOU TODAY?
               </h2>
-              <p className="text-[#010407]/75 max-w-2xl mx-auto leading-relaxed text-sm sm:text-base">
-                Complete the applicable form below and submit it to our office via email, fax, or in person. Our team
-                will review your request and respond within 1-2 business days. Fields marked with an asterisk (*) are
-                required.
+              <p className="mt-6 max-w-[380px] text-[15px] leading-[1.6] text-[#1f1f1f]">
+                Complete the applicable form below and submit it to our office via email, fax, or in person. Our team will review your request and respond within 1-2 business days. Fields marked with an asterisk (*) are required.
               </p>
             </div>
 
-            <div className="relative grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-6">
+            <div className="grid grid-cols-1 gap-4 sm:grid-cols-2 sm:gap-5 lg:grid-cols-2 lg:gap-x-8 lg:gap-y-6 lg:pt-2">
               {requestCards.map((card, index) => (
                 <article
                   key={card.title}
-                  className="group relative overflow-hidden rounded-2xl border border-[#e7dccb] bg-white p-7 shadow-lg shadow-[#012E72]/5 hover:shadow-xl hover:shadow-[#002DB5]/10 transition-all duration-300 hover:-translate-y-1 flex flex-col items-start"
+                  className="group flex min-h-[200px] flex-col justify-between rounded-2xl border border-[#e1d8ca] bg-white px-5 py-5 text-left shadow-[0_10px_24px_rgba(0,0,0,0.12)] transition-transform duration-300 hover:-translate-y-1 hover:shadow-[0_14px_30px_rgba(0,0,0,0.15)] sm:px-6 sm:py-6"
                 >
-                  <div className="pointer-events-none absolute inset-0 bg-gradient-to-br from-[#002DB5]/[0.03] via-transparent to-[#002DB5]/[0.06] opacity-0 group-hover:opacity-100 transition-opacity duration-300" />
-
-                  <div className="relative mb-4 inline-flex h-9 min-w-9 items-center justify-center rounded-full bg-[#F7F4EF] text-[#002DB5] border border-[#d8cbb8] px-3 text-xs font-black tracking-wide">
-                    {String(index + 1).padStart(2, '0')}
+                  <div className="flex items-start justify-between gap-4">
+                    <div className="inline-flex h-8 w-8 shrink-0 items-center justify-center rounded-[4px] border border-[#e4ded2] bg-[#f5efe7] text-[0.75rem] font-semibold text-[#012E72] shadow-sm">
+                      {String(index + 1).padStart(2, '0')}
+                    </div>
+                    <span className="text-[11px] font-semibold uppercase tracking-[0.22em] text-[#012E72]/45">{card.cta}</span>
                   </div>
 
-                  <h3 className="relative text-xl font-bold text-[#012E72] mb-3">{card.title}</h3>
-                  <p className="relative text-[#010407]/75 text-sm leading-relaxed mb-6 flex-1 text-justify">
-                    {card.desc}
-                  </p>
+                  <div className="mt-3">
+                    <h3 className="max-w-[14ch] font-serif text-[1.05rem] leading-[1.15] font-semibold uppercase text-[#171717] sm:text-[1.15rem]">
+                      {card.title}
+                    </h3>
+                    <p className="mt-4 max-w-[30ch] text-[12px] leading-[1.6] text-[#272727]">
+                      {card.desc}
+                    </p>
+                  </div>
 
                   <button
                     type="button"
                     onClick={() => setActiveRequest(card.id)}
-                    className="relative inline-flex items-center justify-center gap-2 bg-[#012E72] text-white px-6 py-2.5 rounded-full text-sm font-semibold shadow-md shadow-[#012E72]/20 hover:bg-[#002DB5] transition-all hover:-translate-y-0.5"
+                    className="mt-6 inline-flex w-full items-center justify-center rounded-full bg-[#012E72] px-5 py-2.5 text-sm font-semibold text-white shadow-[0_8px_16px_rgba(1,46,114,0.18)] transition-colors hover:bg-[#002DB5]"
                   >
-                    {card.cta}
-                    <span aria-hidden="true">→</span>
+                    Request →
                   </button>
                 </article>
               ))}

@@ -126,16 +126,16 @@ function TestimonialsPreview() {
             </div>
 
             {/* Desktop: Floating staggered cards */}
-            <div className="hidden lg:block relative ml-auto h-[620px] w-full max-w-[660px]">
+            <div className="hidden lg:block relative ml-auto h-[610px] w-full max-w-[700px]">
               {previewTestimonials.map((item, index) => (
                 <article
                   key={item.name}
                   className="absolute rounded-lg bg-white p-3.5 md:p-4 shadow-[0_12px_26px_rgba(0,0,0,0.24)] flex flex-col"
                   style={{
-                    width: '340px',
-                    top: index === 0 ? '0px' : index === 1 ? '210px' : '420px',
-                    left: index === 1 ? '40px' : 'auto',
-                    right: index !== 1 ? '40px' : 'auto',
+                    width: '338px',
+                    top: index === 0 ? '4px' : index === 1 ? '150px' : '336px',
+                    left: index === 1 ? '66px' : 'auto',
+                    right: index !== 1 ? '18px' : 'auto',
                     zIndex: previewTestimonials.length - index,
                   }}
                 >
