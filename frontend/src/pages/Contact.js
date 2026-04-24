@@ -155,8 +155,8 @@ function Contact() {
     },
     {
       id: 'documents',
-      title: 'Request Proof of Insurance or Other Documents',
-      desc: 'Request proof of insurance below! One of our licensed agents will send it out as soon as possible.',
+      title: 'Request Certificate of Insurance or Other Documents',
+      desc: 'Request certificate of insurance below! One of our licensed agents will send it out as soon as possible.',
       cta: 'Request',
       component: DocumentRequestForm,
     },

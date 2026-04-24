@@ -445,6 +445,7 @@ const FORM_FIELD_ORDER = {
     'documentType',
     'otherDocumentTypeDescription',
     'coveragesToShow',
+    'coveragesOtherDescription',
     'operationsDescription',
     'additionalInsuredStatus',
     'additionalEndorsements',
@@ -516,6 +517,8 @@ const FORM_FIELD_ORDER = {
     'additionalNotes',
   ],
 };
+
+const INTERNAL_ONLY_FIELDS = new Set(['coiAttachment', 'coiAttachments']);
 
 const FORMAT_LABEL_FIELDS = new Set([
   'coverageType',
@@ -717,9 +720,9 @@ const VALUE_LABELS = {
     'no-report-on-my-behalf': 'No - I would like you to report it on my behalf',
   },
   documentType: {
-    'coi-acord25': 'COI / ACORD 25 (General Liability / Auto / Workers\' Comp)',
-    'evidence-property-insurance-acord28': 'Evidence of Property Insurance / ACORD 28 (Mortgagee / Lender)',
-    'evidence-homeowners-acord27': 'Evidence of Homeowners Insurance / ACORD 27',
+    'coi-acord25': 'Certificate of Liability Insurance',
+    'evidence-property-insurance-acord28': 'Evidence of Property Insurance',
+    'evidence-homeowners-acord27': 'Evidence of Commercial Property Insurance',
     'declarations-page-copy': 'Declarations page copy',
     'endorsement-copy': 'Endorsement copy',
     other: 'Other (describe in the box below)',
@@ -1170,26 +1173,36 @@ const sendServiceRequestEmail = async (contactData) => {
     title: formatLabel(formType),
     label: formatLabel(formType).toLowerCase(),
   };
-  const coiAttachmentPayload =
-    formType === 'document-request' &&
-    contactData.coiAttachment &&
-    typeof contactData.coiAttachment === 'object' &&
-    contactData.coiAttachment.filename &&
-    contactData.coiAttachment.dataBase64
-      ? contactData.coiAttachment
-      : null;
+  const coiAttachmentPayloads = formType === 'document-request'
+    ? (
+        Array.isArray(contactData.coiAttachments)
+          ? contactData.coiAttachments
+          : (
+              contactData.coiAttachment &&
+              typeof contactData.coiAttachment === 'object'
+                ? [contactData.coiAttachment]
+                : []
+            )
+      ).filter(
+        (attachment) =>
+          attachment &&
+          typeof attachment === 'object' &&
+          attachment.filename &&
+          attachment.dataBase64
+      )
+    : [];
 
-  const coiAttachment = coiAttachmentPayload
-    ? {
-        filename: String(coiAttachmentPayload.filename),
-        content: Buffer.from(String(coiAttachmentPayload.dataBase64), 'base64'),
-        contentType: String(coiAttachmentPayload.contentType || 'application/octet-stream'),
-      }
-    : null;
+  const coiAttachments = coiAttachmentPayloads.map((attachment) => ({
+    filename: String(attachment.filename),
+    content: String(attachment.dataBase64),
+    encoding: 'base64',
+    contentType: String(attachment.contentType || 'application/octet-stream'),
+    contentDisposition: 'attachment',
+  }));
 
   const preferredFields = FORM_FIELD_ORDER[formType] || [];
   const appendedFields = Object.keys(contactData).filter(
-    (key) => key !== 'formType' && !preferredFields.includes(key)
+    (key) => key !== 'formType' && !preferredFields.includes(key) && !INTERNAL_ONLY_FIELDS.has(key)
   );
   const fieldKeys = [...preferredFields, ...appendedFields];
 
@@ -1244,7 +1257,7 @@ const sendServiceRequestEmail = async (contactData) => {
     replyTo: normalizeContactFieldValue('email', contactData.email) || undefined,
     attachments: [
       ...getLogoAttachment(logoAsset),
-      ...(coiAttachment ? [coiAttachment] : []),
+      ...coiAttachments,
     ],
     html: renderEmailLayout({
       title: metadata.title,
