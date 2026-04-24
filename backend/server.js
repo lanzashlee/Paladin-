@@ -7,9 +7,9 @@ require('dotenv').config({ path: path.resolve(__dirname, '.env') });
 
 const app = express();
 app.use(cors());
-// Allow larger JSON bodies for quote payloads with file attachments.
-app.use(express.json({ limit: '25mb' }));
-app.use(express.urlencoded({ extended: true, limit: '25mb' }));
+// Allow larger JSON bodies for payloads that include base64 file attachments.
+app.use(express.json({ limit: '50mb' }));
+app.use(express.urlencoded({ extended: true, limit: '50mb' }));
 
 
 // Example route

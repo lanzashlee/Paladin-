@@ -1,4 +1,4 @@
-import React, { useState } from 'react';
+import React, { useEffect, useRef, useState } from 'react';
 import { FileText, Send, ShieldCheck, User } from 'lucide-react';
 import RequestModal from './RequestModal';
 import FieldGroup, { inputClassName } from './RequestFormField';
@@ -11,12 +11,12 @@ const wizardSteps = [
   { id: 'review-submit', label: 'Review & Submit', icon: Send },
 ];
 
-const stepFields = [
-  ['fullName', 'email'],
-  ['documentType'],
-  ['additionalInsuredStatus'],
-  [],
-];
+const stepFieldsById = {
+  'your-information': ['fullName', 'email'],
+  'document-requested': ['documentType'],
+  'special-requirements': ['additionalInsuredStatus'],
+  'review-submit': [],
+};
 const EMAIL_REGEX = /^[a-zA-Z0-9!#$%&'*+/=?^_`{|}~.-]+@(?:[a-zA-Z0-9](?:[a-zA-Z0-9-]{0,61}[a-zA-Z0-9])?\.)+[a-zA-Z]{2,}$/;
 
 const isValidEmailFormat = (emailValue = '') => {
@@ -53,9 +53,9 @@ const fileToBase64 = (file) =>
   });
 
 const documentTypeOptions = [
-  { value: 'coi-acord25', label: 'COI / ACORD 25 (General Liability / Auto / Workers\' Comp)' },
-  { value: 'evidence-property-insurance-acord28', label: 'Evidence of Property Insurance / ACORD 28 (Mortgagee / Lender)' },
-  { value: 'evidence-homeowners-acord27', label: 'Evidence of Homeowners Insurance / ACORD 27' },
+  { value: 'coi-acord25', label: 'Certificate of Liability Insurance' },
+  { value: 'evidence-property-insurance-acord28', label: 'Evidence of Property Insurance' },
+  { value: 'evidence-homeowners-acord27', label: 'Evidence of Commercial Property Insurance' },
   { value: 'declarations-page-copy', label: 'Declarations page copy' },
   { value: 'endorsement-copy', label: 'Endorsement copy' },
   { value: 'other', label: 'Other (describe in the box below)' },
@@ -67,6 +67,7 @@ const coverageOptions = [
   { value: 'umbrella', label: 'Umbrella / Excess Liability' },
   { value: 'workers-compensation', label: 'Workers\' Compensation (WC)' },
   { value: 'professional-liability', label: 'Professional Liability / E&O' },
+  { value: 'other', label: 'Other' },
 ];
 
 const endorsementOptions = [
@@ -77,20 +78,22 @@ const endorsementOptions = [
 
 const additionalInsuredStatusLabelMap = {
   yes: 'Yes - they need to be added as an Additional Insured on my GL / Auto policy',
-  no: 'No - standard proof of insurance is sufficient',
+  no: 'No - standard certificate of insurance is sufficient',
   'not-sure': 'I am not sure',
 };
 
 function DocumentRequestForm({ onClose }) {
-  const [coiAttachment, setCoiAttachment] = useState(null);
+  const [coiAttachments, setCoiAttachments] = useState([]);
+  const fileInputRef = useRef(null);
   const [formData, setFormData] = useState({
     formType: 'document-request',
     fullName: '',
     email: '',
     documentType: 'coi-acord25',
-    coiAttachmentName: '',
+    coiAttachmentNames: [],
     otherDocumentTypeDescription: '',
     coveragesToShow: [],
+    coveragesOtherDescription: '',
     operationsDescription: '',
     additionalInsuredStatus: '',
     additionalEndorsements: [],
@@ -104,6 +107,23 @@ function DocumentRequestForm({ onClose }) {
   const [loading, setLoading] = useState(false);
   const [submitError, setSubmitError] = useState(null);
   const [stepIndex, setStepIndex] = useState(0);
+  const requiresSpecialRequirementsStep = [
+    'coi-acord25',
+    'evidence-property-insurance-acord28',
+    'evidence-homeowners-acord27',
+  ].includes(formData.documentType);
+  const shouldShowAttachmentField = requiresSpecialRequirementsStep;
+  const activeWizardSteps = requiresSpecialRequirementsStep
+    ? wizardSteps
+    : wizardSteps.filter((step) => step.id !== 'special-requirements');
+  const finalStepIndex = activeWizardSteps.length - 1;
+  const currentStepId = activeWizardSteps[stepIndex]?.id;
+
+  useEffect(() => {
+    if (stepIndex > finalStepIndex) {
+      setStepIndex(finalStepIndex);
+    }
+  }, [finalStepIndex, stepIndex]);
 
   const validateFields = (fields) => {
     const newErrors = {};
@@ -130,7 +150,10 @@ function DocumentRequestForm({ onClose }) {
   };
 
   const validateForm = () => {
-    const requiredFields = ['fullName', 'email', 'documentType', 'additionalInsuredStatus'];
+    const requiredFields = ['fullName', 'email', 'documentType'];
+    if (requiresSpecialRequirementsStep) {
+      requiredFields.push('additionalInsuredStatus');
+    }
     const validationErrors = validateFields(requiredFields);
 
     if (formData.documentType === 'other' && !formData.otherDocumentTypeDescription.trim()) {
@@ -139,6 +162,10 @@ function DocumentRequestForm({ onClose }) {
 
     if (formData.certificateHolderEmail.trim() && !isValidEmailFormat(formData.certificateHolderEmail)) {
       validationErrors.certificateHolderEmail = 'Please enter a valid email address.';
+    }
+
+    if (formData.coveragesToShow.includes('other') && !formData.coveragesOtherDescription.trim()) {
+      validationErrors.coveragesOtherDescription = 'Please specify the other coverage to show.';
     }
 
     return validationErrors;
@@ -156,11 +183,19 @@ function DocumentRequestForm({ onClose }) {
     setFormData((current) => ({
       ...current,
       [name]: value,
-      ...(name === 'documentType' && value !== 'coi-acord25' ? { coiAttachmentName: '' } : {}),
+      ...(name === 'documentType' && ![
+        'coi-acord25',
+        'evidence-property-insurance-acord28',
+        'evidence-homeowners-acord27',
+      ].includes(value) ? { coiAttachmentNames: [] } : {}),
     }));
 
-    if (name === 'documentType' && value !== 'coi-acord25') {
-      setCoiAttachment(null);
+    if (name === 'documentType' && ![
+      'coi-acord25',
+      'evidence-property-insurance-acord28',
+      'evidence-homeowners-acord27',
+    ].includes(value)) {
+      setCoiAttachments([]);
     }
 
     if (errors[name]) {
@@ -172,39 +207,50 @@ function DocumentRequestForm({ onClose }) {
   };
 
   const handleFileChange = async (event) => {
-    const nextFile = event.target.files && event.target.files[0] ? event.target.files[0] : null;
+    const selectedFiles = Array.from(event.target.files || []);
 
     setSaved(false);
     setSubmitError(null);
 
-    if (!nextFile) {
-      setCoiAttachment(null);
-      setFormData((current) => ({
-        ...current,
-        coiAttachmentName: '',
-      }));
+    if (!selectedFiles.length) {
       return;
     }
 
     try {
-      const dataBase64 = await fileToBase64(nextFile);
-      setCoiAttachment({
-        filename: nextFile.name,
-        contentType: nextFile.type || 'application/octet-stream',
-        dataBase64,
-      });
+      const nextAttachments = await Promise.all(
+        selectedFiles.map(async (file) => ({
+          filename: file.name,
+          contentType: file.type || 'application/octet-stream',
+          dataBase64: await fileToBase64(file),
+        }))
+      );
+
+      setCoiAttachments((current) => [...current, ...nextAttachments]);
       setFormData((current) => ({
         ...current,
-        coiAttachmentName: nextFile.name,
+        coiAttachmentNames: [...(current.coiAttachmentNames || []), ...nextAttachments.map((attachment) => attachment.filename)],
       }));
     } catch (error) {
-      setCoiAttachment(null);
-      setFormData((current) => ({
-        ...current,
-        coiAttachmentName: '',
-      }));
       setSubmitError(error.message || 'Unable to read the selected file. Please try again.');
+    } finally {
+      event.target.value = '';
     }
+  };
+
+  const handleAddAttachmentClick = () => {
+    if (fileInputRef.current) {
+      fileInputRef.current.click();
+    }
+  };
+
+  const handleRemoveAttachment = (attachmentIndex) => {
+    setSaved(false);
+    setSubmitError(null);
+    setCoiAttachments((current) => current.filter((_, index) => index !== attachmentIndex));
+    setFormData((current) => ({
+      ...current,
+      coiAttachmentNames: (current.coiAttachmentNames || []).filter((_, index) => index !== attachmentIndex),
+    }));
   };
 
   const handleCheckboxChange = (event) => {
@@ -221,6 +267,9 @@ function DocumentRequestForm({ onClose }) {
       return {
         ...current,
         [name]: nextValues,
+        ...(name === 'coveragesToShow' && !nextValues.includes('other')
+          ? { coveragesOtherDescription: '' }
+          : {}),
       };
     });
   };
@@ -241,9 +290,10 @@ function DocumentRequestForm({ onClose }) {
       const apiUrl = process.env.REACT_APP_API_BASE_URL || 'http://localhost:5000';
       const payload = {
         ...formData,
-        ...(coiAttachment
+        ...(coiAttachments.length > 0
           ? {
-              coiAttachment,
+              coiAttachments,
+              coiAttachment: coiAttachments[0],
             }
           : {}),
       };
@@ -257,7 +307,14 @@ function DocumentRequestForm({ onClose }) {
       });
 
       if (!response.ok) {
-        throw new Error('Failed to submit form');
+        const errorPayload = await response.json().catch(() => ({}));
+        const serverError = typeof errorPayload.error === 'string' ? errorPayload.error : '';
+
+        if (response.status === 413) {
+          throw new Error('Attachments are too large. Please upload smaller files and try again.');
+        }
+
+        throw new Error(serverError || 'Failed to submit form');
       }
 
       setSaved(true);
@@ -266,9 +323,10 @@ function DocumentRequestForm({ onClose }) {
         fullName: '',
         email: '',
         documentType: 'coi-acord25',
-        coiAttachmentName: '',
+        coiAttachmentNames: [],
         otherDocumentTypeDescription: '',
         coveragesToShow: [],
+        coveragesOtherDescription: '',
         operationsDescription: '',
         additionalInsuredStatus: '',
         additionalEndorsements: [],
@@ -277,7 +335,7 @@ function DocumentRequestForm({ onClose }) {
         certificateHolderAddress: '',
         deadlineInstructions: '',
       });
-      setCoiAttachment(null);
+      setCoiAttachments([]);
     } catch (error) {
       setSubmitError(error.message || 'Failed to submit your request. Please try again.');
     } finally {
@@ -286,14 +344,18 @@ function DocumentRequestForm({ onClose }) {
   };
 
   const handleNext = () => {
-    const validationErrors = validateFields(stepFields[stepIndex] || []);
+    const validationErrors = validateFields(stepFieldsById[currentStepId] || []);
 
-    if (stepIndex === 1 && formData.documentType === 'other' && !formData.otherDocumentTypeDescription.trim()) {
+    if (currentStepId === 'document-requested' && formData.documentType === 'other' && !formData.otherDocumentTypeDescription.trim()) {
       validationErrors.otherDocumentTypeDescription = 'Please describe the document you need.';
     }
 
+    if (currentStepId === 'document-requested' && formData.coveragesToShow.includes('other') && !formData.coveragesOtherDescription.trim()) {
+      validationErrors.coveragesOtherDescription = 'Please specify the other coverage to show.';
+    }
+
     if (
-      stepIndex === 2 &&
+      currentStepId === 'special-requirements' &&
       formData.certificateHolderEmail.trim() &&
       !isValidEmailFormat(formData.certificateHolderEmail)
     ) {
@@ -305,7 +367,9 @@ function DocumentRequestForm({ onClose }) {
       return;
     }
 
-    setStepIndex((current) => Math.min(current + 1, wizardSteps.length - 1));
+    setStepIndex((current) => {
+      return Math.min(current + 1, finalStepIndex);
+    });
   };
 
   const handlePrevious = () => {
@@ -326,14 +390,14 @@ function DocumentRequestForm({ onClose }) {
   return (
     <RequestModal
       badge="Documents"
-      title="Request Proof of Insurance or Other Documents"
+      title="Request Certificate of Insurance or Other Documents"
       description="Use this form to request a Certificate of Insurance (COI), Evidence of Insurance, ACORD forms, or other policy
 documents."
       onClose={onClose}
     >
       <form className="space-y-5" onSubmit={(event) => event.preventDefault()} noValidate>
         <RequestFormWizard
-          steps={wizardSteps}
+          steps={activeWizardSteps}
           activeStep={stepIndex}
           onStepChange={(nextIndex) => {
             if (nextIndex <= stepIndex) {
@@ -341,7 +405,7 @@ documents."
             }
           }}
         >
-          {stepIndex === 0 && (
+          {currentStepId === 'your-information' && (
             <div>
               <div className="mb-4 border-b border-[#1e4f97] pb-2">
                 <h4 className="text-lg font-semibold text-[#012E72]">Section A - Your Information</h4>
@@ -377,7 +441,7 @@ documents."
             </div>
           )}
 
-          {stepIndex === 1 && (
+          {currentStepId === 'document-requested' && (
             <div className="space-y-5">
               <div className="border-b border-[#1e4f97] pb-2">
                 <h4 className="text-lg font-semibold text-[#012E72]">Section B - Document Requested</h4>
@@ -419,73 +483,118 @@ documents."
                 </FieldGroup>
               )}
 
-              {formData.documentType === 'coi-acord25' && (
+              <div className="grid gap-5 md:grid-cols-2">
+                <div className="space-y-5">
+                  <FieldGroup label="Coverages to show on the Certificate of Liability Insurance" htmlFor="documents-coveragesToShow" hint="Check all that apply">
+                    <div className="grid gap-2 rounded-2xl border border-[#d8cbb8] bg-white p-4">
+                      {coverageOptions.map((option) => (
+                        <label
+                          key={option.value}
+                          className="flex cursor-pointer items-start gap-3 rounded-xl px-3 py-2 text-sm text-[#010407] transition-colors hover:bg-[#F7F4EF]"
+                        >
+                          <input
+                            type="checkbox"
+                            name="coveragesToShow"
+                            value={option.value}
+                            checked={formData.coveragesToShow.includes(option.value)}
+                            onChange={handleCheckboxChange}
+                            className="mt-1 h-4 w-4 rounded border-[#b8c7dc] text-[#2d78bf] focus:ring-[#2d78bf]"
+                            disabled={loading}
+                          />
+                          <span>{option.label}</span>
+                        </label>
+                      ))}
+                    </div>
+                  </FieldGroup>
+
+                </div>
+
+                <div className="space-y-5">
+                  <FieldGroup label="Description of operations / locations / vehicles" htmlFor="documents-operationsDescription" hint="Exact wording required if any">
+                    <textarea
+                      id="documents-operationsDescription"
+                      name="operationsDescription"
+                      rows="5"
+                      value={formData.operationsDescription}
+                      onChange={handleChange}
+                      placeholder="Paste any specific wording the certificate holder has provided. We will copy it exactly into the Description of
+Operations box on the certificate."
+                      className={`${getFieldClass('operationsDescription')} resize-none`}
+                      disabled={loading}
+                    />
+                  </FieldGroup>
+
+                  {formData.coveragesToShow.includes('other') && (
+                    <FieldGroup
+                      label='If you selected "Other" above, please specify:'
+                      htmlFor="documents-coveragesOtherDescription"
+                      required
+                      error={errors.coveragesOtherDescription}
+                    >
+                      <input
+                        id="documents-coveragesOtherDescription"
+                        name="coveragesOtherDescription"
+                        type="text"
+                        value={formData.coveragesOtherDescription}
+                        onChange={handleChange}
+                        placeholder="Enter the other coverage"
+                        className={getFieldClass('coveragesOtherDescription')}
+                        disabled={loading}
+                      />
+                    </FieldGroup>
+                  )}
+                </div>
+              </div>
+
+              {shouldShowAttachmentField && (
                 <FieldGroup
-                  label="Attach file (optional)"
-                  htmlFor="documents-coiAttachment"
-                  hint="Only shown for COI / ACORD 25 requests."
+                  label="Attach necessary documents (Sample COI, Contract, etc.)"
                 >
                   <input
+                    ref={fileInputRef}
                     id="documents-coiAttachment"
                     name="coiAttachment"
                     type="file"
+                    multiple
                     accept=".pdf,.doc,.docx,.jpg,.jpeg,.png"
                     onChange={handleFileChange}
-                    className={`${getFieldClass('coiAttachmentName')} cursor-pointer file:mr-3 file:rounded-full file:border-0 file:bg-[#012E72] file:px-4 file:py-2 file:text-xs file:font-semibold file:text-white hover:file:bg-[#002DB5]`}
+                    className="hidden"
                     disabled={loading}
                   />
-                  <p className="mt-2 text-xs text-[#010407]/70">
-                    Optional: attach any COI requirement sheet, contract excerpt, or holder instructions.
-                  </p>
-                  {formData.coiAttachmentName && (
-                    <p className="mt-1 rounded-xl border border-[#d8cbb8] bg-[#F7F4EF]/60 px-3 py-2 text-xs text-[#012E72]">
-                      Selected file: {formData.coiAttachmentName}
-                    </p>
+                  <button
+                    type="button"
+                    onClick={handleAddAttachmentClick}
+                    disabled={loading}
+                    className="inline-flex items-center justify-start self-start rounded-full border border-[#d8cbb8] bg-white px-3 py-1.5 text-[11px] font-semibold text-[#012E72] transition-colors hover:bg-[#F7F4EF] disabled:cursor-not-allowed disabled:opacity-50"
+                  >
+                    Add file
+                  </button>
+                  {formData.coiAttachmentNames.length > 0 && (
+                    <div className="mt-3 space-y-2">
+                      {formData.coiAttachmentNames.map((attachmentName, index) => (
+                        <div
+                          key={`${attachmentName}-${index}`}
+                          className="flex items-center justify-between gap-3 rounded-xl border border-[#d8cbb8] bg-[#F7F4EF]/60 px-3 py-2 text-xs text-[#012E72]"
+                        >
+                          <span className="truncate">Selected file: {attachmentName}</span>
+                          <button
+                            type="button"
+                            onClick={() => handleRemoveAttachment(index)}
+                            disabled={loading}
+                            className="rounded-full border border-[#d8cbb8] bg-white px-2 py-1 text-[11px] font-semibold text-[#012E72] hover:bg-[#F7F4EF] disabled:cursor-not-allowed disabled:opacity-50"
+                          >
+                            Remove
+                          </button>
+                        </div>
+                      ))}
+                    </div>
                   )}
                 </FieldGroup>
               )}
-
-              <div className="grid gap-5 md:grid-cols-2">
-                <FieldGroup label="Coverages to show on the certificate" htmlFor="documents-coveragesToShow" hint="Check all that apply">
-                  <div className="grid gap-2 rounded-2xl border border-[#d8cbb8] bg-white p-4">
-                    {coverageOptions.map((option) => (
-                      <label
-                        key={option.value}
-                        className="flex cursor-pointer items-start gap-3 rounded-xl px-3 py-2 text-sm text-[#010407] transition-colors hover:bg-[#F7F4EF]"
-                      >
-                        <input
-                          type="checkbox"
-                          name="coveragesToShow"
-                          value={option.value}
-                          checked={formData.coveragesToShow.includes(option.value)}
-                          onChange={handleCheckboxChange}
-                          className="mt-1 h-4 w-4 rounded border-[#b8c7dc] text-[#2d78bf] focus:ring-[#2d78bf]"
-                          disabled={loading}
-                        />
-                        <span>{option.label}</span>
-                      </label>
-                    ))}
-                  </div>
-                </FieldGroup>
-
-                <FieldGroup label="Description of operations / locations / vehicles" htmlFor="documents-operationsDescription" hint="Exact wording required if any">
-                  <textarea
-                    id="documents-operationsDescription"
-                    name="operationsDescription"
-                    rows="5"
-                    value={formData.operationsDescription}
-                    onChange={handleChange}
-                    placeholder="Paste any specific wording the certificate holder has provided. We will copy it exactly into the Description of
-Operations box on the certificate."
-                    className={`${getFieldClass('operationsDescription')} resize-none`}
-                    disabled={loading}
-                  />
-                </FieldGroup>
-              </div>
             </div>
           )}
 
-          {stepIndex === 2 && (
+          {currentStepId === 'special-requirements' && (
             <div className="space-y-5">
               <div className="border-b border-[#1e4f97] pb-2">
                 <h4 className="text-lg font-semibold text-[#012E72]">Section C - Special Requirements & Certificate Holder Details</h4>
@@ -495,7 +604,7 @@ Operations box on the certificate."
                 <div className="space-y-2 rounded-2xl border border-[#d8cbb8] bg-white p-4">
                   {[
                     { value: 'yes', label: 'Yes - they need to be added as an Additional Insured on my GL / Auto policy' },
-                    { value: 'no', label: 'No - standard proof of insurance is sufficient' },
+                    { value: 'no', label: 'No - standard certificate of insurance is sufficient' },
                     { value: 'not-sure', label: 'I am not sure' },
                   ].map((option) => (
                     <label key={option.value} className="flex cursor-pointer items-start gap-3 rounded-xl px-3 py-2 text-sm transition-colors hover:bg-[#F7F4EF]">
@@ -534,7 +643,7 @@ Operations box on the certificate."
               </FieldGroup>
 
               <p className="text-sm italic text-[#010407]/70">
-                The party requesting proof of your insurance - e.g. your landlord, general contractor, or lender.
+                The party requesting certificate of your insurance - e.g. your landlord, general contractor, or lender.
               </p>
 
               <div className="grid gap-5 md:grid-cols-2">
@@ -598,7 +707,7 @@ Operations box on the certificate."
             </div>
           )}
 
-          {stepIndex === 3 && (
+          {currentStepId === 'review-submit' && (
             <div className="space-y-4 rounded-2xl border border-[#e7dccb] bg-[#F7F4EF]/55 p-5">
               <h4 className="text-base font-semibold text-[#012E72]">Review your request</h4>
               <div className="grid gap-3 text-sm text-[#010407]/80 sm:grid-cols-2">
@@ -611,9 +720,11 @@ Operations box on the certificate."
                 <p>
                   <span className="font-semibold">Document type:</span> {getOptionLabel(documentTypeOptions, formData.documentType)}
                 </p>
-                <p>
-                  <span className="font-semibold">AI status:</span> {additionalInsuredStatusLabelMap[formData.additionalInsuredStatus] || '-'}
-                </p>
+                {requiresSpecialRequirementsStep && (
+                  <p>
+                    <span className="font-semibold">AI status:</span> {additionalInsuredStatusLabelMap[formData.additionalInsuredStatus] || '-'}
+                  </p>
+                )}
                 <p>
                   <span className="font-semibold">Certificate holder:</span> {formData.certificateHolderName || '-'}
                 </p>
@@ -624,14 +735,21 @@ Operations box on the certificate."
               <p className="text-sm text-[#010407]/80">
                 <span className="font-semibold">Coverages:</span> {getMultiOptionLabels(coverageOptions, formData.coveragesToShow)}
               </p>
-              <p className="text-sm text-[#010407]/80">
-                <span className="font-semibold">Additional endorsements:</span> {getMultiOptionLabels(endorsementOptions, formData.additionalEndorsements)}
-              </p>
+              {formData.coveragesToShow.includes('other') && (
+                <p className="text-sm text-[#010407]/80">
+                  <span className="font-semibold">Other coverage:</span> {formData.coveragesOtherDescription || '-'}
+                </p>
+              )}
+              {requiresSpecialRequirementsStep && (
+                <p className="text-sm text-[#010407]/80">
+                  <span className="font-semibold">Additional endorsements:</span> {getMultiOptionLabels(endorsementOptions, formData.additionalEndorsements)}
+                </p>
+              )}
               <p className="text-sm text-[#010407]/80">
                 <span className="font-semibold">Operations / locations / vehicles:</span> {formData.operationsDescription || '-'}
               </p>
               <p className="text-sm text-[#010407]/80">
-                <span className="font-semibold">Attached file:</span> {formData.coiAttachmentName || '-'}
+                <span className="font-semibold">Attached files:</span> {formData.coiAttachmentNames.length ? formData.coiAttachmentNames.join(', ') : '-'}
               </p>
               <p className="text-sm text-[#010407]/80">
                 <span className="font-semibold">Holder address:</span> {formData.certificateHolderAddress || '-'}
@@ -674,7 +792,7 @@ Operations box on the certificate."
               Previous
             </button>
 
-            {stepIndex < wizardSteps.length - 1 ? (
+            {stepIndex < finalStepIndex ? (
               <button
                 type="button"
                 onClick={handleNext}
