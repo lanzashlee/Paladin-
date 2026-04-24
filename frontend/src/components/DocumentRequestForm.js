@@ -647,7 +647,7 @@ Operations box on the certificate."
               </p>
 
               <div className="grid gap-5 md:grid-cols-2">
-                <FieldGroup label="Certificate holder name (optional)" htmlFor="documents-certificateHolderName" error={errors.certificateHolderName}>
+                <FieldGroup label="Certificate Holder Name (optional)" htmlFor="documents-certificateHolderName" error={errors.certificateHolderName}>
                   <input
                     id="documents-certificateHolderName"
                     name="certificateHolderName"
@@ -660,7 +660,7 @@ Operations box on the certificate."
                   />
                 </FieldGroup>
 
-                <FieldGroup label="Their email address (if sending directly, optional)" htmlFor="documents-certificateHolderEmail" error={errors.certificateHolderEmail}>
+                <FieldGroup label="Email Address (optional)" htmlFor="documents-certificateHolderEmail" error={errors.certificateHolderEmail}>
                   <input
                     id="documents-certificateHolderEmail"
                     name="certificateHolderEmail"
@@ -674,7 +674,7 @@ Operations box on the certificate."
                   />
                 </FieldGroup>
 
-                <FieldGroup label="Full mailing address (optional)" htmlFor="documents-certificateHolderAddress" error={errors.certificateHolderAddress}>
+                <FieldGroup label="Full Address (optional)" htmlFor="documents-certificateHolderAddress" error={errors.certificateHolderAddress}>
                   <input
                     id="documents-certificateHolderAddress"
                     name="certificateHolderAddress"
