@@ -17,39 +17,59 @@ export default function About() {
       <Header />
 
       {/* Company Overview Section */}
-      <section id="company-overview" className="py-16 md:py-20 px-6 max-w-7xl mx-auto">
-        <div className="flex flex-col md:flex-row gap-16 items-center">
-          <div className="md:w-1/2">
-            <div className="inline-flex items-center gap-2 px-4 py-2 rounded-full bg-[#F7F4EF] text-[#002DB5] text-sm font-bold mb-6 border border-[#d8cbb8]">
-              <Building2 className="w-4 h-4" />
-              <span>Company Overview</span>
-            </div>
-            <h2 className="text-3xl md:text-4xl font-extrabold text-[#012E72] mb-6 leading-tight">
-              A Legacy of <br/><span className="text-[#002DB5]">Protection & Trust</span>
-            </h2>
-            <p className="text-[#010407]/75 text-base md:text-lg leading-relaxed mb-4 font-medium text-justify">
-              Paladin Professional Insurance Solutions is a full-service independent insurance agency committed to delivering premium protection across personal, commercial, and specialty lines.
-            </p>
-            <p className="text-[#010407]/75 text-base md:text-lg leading-relaxed font-medium text-justify">
-              We understand that every client is unique — which is why we take a consultative, hands-on approach to crafting coverage that truly fits your life and your business.
-            </p>
+      <section id="company-overview" className="w-full bg-[#f7f9fd] px-0 pb-0 pt-0">
+        <div className="w-full overflow-hidden bg-[#f7f9fd]">
+          <div className="relative h-[130px] bg-[#0b357f]">
+            <svg
+              className="absolute -bottom-1 left-0 block h-[78px] w-full"
+              viewBox="0 0 1440 200"
+              preserveAspectRatio="none"
+              aria-hidden="true"
+            >
+              <rect x="0" y="0" width="1440" height="200" fill="#0b357f" />
+              <path
+                d="M0,96 C180,170 360,166 540,140 C720,114 900,34 1080,42 C1240,50 1350,96 1440,120 L1440,200 L0,200 Z"
+                fill="#f7f9fd"
+              />
+            </svg>
           </div>
-          <div className="md:w-1/2 w-full">
-             <div className="relative rounded-[2rem] overflow-hidden shadow-2xl shadow-[#012E72]/10 border-8 border-[#F7F4EF]">
-                <img src="https://images.unsplash.com/photo-1497366216548-37526070297c?auto=format&fit=crop&q=80&w=1200" alt="Modern Office" className="w-full h-[500px] object-cover hover:scale-105 transition-transform duration-700" />
-                <div className="absolute inset-0 bg-gradient-to-t from-[#012E72]/75 via-[#012E72]/20 to-transparent flex items-end p-8">
-                  <div className="text-white">
-                    <p className="text-2xl font-bold">Paladin Headquarters</p>
-                    <p className="font-medium text-[#F7F4EF]">Where focus meets dedication</p>
-                  </div>
-                </div>
-             </div>
+
+          <div className="grid grid-cols-1 gap-10 px-6 pb-10 pt-4 md:grid-cols-2 md:items-center md:gap-12 md:px-12 md:pb-14 md:pt-6">
+            <div className="mx-auto flex w-full max-w-xl flex-col items-start text-left">
+              <div className="mb-6 inline-flex items-center gap-2 rounded-full bg-white px-4 py-2 text-sm font-bold text-[#002DB5] shadow-[0_8px_16px_rgba(8,35,76,0.12)]">
+                <Building2 className="h-4 w-4" />
+                <span>Company Overview</span>
+              </div>
+
+              <h2 className="mb-6 text-3xl font-extrabold leading-tight text-[#012E72] md:text-4xl">
+                A Legacy of
+                <br />
+                <span className="text-[#012E72]">Protection and Trust</span>
+              </h2>
+
+              <p className="mb-4 max-w-xl text-justify text-base font-normal leading-relaxed text-[#010407]/75 md:text-lg">
+                Paladin Professional Insurance Solutions is a full-service independent insurance agency committed to delivering premium protection across personal, commercial, and specialty lines.
+              </p>
+              <p className="max-w-xl text-justify text-base font-normal leading-relaxed text-[#010407]/75 md:text-lg">
+                We understand that every client is unique - which is why we take a consultative, hands-on approach to crafting coverage that truly fits your life and your business.
+              </p>
+            </div>
+
+            <div className="flex justify-center">
+              <div className="overflow-hidden rounded-2xl bg-white shadow-[0_14px_30px_rgba(8,35,76,0.2)]">
+                <img
+                  src="https://images.unsplash.com/photo-1486406146926-c627a92ad1ab?auto=format&fit=crop&q=80&w=1400"
+                  alt="Glass office buildings"
+                  className="h-[260px] w-full max-w-[430px] object-cover sm:h-[300px] md:h-[360px]"
+                />
+              </div>
+            </div>
           </div>
         </div>
       </section>
 
       {/* Mission & Vision Section */}
-      <section id="mission-promise" className="bg-[#F7F4EF] py-16 px-6 border-y border-[#e7dccb]">
+      <section id="mission-promise" className="-mt-px bg-[#F7F4EF] py-16 px-6">
         <div className="max-w-6xl mx-auto">
           <div className="text-center mb-10">
             <p className="inline-flex items-center px-4 py-1 rounded-full bg-white text-[#002DB5] text-xs font-semibold tracking-wide uppercase mb-3 border border-[#d8cbb8] shadow-sm">
@@ -102,29 +122,45 @@ export default function About() {
       <WhyChooseUs />
 
       {/* The Team Section */}
-      <section id="meet-the-team" className="py-16 md:py-20 px-6 bg-white">
-        <div className="max-w-7xl mx-auto">
-          <div className="text-center mb-10">
-            <h2 className="text-3xl md:text-4xl font-extrabold text-[#012E72] mb-3">Meet The Team</h2>
-            <p className="text-base md:text-lg text-[#010407]/60 max-w-2xl mx-auto font-medium text-center">
+      <section id="meet-the-team" className="relative overflow-hidden bg-[#f7f9fd] px-6 py-16 md:py-20">
+        <div className="pointer-events-none absolute -left-16 top-8 h-56 w-56 rounded-full bg-[#c9d8ee]/35 blur-3xl" />
+        <div className="pointer-events-none absolute -right-10 bottom-10 h-60 w-60 rounded-full bg-[#d9e4f5]/45 blur-3xl" />
+
+        <div className="relative z-10 mx-auto max-w-7xl">
+          <div className="mb-12 text-center">
+            <p className="mb-4 inline-flex items-center rounded-full border border-[#c8d3e6] bg-white px-4 py-1.5 text-xs font-semibold uppercase tracking-wide text-[#002DB5] shadow-sm">
+              Leadership Team
+            </p>
+            <h2 className="mb-3 text-3xl font-extrabold text-[#012E72] md:text-4xl">Meet The Team</h2>
+            <p className="mx-auto max-w-2xl text-base font-medium text-[#010407]/65 md:text-lg">
               Dedicated professionals committed to securing what matters most to you.
             </p>
           </div>
-          
-          <div className="grid grid-cols-1 md:grid-cols-3 gap-10">
+
+          <div className="grid grid-cols-1 gap-8 md:grid-cols-3">
             {[
               { name: "Denise Pomboonreung", role: "CEO", bio: "Sets the vision for the agency, leads client relationships, and drives long-term growth with a service-first mindset.", img: TeamMember1 },
               { name: "Andy Zubia", role: "President", bio: "Oversees company strategy and daily execution, keeping the team aligned and the client experience consistent.", img: TeamMember2 },
               { name: "Donna Jumdail", role: "Operations Lead", bio: "Manages workflow, coordination, and service follow-through so every request moves smoothly from start to finish.", img: TeamMember3 },
             ].map((member, idx) => (
-              <div key={idx} className="group text-center bg-[#F7F4EF] border border-[#e7dccb] p-6 rounded-3xl shadow-xl shadow-[#012E72]/5 hover:-translate-y-2 transition-all duration-300">
-                <div className="relative w-48 h-48 mx-auto rounded-[2rem] overflow-hidden mb-8 shadow-md">
-                  <img src={member.img} alt={member.name} className="w-full h-full object-cover group-hover:scale-110 transition-transform duration-700" />
+              <article
+                key={idx}
+                className="group overflow-hidden rounded-[2rem] border border-[#d7dfec] bg-white shadow-[0_14px_30px_rgba(1,46,114,0.08)] transition-all duration-300 hover:-translate-y-1 hover:shadow-[0_18px_36px_rgba(1,46,114,0.14)]"
+              >
+                <div className="relative overflow-hidden bg-white">
+                  <img
+                    src={member.img}
+                    alt={member.name}
+                    className="h-auto w-full object-contain transition-transform duration-700 group-hover:scale-105"
+                  />
                 </div>
-                <h3 className="text-xl font-bold text-[#012E72] mb-1">{member.name}</h3>
-                <p className="text-[#002DB5] font-semibold text-sm mb-3">{member.role}</p>
-                <p className="text-[#010407]/70 text-sm leading-relaxed font-medium text-justify">{member.bio}</p>
-              </div>
+
+                <div className="p-6">
+                  <h3 className="mb-1 text-xl font-bold text-[#012E72]">{member.name}</h3>
+                  <p className="mb-3 text-sm font-semibold uppercase tracking-wide text-[#002DB5]">{member.role}</p>
+                  <p className="text-justify text-sm font-medium leading-relaxed text-[#010407]/70">{member.bio}</p>
+                </div>
+              </article>
             ))}
           </div>
         </div>

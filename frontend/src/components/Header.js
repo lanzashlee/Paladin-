@@ -22,6 +22,7 @@ function Header() {
         { label: 'Partners & Carriers', anchor: '#partners-carriers' },
         { label: 'Coverage Offerings', anchor: '#coverage-offerings' },
         { label: 'Why Choose Paladin', anchor: '#why-choose-paladin' },
+        { label: 'Meet The Team', anchor: '#team-preview' },
         { label: 'What Our Clients Say', anchor: '#what-our-clients-say' },
         { label: 'Office Hours', anchor: '#office-hours' },
         { label: 'Contact & Location', anchor: '#contact-location' },

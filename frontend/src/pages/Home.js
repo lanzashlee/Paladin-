@@ -5,6 +5,7 @@ import AboutSection from '../components/AboutSection';
 import InsuranceLines from '../components/InsuranceLines';
 import FeaturedProducts from '../components/FeaturedProducts';
 import WhyChooseUs from '../components/WhyChooseUs';
+import Team from '../components/Team';
 import OfficeHours from '../components/OfficeHours';
 import ContactInfo from '../components/ContactInfo';
 import Footer from '../components/Footer';
@@ -22,6 +23,7 @@ function Home() {
       <Carriers showViewPartnersButton featuredOnly />
       <FeaturedProducts />
       <WhyChooseUs />
+      <Team />
       <TestimonialsPreview />
       <OfficeHours />
       <ContactInfo />
