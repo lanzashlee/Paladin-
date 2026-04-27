@@ -390,7 +390,10 @@ function Contact() {
 
           <div className="relative z-10 mx-auto max-w-7xl">
             <div className="mx-auto max-w-3xl text-center">
-              <h2 className="text-4xl md:text-5xl font-extrabold text-[#012E72] tracking-tight">
+              <p className="inline-flex items-center rounded-full border border-[#d8cbb8] bg-[#F7F4EF] px-6 py-1.5 text-xs font-semibold uppercase tracking-[0.2em] text-[#002DB5] shadow-sm">
+                Quick Actions
+              </p>
+              <h2 className="mt-5 text-4xl md:text-5xl font-extrabold text-[#012E72] tracking-tight">
                 How can we help you today?
               </h2>
               <p className="mt-6 text-lg text-[#010407]/80 leading-relaxed">
