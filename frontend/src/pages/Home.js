@@ -20,11 +20,11 @@ function Home() {
       <Hero />
       <AboutSection />
       <InsuranceLines />
-      <Carriers showViewPartnersButton featuredOnly />
-      <FeaturedProducts />
       <WhyChooseUs />
-      <Team />
+      <Carriers showViewPartnersButton featuredOnly />
+      {/* <FeaturedProducts /> */}
       <TestimonialsPreview />
+      <Team />
       <OfficeHours />
       <ContactInfo />
       <MapLocation />

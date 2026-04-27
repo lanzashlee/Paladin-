@@ -111,7 +111,7 @@ function CoverageSectionHeader() {
         Coverage Portfolio
       </p>
       <h2 className="text-4xl sm:text-5xl font-extrabold text-[#012E72] tracking-tight mb-4">
-        Coverage Offerings
+        COVERAGE OFFERINGS
       </h2>
       <p className="text-base sm:text-lg text-[#010407]/75 max-w-3xl mx-auto leading-relaxed text-justify">
         Explore the same coverage portfolio styling used on the homepage, with the individual
@@ -134,8 +134,8 @@ function Service() {
 
           <div className="relative z-10 max-w-7xl mx-auto px-5 sm:px-6 lg:px-8">
             <SectionHeader
-              eyebrow="What We Cover"
-              title="Our Insurance Lines"
+              eyebrow="WHAT WE COVER"
+              title="OUR INSURANCE LINES"
               description="Paladin serves a wide range of clients across multiple insurance lines. Each card below is presented up front so the full structure stays clear and consistent."
             />
 

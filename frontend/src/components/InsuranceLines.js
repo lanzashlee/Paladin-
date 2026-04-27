@@ -15,7 +15,7 @@ function InsuranceLines() {
             What We Cover
           </p>
           <h2 className="text-4xl font-extrabold text-[#012E72] tracking-tight mb-4">
-            Our Insurance Lines
+            OUR INSURANCE LINES
           </h2>
           <p className="text-[#010407]/75 text-lg max-w-2xl leading-relaxed align-middle mx-auto">
             Paladin serves a wide range of clients across multiple insurance lines. Whether you are a

@@ -185,7 +185,7 @@ export default function FAQ() {
               Help Center
             </p>
             <h1 className="text-3xl md:text-4xl font-extrabold text-[#012E72] mb-3">
-              Frequently Asked Questions
+              FREQUENTLY ASKED QUESTIONS
             </h1>
             <p className="text-base md:text-lg text-[#010407]/80 max-w-3xl mx-auto leading-relaxed">
               Got questions? We’ve got answers. Here’s a list of common questions our clients ask
