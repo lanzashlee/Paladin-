@@ -254,7 +254,7 @@ function Contact() {
             Get In Touch
           </p>
           <h1 className="text-4xl md:text-5xl font-extrabold text-[#012E72] tracking-tight mb-6">
-            Contact Us
+            CONTACT US
           </h1>
           <p className="text-lg text-[#010407]/80 max-w-2xl mx-auto leading-relaxed">
             Have questions about a policy, need a quote, or want to say hello? 
@@ -388,37 +388,37 @@ function Contact() {
           <div className="pointer-events-none absolute -top-24 right-0 h-64 w-64 rounded-full bg-[#002DB5]/8 blur-3xl" />
           <div className="pointer-events-none absolute bottom-0 left-10 h-56 w-56 rounded-full bg-white/45 blur-3xl" />
 
-          <div className="relative z-10 mx-auto grid max-w-7xl grid-cols-1 gap-10 lg:grid-cols-[0.95fr_1.05fr] lg:items-center">
-            <div className="max-w-[420px] lg:self-center">
-              <p className="inline-flex items-center rounded-full border border-[#012E72] bg-transparent px-4 py-1.5 text-xs font-medium text-[#012E72] shadow-sm">
+          <div className="relative z-10 mx-auto max-w-7xl">
+            <div className="mx-auto max-w-3xl text-center">
+              <p className="inline-flex items-center rounded-full border border-[#d8cbb8] bg-[#F7F4EF] px-6 py-1.5 text-xs font-semibold uppercase tracking-[0.2em] text-[#002DB5] shadow-sm">
                 Quick Actions
               </p>
-              <h2 className="mt-5 font-serif text-[2.4rem] leading-[0.95] font-semibold tracking-tight text-[#111111] sm:text-[3rem] md:text-[3.4rem]">
+              <h2 className="mt-5 text-4xl md:text-5xl font-extrabold text-[#012E72] tracking-tight">
                 HOW CAN WE HELP YOU TODAY?
               </h2>
-              <p className="mt-6 max-w-[380px] text-[15px] leading-[1.6] text-[#1f1f1f]">
+              <p className="mt-6 text-lg text-[#010407]/80 leading-relaxed">
                 Complete the applicable form below and submit it to our office via email, fax, or in person. Our team will review your request and respond within 1-2 business days. Fields marked with an asterisk (*) are required.
               </p>
             </div>
 
-            <div className="grid grid-cols-1 gap-4 sm:grid-cols-2 sm:gap-5 lg:grid-cols-2 lg:gap-x-8 lg:gap-y-6 lg:pt-2">
+            <div className="mt-10 grid grid-cols-1 gap-4 sm:grid-cols-2 sm:gap-5 lg:grid-cols-3 lg:gap-x-8 lg:gap-y-6">
               {requestCards.map((card, index) => (
                 <article
                   key={card.title}
-                  className="group flex min-h-[200px] flex-col justify-between rounded-2xl border border-[#e1d8ca] bg-white px-5 py-5 text-left shadow-[0_10px_24px_rgba(0,0,0,0.12)] transition-transform duration-300 hover:-translate-y-1 hover:shadow-[0_14px_30px_rgba(0,0,0,0.15)] sm:px-6 sm:py-6"
+                  className="group flex min-h-[220px] flex-col justify-between rounded-2xl border border-[#e1d8ca] bg-white px-5 py-5 text-left shadow-[0_10px_24px_rgba(0,0,0,0.12)] transition-transform duration-300 hover:-translate-y-1 hover:shadow-[0_14px_30px_rgba(0,0,0,0.15)] sm:px-6 sm:py-6"
                 >
                   <div className="flex items-start justify-between gap-4">
-                    <div className="inline-flex h-8 w-8 shrink-0 items-center justify-center rounded-[4px] border border-[#e4ded2] bg-[#f5efe7] text-[0.75rem] font-semibold text-[#012E72] shadow-sm">
+                    <div className="inline-flex h-8 w-8 shrink-0 items-center justify-center rounded-[4px] border border-[#e4ded2] bg-[#f5efe7] text-xs font-semibold text-[#012E72] shadow-sm">
                       {String(index + 1).padStart(2, '0')}
                     </div>
-                    <span className="text-[11px] font-semibold uppercase tracking-[0.22em] text-[#012E72]/45">{card.cta}</span>
+                    <span className="text-xs font-semibold uppercase tracking-[0.2em] text-[#012E72]/45">{card.cta}</span>
                   </div>
 
                   <div className="mt-3">
-                    <h3 className="max-w-[14ch] font-serif text-[1.05rem] leading-[1.15] font-semibold uppercase text-[#171717] sm:text-[1.15rem]">
+                    <h3 className="text-lg leading-tight font-bold text-[#012E72]">
                       {card.title}
                     </h3>
-                    <p className="mt-4 max-w-[30ch] text-[12px] leading-[1.6] text-[#272727]">
+                    <p className="mt-3 text-sm leading-relaxed text-justify text-[#272727]" style={{ textAlignLast: 'left' }}>
                       {card.desc}
                     </p>
                   </div>
@@ -426,7 +426,7 @@ function Contact() {
                   <button
                     type="button"
                     onClick={() => setActiveRequest(card.id)}
-                    className="mt-6 inline-flex w-full items-center justify-center rounded-full bg-[#012E72] px-5 py-2.5 text-sm font-semibold text-white shadow-[0_8px_16px_rgba(1,46,114,0.18)] transition-colors hover:bg-[#002DB5]"
+                    className="mt-8 inline-flex w-full items-center justify-center rounded-full bg-[#012E72] px-5 py-2.5 text-sm font-semibold text-white shadow-[0_8px_16px_rgba(1,46,114,0.18)] transition-colors hover:bg-[#002DB5]"
                   >
                     Request →
                   </button>

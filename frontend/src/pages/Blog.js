@@ -1,18 +1,57 @@
 import React, { useEffect, useMemo, useState } from 'react';
 import { Link } from 'react-router-dom';
+import { ArrowUpRight } from 'lucide-react';
 import Header from '../components/Header';
 import Footer from '../components/Footer';
 import TestimonialsPreview from '../components/TestimonialsPreview';
-import corporateMeetingImage from '../assets/corporate-meeting.jpg';
 import { blogPosts, featuredPost, toSlug } from '../data/blogContent';
+import laptopImage from '../assets/Laptop.png';
+
+function LaptopIllustration() {
+  return (
+    <div className="relative h-[246px] w-[404px] max-w-full md:h-[276px] md:w-[456px]">
+      <img
+        src={laptopImage}
+        alt="Laptop"
+        className="h-full w-full scale-[1.28] object-contain drop-shadow-[0_22px_30px_rgba(0,0,0,0.3)]"
+      />
+    </div>
+  );
+}
+
+function BlogCard({ post }) {
+  return (
+    <Link
+      to={`/blog/${toSlug(post.title)}`}
+      className="group relative block overflow-hidden rounded-[16px] bg-[#0e2f63] shadow-[0_10px_24px_rgba(1,46,114,0.16)] transition-transform duration-300 hover:-translate-y-1"
+    >
+      <img
+        src={post.image}
+        alt={post.title}
+        className="h-[180px] w-full object-cover opacity-75 transition duration-500 group-hover:scale-105"
+      />
+      <div className="absolute inset-0 bg-gradient-to-t from-[#0a1d3c] via-[#0a1d3c]/45 to-transparent" />
+      <div className="absolute right-3 top-3 flex h-6 w-6 items-center justify-center rounded-full bg-white text-[#0e2f63] shadow-sm">
+        <ArrowUpRight className="h-3.5 w-3.5" />
+      </div>
+      <div className="absolute inset-x-0 bottom-0 p-3 text-white">
+        <p className="text-[10px] font-medium uppercase tracking-[0.14em] text-white/72">{post.category}</p>
+        <h3 className="mt-1 line-clamp-2 text-sm font-semibold leading-snug">{post.title}</h3>
+        <p className="mt-1 line-clamp-3 text-[9px] leading-snug text-white/78">{post.excerpt}</p>
+      </div>
+    </Link>
+  );
+}
 
 function Blog() {
+  const spotlightPosts = [featuredPost, ...blogPosts].slice(0, 8);
   const [currentPage, setCurrentPage] = useState(1);
   const [selectedCategory, setSelectedCategory] = useState('All categories');
   const [selectedTag, setSelectedTag] = useState('All tags');
   const [sortOption, setSortOption] = useState('newest');
+  const [storyStartIndex, setStoryStartIndex] = useState(0);
   const postsPerPage = 6;
-
+  const storiesPerView = 4;
 
   const initialFromName = (name) =>
     name
@@ -24,12 +63,12 @@ function Blog() {
 
   const categoryOptions = useMemo(
     () => ['All categories', ...new Set(blogPosts.map((post) => post.category))],
-    [blogPosts]
+    []
   );
 
   const tagOptions = useMemo(
     () => ['All tags', ...new Set(blogPosts.flatMap((post) => post.tags))],
-    [blogPosts]
+    []
   );
 
   const filteredAndSortedPosts = useMemo(() => {
@@ -37,7 +76,6 @@ function Blog() {
       const categoryMatch =
         selectedCategory === 'All categories' || post.category === selectedCategory;
       const tagMatch = selectedTag === 'All tags' || post.tags.includes(selectedTag);
-
       return categoryMatch && tagMatch;
     });
 
@@ -56,7 +94,7 @@ function Blog() {
 
       return new Date(b.date) - new Date(a.date);
     });
-  }, [blogPosts, selectedCategory, selectedTag, sortOption]);
+  }, [selectedCategory, selectedTag, sortOption]);
 
   const totalPages = Math.max(1, Math.ceil(filteredAndSortedPosts.length / postsPerPage));
 
@@ -86,93 +124,40 @@ function Blog() {
     setCurrentPage(page);
   };
 
+  const goToPreviousStories = () => {
+    setStoryStartIndex((current) => Math.max(0, current - 1));
+  };
+
+  const goToNextStories = () => {
+    setStoryStartIndex((current) => Math.min(Math.max(0, spotlightPosts.length - storiesPerView), current + 1));
+  };
+
+  const visibleStoryPosts = spotlightPosts.slice(storyStartIndex, storyStartIndex + storiesPerView);
+
   return (
     <>
       <Header />
-      <main className="relative overflow-hidden bg-[radial-gradient(circle_at_top,#eaf0ff_0%,#ffffff_48%,#f8f3ec_100%)]">
-        <div className="pointer-events-none absolute left-0 top-24 h-56 w-56 rounded-full bg-[#c8d8ff]/40 blur-3xl" />
-        <div className="pointer-events-none absolute right-0 top-[28rem] h-64 w-64 rounded-full bg-[#f0dfc7]/45 blur-3xl" />
+      <main className="relative overflow-hidden bg-[radial-gradient(circle_at_top,#f3f8ff_0%,#ffffff_54%,#f8fbff_100%)]">
+        <div className="pointer-events-none absolute left-0 top-20 h-64 w-64 rounded-full bg-[#cfe0ff]/50 blur-3xl" />
+        <div className="pointer-events-none absolute right-0 top-[26rem] h-72 w-72 rounded-full bg-[#d8e7ff]/40 blur-3xl" />
 
-        <section className="relative z-10 w-full space-y-10 md:space-y-12">
-          <div
-            className="relative overflow-hidden min-h-[250px] md:min-h-[320px] flex items-center justify-center text-center px-6"
-            style={{
-              backgroundImage: `linear-gradient(180deg, rgba(1, 46, 114, 0.45) 0%, rgba(1, 46, 114, 0.68) 100%), url(${corporateMeetingImage})`,
-              backgroundSize: 'cover',
-              backgroundPosition: 'center 38%',
-            }}
-          >
-            <div className="relative z-10 text-white space-y-3 md:space-y-4">
-              <h1 className="text-4xl md:text-5xl font-black tracking-tight">Blog Insights</h1>
-              <p className="text-sm md:text-base text-white/90 max-w-2xl mx-auto">
-                Practical guidance for business owners, professionals, and families who want a clearer path to the right protection.
-              </p>
-            </div>
-          </div>
-
-          <div className="w-full px-4 md:px-6 lg:px-8 space-y-10 md:space-y-12">
-            <article className="rounded-[26px] bg-gradient-to-br from-[#fbf7f1] to-[#f3ece2] p-4 md:p-8 shadow-[0_14px_34px_rgba(1,46,114,0.12)] ring-1 ring-white/70">
-              <div className="grid gap-6 md:gap-10 md:grid-cols-[1.05fr,1fr] items-center">
-                <div className="overflow-hidden rounded-[20px]">
-                  <Link to={`/blog/${toSlug(featuredPost.title)}`} className="block">
-                    <img
-                      src={featuredPost.image}
-                      alt={featuredPost.title}
-                      className="h-[240px] md:h-[320px] w-full object-cover transition-transform duration-700 hover:scale-[1.02]"
-                    />
-                  </Link>
-                </div>
-                <div className="space-y-4 md:space-y-5 text-[#012E72]">
-                  <div className="flex items-center gap-2 text-xs md:text-sm text-[#010407]/60">
-                    <span>{featuredPost.date}</span>
-                    <span className="inline-flex rounded-full bg-white border border-[#d8cbb8] px-2.5 py-0.5 text-[11px] font-semibold uppercase tracking-wide text-[#002DB5]">
-                      {featuredPost.category}
-                    </span>
-                  </div>
-                  <Link to={`/blog/${toSlug(featuredPost.title)}`} className="block group">
-                    <h2 className="text-3xl md:text-5xl font-bold leading-tight text-[#012E72] group-hover:text-[#002DB5] transition-colors">
-                      {featuredPost.title}
-                    </h2>
-                  </Link>
-                  <p className="text-sm md:text-base text-[#010407]/75 leading-relaxed font-medium">
-                    {featuredPost.excerpt}
-                  </p>
-                  <div className="flex items-center gap-3 pt-1">
-                    <span className="h-10 w-10 rounded-full bg-[#012E72] text-white flex items-center justify-center font-bold text-sm shadow-sm">
-                      {initialFromName(featuredPost.author)}
-                    </span>
-                    <div className="leading-tight">
-                      <p className="font-semibold text-sm text-[#012E72]">{featuredPost.author}</p>
-                      <p className="mt-1 mb-3 text-xs text-[#010407]/65">{featuredPost.role}</p>
-                    </div>
-                  </div>
-                  <Link
-                    to={`/blog/${toSlug(featuredPost.title)}`}
-                    className="inline-flex items-center gap-2 rounded-full bg-[#012E72] px-5 py-2.5 text-sm font-bold text-white shadow-lg shadow-[#012E72]/15 hover:bg-[#002DB5] transition-colors"
-                  >
-                    Read Article
-                  </Link>
-                </div>
-              </div>
-            </article>
-
-            <section className="-mx-4 md:-mx-6 lg:-mx-8 bg-gradient-to-r from-[#f6f1e8] via-[#f4f7ff] to-[#edf4ff] px-4 py-5 md:px-6 md:py-6 lg:px-8 shadow-[0_10px_24px_rgba(1,46,114,0.08)]">
-              <div className="mb-4 flex flex-wrap items-center justify-between gap-2">
-                <h3 className="text-lg md:text-xl font-extrabold tracking-tight text-[#012E72]">Find The Right Insight Faster</h3>
-                <p className="text-xs md:text-sm text-[#010407]/70">
-                  Showing {filteredAndSortedPosts.length} post
-                  {filteredAndSortedPosts.length === 1 ? '' : 's'}
+        <section className="relative z-10 mx-auto w-full max-w-6xl overflow-visible px-4 py-8 md:px-6 md:py-9 lg:px-8">
+          <div className="relative overflow-visible rounded-[24px] bg-[#0b3e8d] px-5 py-1 shadow-[0_16px_32px_rgba(1,46,114,0.24)] md:px-7 md:py-1.5">
+            <div className="grid items-center gap-4 lg:grid-cols-[1.08fr,0.92fr] lg:gap-6">
+              <div className="text-white">
+                <h1 className="mt-1 max-w-md text-[18px] font-semibold uppercase leading-[1.12] md:text-[24px]">
+                  Stay Updated With Our Latest Posts By Subscribing To Our Blog.
+                </h1>
+                <p className="mt-2.5 max-w-md text-[9px] leading-relaxed text-white/72 md:text-[10px]">
+                  Practical guidance on insurance strategy, business protection, and risk management.
                 </p>
-              </div>
 
-              <div className="grid gap-3 md:grid-cols-4 md:items-end">
-                <label className="flex flex-col gap-1.5 text-sm text-[#012E72] font-semibold">
-                  Category
+                <div className="mt-4 flex max-w-[296px] items-center gap-1 rounded-full bg-white p-1.5 shadow-[0_10px_24px_rgba(0,0,0,0.12)]">
                   <select
                     value={selectedCategory}
                     onChange={(event) => setSelectedCategory(event.target.value)}
-                    className="h-10 rounded-xl bg-white/95 px-3 text-sm text-[#012E72] shadow-sm outline-none ring-1 ring-[#d6def2] transition focus:ring-2 focus:ring-[#335fbf]"
-                    aria-label="Filter posts by category"
+                    className="h-7 w-[88px] rounded-full bg-[#f5f9ff] px-2 text-[9px] font-medium text-[#0b3e8d] outline-none ring-1 ring-[#d6def2]"
+                    aria-label="Quick category filter"
                   >
                     {categoryOptions.map((category) => (
                       <option key={category} value={category}>
@@ -180,15 +165,11 @@ function Blog() {
                       </option>
                     ))}
                   </select>
-                </label>
-
-                <label className="flex flex-col gap-1.5 text-sm text-[#012E72] font-semibold">
-                  Tag
                   <select
                     value={selectedTag}
                     onChange={(event) => setSelectedTag(event.target.value)}
-                    className="h-10 rounded-xl bg-white/95 px-3 text-sm text-[#012E72] shadow-sm outline-none ring-1 ring-[#d6def2] transition focus:ring-2 focus:ring-[#335fbf]"
-                    aria-label="Filter posts by tag"
+                    className="h-7 w-[78px] rounded-full bg-[#f5f9ff] px-2 text-[9px] font-medium text-[#0b3e8d] outline-none ring-1 ring-[#d6def2]"
+                    aria-label="Quick tag filter"
                   >
                     {tagOptions.map((tag) => (
                       <option key={tag} value={tag}>
@@ -196,173 +177,233 @@ function Blog() {
                       </option>
                     ))}
                   </select>
-                </label>
-
-                <label className="flex flex-col gap-1.5 text-sm text-[#012E72] font-semibold">
-                  Sort by
                   <select
                     value={sortOption}
                     onChange={(event) => setSortOption(event.target.value)}
-                    className="h-10 rounded-xl bg-white/95 px-3 text-sm text-[#012E72] shadow-sm outline-none ring-1 ring-[#d6def2] transition focus:ring-2 focus:ring-[#335fbf]"
-                    aria-label="Sort posts"
+                    className="h-7 w-[70px] rounded-full bg-[#f5f9ff] px-2 text-[9px] font-medium text-[#0b3e8d] outline-none ring-1 ring-[#d6def2]"
+                    aria-label="Quick sort filter"
                   >
-                    <option value="newest">Newest first</option>
-                    <option value="oldest">Oldest first</option>
-                    <option value="mostPopular">Most popular</option>
-                    <option value="title">Title A-Z</option>
+                    <option value="newest">Newest</option>
+                    <option value="oldest">Oldest</option>
+                    <option value="mostPopular">Popular</option>
+                    <option value="title">A-Z</option>
                   </select>
-                </label>
-
-                <button
-                  type="button"
-                  onClick={clearFilters}
-                  disabled={
-                    selectedCategory === 'All categories' &&
-                    selectedTag === 'All tags' &&
-                    sortOption === 'newest'
-                  }
-                  className="h-10 rounded-xl bg-[#012E72] px-4 text-sm font-semibold text-white hover:bg-[#1a4c9f] transition-colors disabled:opacity-50 disabled:cursor-not-allowed"
-                >
-                  Reset filters
-                </button>
-              </div>
-            </section>
-
-            <section id="blogs-articles" className="-mx-4 bg-white px-4 py-6 md:-mx-6 md:px-6 md:py-8 lg:-mx-8 lg:px-8">
-              <div className="flex items-center justify-between gap-3">
-                <h3 className="text-2xl md:text-3xl font-extrabold tracking-tight text-[#012E72]">Blogs & Articles</h3>
+                  <button
+                    type="button"
+                    onClick={clearFilters}
+                    disabled={
+                      selectedCategory === 'All categories' &&
+                      selectedTag === 'All tags' &&
+                      sortOption === 'newest'
+                    }
+                    className="inline-flex h-7 items-center rounded-full bg-[#0b3e8d] px-2.5 text-[9px] font-semibold text-white transition-colors hover:bg-[#092f6a] disabled:cursor-not-allowed disabled:opacity-45"
+                  >
+                    Reset
+                  </button>
+                </div>
               </div>
 
-              <section className="mt-6 grid items-stretch gap-5 md:gap-6 sm:grid-cols-2 lg:grid-cols-3">
-                {paginatedPosts.length ? (
-                  paginatedPosts.map((post) => (
-                    <Link
-                      key={post.title}
-                      to={`/blog/${toSlug(post.title)}`}
-                      className="group block h-full bg-white/95 rounded-[18px] p-3 pb-4 text-[#012E72] ring-1 ring-[#e5eaf8] shadow-[0_6px_22px_rgba(1,46,114,0.08)] hover:shadow-[0_14px_28px_rgba(1,46,114,0.14)] hover:-translate-y-1 transition-all duration-300"
-                    >
-                      <div className="overflow-hidden rounded-[14px]">
-                        <img
-                          src={post.image}
-                          alt={post.title}
-                          className="h-[165px] w-full object-cover transition-transform duration-500 group-hover:scale-[1.03]"
-                        />
-                      </div>
-                      <div className="mt-3 h-[calc(100%-165px)] min-h-[230px] px-1 flex flex-col">
-                        <div className="flex items-center gap-2 text-[11px] text-[#010407]/60">
-                          <span>{post.date}</span>
-                          <span className="inline-flex rounded-full bg-[#F7F4EF] border border-[#d8cbb8] px-2 py-0.5 font-semibold text-[10px] uppercase tracking-wide text-[#002DB5]">
-                            {post.category}
-                          </span>
-                        </div>
-                        <h3 className="mt-2 text-xl font-bold leading-tight text-[#012E72] group-hover:text-[#002DB5] transition-colors">{post.title}</h3>
-                        <p className="mt-2 text-sm text-[#010407]/75 leading-relaxed font-medium">{post.excerpt}</p>
-
-                        <div className="mt-3 flex flex-wrap gap-1.5">
-                          {post.tags.map((tag) => (
-                            <span
-                              key={`${post.title}-${tag}`}
-                              className="rounded-full bg-gradient-to-r from-[#e8eefc] to-[#dfe8ff] px-2 py-0.5 text-[10px] font-semibold uppercase tracking-wide text-[#012E72]"
-                            >
-                              {tag}
-                            </span>
-                          ))}
-                        </div>
-
-                        <div className="mt-auto flex items-center gap-2.5 pt-4">
-                          <span className="h-8 w-8 rounded-full bg-[#012E72] text-white flex items-center justify-center font-bold text-xs">
-                            {initialFromName(post.author)}
-                          </span>
-                          <div className="leading-tight">
-                            <p className="text-xs font-semibold text-[#012E72]">{post.author}</p>
-                            <p className="mt-1 mb-3 text-[11px] text-[#010407]/65">{post.role}</p>
-                          </div>
-                        </div>
-                      </div>
-                    </Link>
-                  ))
-                ) : (
-                  <div className="sm:col-span-2 lg:col-span-3 rounded-[18px] border border-dashed border-[#d8cbb8] bg-[#F7F4EF] px-6 py-10 text-center text-[#012E72]">
-                    <p className="text-lg font-bold">No posts match your current filters.</p>
-                    <p className="mt-2 text-sm text-[#010407]/70">
-                      Try a different category, tag, or sorting option.
-                    </p>
-                  </div>
-                )}
-              </section>
-
-              <div className="flex items-center justify-center gap-2 pb-2 pt-6">
-                <button
-                  type="button"
-                  onClick={() => goToPage(currentPage - 1)}
-                  disabled={currentPage === 1 || !paginatedPosts.length}
-                  className="h-9 w-9 rounded-full bg-white text-[#012E72] ring-1 ring-[#d8cbb8] hover:bg-[#F7F4EF] transition-colors disabled:opacity-40 disabled:cursor-not-allowed"
-                  aria-label="Previous page"
-                >
-                  {'<'}
-                </button>
-
-                {Array.from({ length: totalPages }, (_, idx) => {
-                  const page = idx + 1;
-                  const isActive = page === currentPage;
-
-                  return (
-                    <button
-                      key={page}
-                      type="button"
-                      onClick={() => goToPage(page)}
-                      className={`h-9 w-9 rounded-full font-semibold transition-colors ${
-                        isActive
-                          ? 'bg-[#002DB5] text-white shadow-[0_6px_14px_rgba(0,45,181,0.35)]'
-                          : 'bg-white ring-1 ring-[#d8cbb8] text-[#012E72] hover:bg-[#F7F4EF]'
-                      }`}
-                      aria-current={isActive ? 'page' : undefined}
-                      aria-label={`Go to page ${page}`}
-                    >
-                      {page}
-                    </button>
-                  );
-                })}
-
-                <button
-                  type="button"
-                  onClick={() => goToPage(currentPage + 1)}
-                  disabled={currentPage === totalPages || !paginatedPosts.length}
-                  className="h-9 w-9 rounded-full bg-white text-[#012E72] ring-1 ring-[#d8cbb8] hover:bg-[#F7F4EF] transition-colors disabled:opacity-40 disabled:cursor-not-allowed"
-                  aria-label="Next page"
-                >
-                  {'>'}
-                </button>
+              <div className="justify-self-center lg:justify-self-end lg:translate-x-10 lg:-translate-y-9">
+                <LaptopIllustration />
               </div>
-            </section>
-          </div>
-        </section>
-
-        <TestimonialsPreview />
-
-        <section className="py-14 md:py-16 px-6 bg-[#012E72]">
-          <div className="max-w-6xl mx-auto p-2 md:p-4 text-center">
-            <h2 className="text-2xl md:text-3xl font-extrabold text-white">Ready For A Better Insurance Experience?</h2>
-            <p className="mt-3 text-[#F7F4EF] max-w-3xl mx-auto">
-              We would love to learn about your goals and build a coverage strategy that fits your business, team, and long-term plans.
-            </p>
-            <div className="mt-7 flex flex-col sm:flex-row items-center justify-center gap-4">
-              <Link
-                to="/quote"
-                className="inline-flex items-center justify-center rounded-full bg-white px-7 py-3 text-sm font-bold text-[#012E72] shadow-lg shadow-[#010407]/20 hover:bg-[#F7F4EF] transition-colors"
-              >
-                Request A Quote
-              </Link>
-              <Link
-                to="/contact"
-                className="inline-flex items-center justify-center rounded-full border border-white px-7 py-3 text-sm font-bold text-white hover:bg-white/10 transition-colors"
-              >
-                Contact Our Team
-              </Link>
             </div>
           </div>
+
+          <section id="blogs-articles" className="mt-5">
+            <div className="mb-3 flex items-center justify-end gap-2">
+              <button
+                type="button"
+                onClick={goToPreviousStories}
+                disabled={storyStartIndex === 0}
+                className="inline-flex h-8 w-8 items-center justify-center rounded-full bg-white text-[#0b3e8d] shadow-[0_8px_18px_rgba(1,46,114,0.12)] ring-1 ring-[#d6e3ff] transition-colors hover:bg-[#f4f8ff] disabled:cursor-not-allowed disabled:opacity-35"
+                aria-label="Previous stories"
+              >
+                {'<'}
+              </button>
+              <button
+                type="button"
+                onClick={goToNextStories}
+                disabled={storyStartIndex >= Math.max(0, spotlightPosts.length - storiesPerView)}
+                className="inline-flex h-8 w-8 items-center justify-center rounded-full bg-white text-[#0b3e8d] shadow-[0_8px_18px_rgba(1,46,114,0.12)] ring-1 ring-[#d6e3ff] transition-colors hover:bg-[#f4f8ff] disabled:cursor-not-allowed disabled:opacity-35"
+                aria-label="Next stories"
+              >
+                {'>'}
+              </button>
+            </div>
+            <div className="grid gap-3 sm:grid-cols-2 lg:grid-cols-4">
+              {visibleStoryPosts.map((post) => (
+                <BlogCard key={post.title} post={post} />
+              ))}
+            </div>
+          </section>
+
+          <section className="mt-8 rounded-[22px] bg-white px-4 py-6 shadow-[0_12px_30px_rgba(1,46,114,0.1)] ring-1 ring-[#d6e3ff] md:px-6 md:py-8">
+            <h3 className="text-2xl font-extrabold tracking-tight text-[#012E72] md:text-3xl">Blogs & Articles</h3>
+
+            <div className="mt-6 grid items-stretch gap-5 sm:grid-cols-2 md:gap-6 lg:grid-cols-2">
+              {paginatedPosts.length ? (
+                paginatedPosts.map((post) => (
+                  <Link
+                    key={post.title}
+                    to={`/blog/${toSlug(post.title)}`}
+                    className="group block h-full overflow-hidden rounded-[18px] bg-[#f8fbff] text-[#012E72] ring-1 ring-[#d9e5ff] shadow-[0_8px_20px_rgba(1,46,114,0.08)] transition-all duration-300 hover:-translate-y-1 hover:shadow-[0_14px_28px_rgba(1,46,114,0.14)]"
+                  >
+                    <div className="relative overflow-hidden">
+                      <img
+                        src={post.image}
+                        alt={post.title}
+                        className="h-[180px] w-full object-cover transition-transform duration-500 group-hover:scale-[1.03]"
+                      />
+                      <div className="absolute inset-0 bg-gradient-to-t from-[#012E72]/25 to-transparent" />
+                    </div>
+                    <div className="flex h-[calc(100%-180px)] min-h-[225px] flex-col p-4">
+                      <div className="flex items-center gap-2 text-[11px] text-[#010407]/60">
+                        <span>{post.date}</span>
+                        <span className="inline-flex rounded-full border border-[#b8cbf3] bg-[#ecf3ff] px-2 py-0.5 text-[10px] font-semibold uppercase tracking-wide text-[#002DB5]">
+                          {post.category}
+                        </span>
+                      </div>
+                      <h3 className="mt-2 text-xl font-bold leading-tight text-[#012E72] transition-colors group-hover:text-[#002DB5]">
+                        {post.title}
+                      </h3>
+                      <p className="mt-2 text-sm font-medium leading-relaxed text-[#010407]/75">{post.excerpt}</p>
+
+                      <div className="mt-3 flex flex-wrap gap-1.5">
+                        {post.tags.map((tag) => (
+                          <span
+                            key={`${post.title}-${tag}`}
+                            className="rounded-full bg-gradient-to-r from-[#e8eefc] to-[#dfe8ff] px-2 py-0.5 text-[10px] font-semibold uppercase tracking-wide text-[#012E72]"
+                          >
+                            {tag}
+                          </span>
+                        ))}
+                      </div>
+
+                      <div className="mt-auto flex items-center gap-2.5 pt-4">
+                        <span className="flex h-8 w-8 items-center justify-center rounded-full bg-[#012E72] text-xs font-bold text-white">
+                          {initialFromName(post.author)}
+                        </span>
+                        <div className="leading-tight">
+                          <p className="text-xs font-semibold text-[#012E72]">{post.author}</p>
+                          <p className="mt-1 text-[11px] text-[#010407]/65">{post.role}</p>
+                        </div>
+                      </div>
+                    </div>
+                  </Link>
+                ))
+              ) : (
+                <div className="rounded-[18px] border border-dashed border-[#d8cbb8] bg-[#F7F4EF] px-6 py-10 text-center text-[#012E72] sm:col-span-2 lg:col-span-3">
+                  <p className="text-lg font-bold">No posts match your current filters.</p>
+                  <p className="mt-2 text-sm text-[#010407]/70">Try a different category, tag, or sorting option.</p>
+                </div>
+              )}
+            </div>
+
+            <div className="flex items-center justify-center gap-2 pb-2 pt-6">
+              <button
+                type="button"
+                onClick={() => goToPage(currentPage - 1)}
+                disabled={currentPage === 1 || !paginatedPosts.length}
+                className="h-9 w-9 rounded-full bg-white text-[#012E72] ring-1 ring-[#d8cbb8] transition-colors hover:bg-[#F7F4EF] disabled:cursor-not-allowed disabled:opacity-40"
+                aria-label="Previous page"
+              >
+                {'<'}
+              </button>
+
+              {Array.from({ length: totalPages }, (_, idx) => {
+                const page = idx + 1;
+                const isActive = page === currentPage;
+
+                return (
+                  <button
+                    key={page}
+                    type="button"
+                    onClick={() => goToPage(page)}
+                    className={`h-9 w-9 rounded-full font-semibold transition-colors ${
+                      isActive
+                        ? 'bg-[#002DB5] text-white shadow-[0_6px_14px_rgba(0,45,181,0.35)]'
+                        : 'bg-white ring-1 ring-[#d8cbb8] text-[#012E72] hover:bg-[#F7F4EF]'
+                    }`}
+                    aria-current={isActive ? 'page' : undefined}
+                    aria-label={`Go to page ${page}`}
+                  >
+                    {page}
+                  </button>
+                );
+              })}
+
+              <button
+                type="button"
+                onClick={() => goToPage(currentPage + 1)}
+                disabled={currentPage === totalPages || !paginatedPosts.length}
+                className="h-9 w-9 rounded-full bg-white text-[#012E72] ring-1 ring-[#d8cbb8] transition-colors hover:bg-[#F7F4EF] disabled:cursor-not-allowed disabled:opacity-40"
+                aria-label="Next page"
+              >
+                {'>'}
+              </button>
+            </div>
+          </section>
         </section>
       </main>
+      <TestimonialsPreview />
+      <Footer />
+    </>
+  );
+
+  return (
+    <>
+      <Header />
+      <main className="relative overflow-hidden bg-[radial-gradient(circle_at_top,#f3f8ff_0%,#ffffff_54%,#f8fbff_100%)]">
+        <div className="pointer-events-none absolute left-0 top-20 h-64 w-64 rounded-full bg-[#cfe0ff]/50 blur-3xl" />
+        <div className="pointer-events-none absolute right-0 top-[26rem] h-72 w-72 rounded-full bg-[#d8e7ff]/40 blur-3xl" />
+
+        <section className="relative z-10 mx-auto w-full max-w-6xl px-4 py-8 md:px-6 md:py-10 lg:px-8">
+          <div className="overflow-hidden rounded-[28px] bg-[#0b3e8d] px-5 py-6 shadow-[0_16px_32px_rgba(1,46,114,0.24)] md:px-8 md:py-7">
+            <div className="grid items-center gap-6 lg:grid-cols-[1.1fr,0.9fr] lg:gap-8">
+              <div className="text-white">
+                <p className="text-[11px] font-extrabold uppercase tracking-[0.28em] text-white/80">Stay Updated With Our Latests Posts By Subscribing To Our Blog.</p>
+                <h1 className="mt-4 max-w-xl text-[30px] font-black uppercase leading-[1.04] md:text-[38px]">
+                  Stay Updated With Our Latests Posts By Subscribing To Our Blog.
+                </h1>
+                <p className="mt-4 max-w-lg text-[11px] leading-relaxed text-white/80 md:text-[12px]">
+                  Lorem ipsum dolor sit amet, consectetur adipisicing elit, sed do eiusmod tempor incididunt ut labore et dolore magna aliqua.
+                </p>
+
+                <form
+                  className="mt-6 flex max-w-[315px] items-center rounded-full bg-white p-1.5 shadow-[0_10px_24px_rgba(0,0,0,0.12)]"
+                  onSubmit={(event) => event.preventDefault()}
+                >
+                  <input
+                    type="email"
+                    placeholder="Enter your email"
+                    aria-label="Enter your email"
+                    className="h-8 flex-1 rounded-full border-0 bg-transparent px-3 text-[11px] text-[#0b3e8d] outline-none placeholder:text-[#8ea0c3]"
+                  />
+                  <button
+                    type="submit"
+                    className="ml-1 inline-flex h-8 items-center rounded-full border-2 border-white bg-[#0b3e8d] px-4 text-[11px] font-bold text-white shadow-[0_4px_10px_rgba(1,46,114,0.16)] transition-colors hover:bg-[#092f6a]"
+                  >
+                    Subscribe
+                  </button>
+                </form>
+              </div>
+
+              <div className="justify-self-center lg:justify-self-end">
+                <LaptopIllustration />
+              </div>
+            </div>
+          </div>
+
+          <section id="blogs-articles" className="mt-5">
+            <div className="grid gap-3 sm:grid-cols-2 lg:grid-cols-5">
+              {spotlightPosts.map((post) => (
+                <BlogCard key={post.title} post={post} />
+              ))}
+            </div>
+          </section>
+        </section>
+      </main>
+      <TestimonialsPreview />
       <Footer />
     </>
   );

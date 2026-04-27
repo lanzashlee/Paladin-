@@ -172,7 +172,7 @@ function Carriers({ showViewPartnersButton = false, featuredOnly = false } = {})
 						Partnerships
 					</p>
 					<h2 className="text-3xl md:text-4xl font-extrabold text-[#012E72] mb-4">
-						Our Trusted Partner Carriers
+						OUR TRUSTED PARTNER CARRIERS
 					</h2>
 					<p className="text-lg md:text-xl text-[#010407]/75 max-w-3xl mx-auto leading-relaxed text-center">
 						At Paladin Business Services, we collaborate with a network of trusted partners and

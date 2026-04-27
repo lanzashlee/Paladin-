@@ -38,13 +38,13 @@ export default function About() {
             <div className="mx-auto flex w-full max-w-xl flex-col items-start text-left">
               <div className="mb-6 inline-flex items-center gap-2 rounded-full bg-white px-4 py-2 text-sm font-bold text-[#002DB5] shadow-[0_8px_16px_rgba(8,35,76,0.12)]">
                 <Building2 className="h-4 w-4" />
-                <span>Company Overview</span>
+                <span>COMPANY OVERVIEW</span>
               </div>
 
               <h2 className="mb-6 text-3xl font-extrabold leading-tight text-[#012E72] md:text-4xl">
-                A Legacy of
+                A LEGACY OF
                 <br />
-                <span className="text-[#012E72]">Protection and Trust</span>
+                <span className="text-[#012E72]">PROTECTION AND TRUST</span>
               </h2>
 
               <p className="mb-4 max-w-xl text-justify text-base font-normal leading-relaxed text-[#010407]/75 md:text-lg">
@@ -73,10 +73,10 @@ export default function About() {
         <div className="max-w-6xl mx-auto">
           <div className="text-center mb-10">
             <p className="inline-flex items-center px-4 py-1 rounded-full bg-white text-[#002DB5] text-xs font-semibold tracking-wide uppercase mb-3 border border-[#d8cbb8] shadow-sm">
-              Purpose & Direction
+              PURPOSE & DIRECTION
             </p>
             <h2 className="text-3xl md:text-4xl font-extrabold text-[#012E72]">
-              Our Mission &amp; Our Promise
+              OUR MISSION &amp; OUR PROMISE
             </h2>
           </div>
 
@@ -86,7 +86,7 @@ export default function About() {
                 <div className="w-10 h-10 rounded-2xl bg-[#F7F4EF] border border-[#d8cbb8] flex items-center justify-center">
                   <Target className="w-5 h-5 text-[#002DB5]" />
                 </div>
-                <h3 className="text-xl md:text-2xl font-bold text-[#012E72]">Our Mission</h3>
+                <h3 className="text-xl md:text-2xl font-bold text-[#012E72]">OUR MISSION</h3>
               </div>
               <p className="text-[#010407]/75 text-sm md:text-base leading-relaxed text-justify">
                 Our mission is to provide you with the quality service and care that you deserve. We
@@ -101,7 +101,7 @@ export default function About() {
                 <div className="w-10 h-10 rounded-2xl bg-[#F7F4EF] border border-[#d8cbb8] flex items-center justify-center">
                   <ShieldCheck className="w-5 h-5 text-[#002DB5]" />
                 </div>
-                <h3 className="text-xl md:text-2xl font-bold text-[#012E72]">Our Promise</h3>
+                <h3 className="text-xl md:text-2xl font-bold text-[#012E72]">OUR PROMISE</h3>
               </div>
               <p className="text-[#010407]/75 text-sm md:text-base leading-relaxed text-justify mb-4">
                 With agents that have over 20 years of experience in the insurance industry, we take
@@ -131,7 +131,7 @@ export default function About() {
             <p className="mb-4 inline-flex items-center rounded-full border border-[#c8d3e6] bg-white px-4 py-1.5 text-xs font-semibold uppercase tracking-wide text-[#002DB5] shadow-sm">
               Leadership Team
             </p>
-            <h2 className="mb-3 text-3xl font-extrabold text-[#012E72] md:text-4xl">Meet The Team</h2>
+            <h2 className="mb-3 text-3xl font-extrabold text-[#012E72] md:text-4xl">MEET THE TEAM</h2>
             <p className="mx-auto max-w-2xl text-base font-medium text-[#010407]/65 md:text-lg">
               Dedicated professionals committed to securing what matters most to you.
             </p>
@@ -139,9 +139,9 @@ export default function About() {
 
           <div className="grid grid-cols-1 gap-8 md:grid-cols-3">
             {[
-              { name: "Denise Pomboonreung", role: "CEO", bio: "Sets the vision for the agency, leads client relationships, and drives long-term growth with a service-first mindset.", img: TeamMember1 },
-              { name: "Andy Zubia", role: "President", bio: "Oversees company strategy and daily execution, keeping the team aligned and the client experience consistent.", img: TeamMember2 },
-              { name: "Donna Jumdail", role: "Operations Lead", bio: "Manages workflow, coordination, and service follow-through so every request moves smoothly from start to finish.", img: TeamMember3 },
+              { name: "DENISE POMBOONREUNG", role: "CEO", bio: "Sets the vision for the agency, leads client relationships, and drives long-term growth with a service-first mindset.", img: TeamMember1 },
+              { name: "ANDY ZUBIA", role: "President", bio: "Oversees company strategy and daily execution, keeping the team aligned and the client experience consistent.", img: TeamMember2 },
+              { name: "DONNA JUMDAIL", role: "Operations Lead", bio: "Manages workflow, coordination, and service follow-through so every request moves smoothly from start to finish.", img: TeamMember3 },
             ].map((member, idx) => (
               <article
                 key={idx}
