@@ -27,7 +27,6 @@ function Home() {
       {/* <FeaturedProducts /> */}
       <TestimonialsPreview />
       <Team />
-      <QuickActionsSection />
       <OfficeHours />
       <ContactInfo />
       <MapLocation />

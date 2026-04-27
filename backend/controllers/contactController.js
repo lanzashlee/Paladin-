@@ -994,6 +994,9 @@ const getEmailDeliveryReadiness = () => {
   };
 };
 
+const isContactPersistenceEnabled = () =>
+  String(process.env.CONTACT_PERSISTENCE_ENABLED || 'true').toLowerCase() !== 'false';
+
 const isRealPng = (filePath) => {
   try {
     const signature = fs.readFileSync(filePath).subarray(0, 8);
@@ -1439,13 +1442,15 @@ const saveContactIfAvailable = async (data) => {
 exports.createContact = async (req, res) => {
   try {
     const body = req.body || {};
-    const canPersist = mongoose.connection.readyState === 1;
+    const persistenceEnabled = isContactPersistenceEnabled();
+    const canPersist = persistenceEnabled && mongoose.connection.readyState === 1;
     const emailReadiness = getEmailDeliveryReadiness();
 
     if (!canPersist && !emailReadiness.ready) {
       return res.status(503).json({
-        error:
-          'Contact service is temporarily unavailable. Configure MongoDB or email settings (SMTP_HOST/SMTP_PORT/SMTP_USER/SMTP_PASS and PALADIN_CONTACT_EMAIL or EMAIL_USER).',
+        error: persistenceEnabled
+          ? 'Contact service is temporarily unavailable. Configure MongoDB or email settings (SMTP_HOST/SMTP_PORT/SMTP_USER/SMTP_PASS and PALADIN_CONTACT_EMAIL or EMAIL_USER).'
+          : 'Contact service is temporarily unavailable. Configure email settings (SMTP_HOST/SMTP_PORT/SMTP_USER/SMTP_PASS and PALADIN_CONTACT_EMAIL or EMAIL_USER).',
       });
     }
 
@@ -1509,8 +1514,9 @@ exports.createContact = async (req, res) => {
 
       if (!persistResult.ok && !emailResult.ok) {
         return res.status(503).json({
-          error:
-            'Contact service is temporarily unavailable. Please verify database and email configuration on the server.',
+          error: persistenceEnabled
+            ? 'Contact service is temporarily unavailable. Please verify database and email configuration on the server.'
+            : 'Contact service is temporarily unavailable. Please verify email configuration on the server.',
         });
       }
 
@@ -1594,8 +1600,9 @@ exports.createContact = async (req, res) => {
 
       if (!persistResult.ok && !emailResult.ok) {
         return res.status(503).json({
-          error:
-            'Quotation request is temporarily unavailable. Please verify database and email configuration on the server.',
+          error: persistenceEnabled
+            ? 'Quotation request is temporarily unavailable. Please verify database and email configuration on the server.'
+            : 'Quotation request is temporarily unavailable. Please verify email configuration on the server.',
         });
       }
 
@@ -1632,8 +1639,9 @@ exports.createContact = async (req, res) => {
 
     if (!persistResult.ok && !emailResult.ok) {
       return res.status(503).json({
-        error:
-          'Service request is temporarily unavailable. Please verify database and email configuration on the server.',
+        error: persistenceEnabled
+          ? 'Service request is temporarily unavailable. Please verify database and email configuration on the server.'
+          : 'Service request is temporarily unavailable. Please verify email configuration on the server.',
       });
     }
 
