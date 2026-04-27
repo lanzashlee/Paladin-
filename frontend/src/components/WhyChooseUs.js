@@ -21,29 +21,35 @@ const reasons = [
 
 function WhyChooseUs() {
   return (
-    <section id="why-choose-paladin" className="relative overflow-hidden bg-[#083b88] pb-16 pt-24 md:pb-20 md:pt-28">
-      <div className="pointer-events-none absolute left-1/2 top-0 z-0 h-16 w-[140%] -translate-x-1/2 rounded-b-[100%] bg-[#f3f6fb] md:h-20" />
-
+    <section id="why-choose-paladin" className="relative overflow-hidden bg-[#083b88] py-16 md:py-20">
+      <div className="pointer-events-none absolute -left-20 top-10 h-56 w-56 rounded-full bg-white/10 blur-3xl" />
+      <div className="pointer-events-none absolute -right-16 bottom-6 h-64 w-64 rounded-full bg-[#4f79bf]/25 blur-3xl" />
       <div className="relative z-10 mx-auto w-full max-w-7xl px-5 md:px-8">
-        <div className="-mt-8 text-center md:-mt-10">
-          <h2 className="inline-flex rounded-xl bg-[#f8fbff] px-7 py-2 text-3xl font-bold tracking-tight text-[#083b88] shadow-[0_8px_16px_rgba(1,46,114,0.24)] md:text-5xl md:font-semibold md:font-serif">
+        <div className="text-center">
+          <p className="inline-flex items-center rounded-full border border-[#d8cbb8] bg-[#F7F4EF] px-6 py-1.5 text-xs font-semibold uppercase tracking-[0.2em] text-[#002DB5] shadow-sm">
+            Why Choose Us
+          </p>
+          <h2 className="mt-5 text-3xl font-extrabold tracking-tight text-white md:text-5xl">
             Why Choose Paladin?
           </h2>
+          <p className="mx-auto mt-4 max-w-2xl text-base leading-relaxed text-white/85 md:text-lg">
+            Trusted guidance, fair pricing, and personalized protection designed around your needs.
+          </p>
         </div>
 
         <div className="mt-12 grid grid-cols-1 gap-7 md:mt-14 md:grid-cols-3 md:gap-10">
           {reasons.map((r, i) => (
             <article
               key={i}
-              className="rounded-3xl border border-[#d5dce8] bg-white px-7 pb-7 pt-6 text-center shadow-[0_16px_28px_rgba(255,255,255,0.28)]"
+              className="rounded-3xl border border-[#d8e0ee] bg-white px-7 pb-7 pt-7 text-center shadow-[0_8px_18px_rgba(1,46,114,0.14)] transition-all duration-200 hover:-translate-y-1 hover:border-[#c9d6ea] hover:shadow-[0_12px_24px_rgba(1,46,114,0.18)]"
             >
-              <div className="mx-auto flex h-10 w-10 items-center justify-center rounded-xl bg-[#083b88] shadow-[0_8px_16px_rgba(1,46,114,0.26)]">
+              <div className="mx-auto flex h-11 w-11 items-center justify-center rounded-xl border border-[#0d4ca8] bg-[#083b88] shadow-[0_6px_14px_rgba(1,46,114,0.2)]">
                 {r.icon}
               </div>
-              <p className="mx-auto mt-5 inline-flex rounded-full bg-[#083b88] px-5 py-1.5 text-xs font-bold text-white">
+              <p className="mx-auto mt-5 inline-flex rounded-full bg-[#083b88] px-5 py-1.5 text-sm font-bold text-white">
                 {r.title}
               </p>
-              <p className="mx-auto mt-6 max-w-[240px] text-[17px] leading-relaxed text-[#1b1e24] md:text-lg">
+              <p className="mx-auto mt-5 max-w-[265px] text-base leading-relaxed text-[#1b1e24] md:text-[17px]">
                 {r.desc}
               </p>
             </article>
