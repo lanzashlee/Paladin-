@@ -14,7 +14,7 @@ function MapLocation({
 		<section id="find-us" className={`py-16 px-8 max-w-7xl mx-auto w-full ${className}`}>
 			<div className="rounded-3xl p-6 md:p-8 shadow-xl shadow-[#012E72]/5 border border-[#e7dccb] bg-white">
 				<div className="mb-5">
-					<h3 className="text-2xl font-bold text-[#012E72]">Find Us</h3>
+					<h3 className="text-2xl font-bold text-[#012E72]">FIND US</h3>
 					<p className="text-[#010407]/75 mt-2">{address}</p>
 				</div>
 

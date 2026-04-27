@@ -158,7 +158,7 @@ function QuoteRequest() {
       <section className="quote-request">
         <div className="quote-request__hero">
           <p className="quote-request__eyebrow">Paladin Professional Insurance Solutions</p>
-          <h2>Request a Quote</h2>
+          <h2>REQUEST A QUOTE</h2>
           <p className="quote-request__subtitle">
             Complete the universal applicant form first, then continue to your insurance-specific form.
           </p>

@@ -254,7 +254,7 @@ function Contact() {
             Get In Touch
           </p>
           <h1 className="text-4xl md:text-5xl font-extrabold text-[#012E72] tracking-tight mb-6">
-            Contact Us
+            CONTACT US
           </h1>
           <p className="text-lg text-[#010407]/80 max-w-2xl mx-auto leading-relaxed">
             Have questions about a policy, need a quote, or want to say hello? 
@@ -394,7 +394,7 @@ function Contact() {
                 Quick Actions
               </p>
               <h2 className="mt-5 text-4xl md:text-5xl font-extrabold text-[#012E72] tracking-tight">
-                How can we help you today?
+                HOW CAN WE HELP YOU TODAY?
               </h2>
               <p className="mt-6 text-lg text-[#010407]/80 leading-relaxed">
                 Complete the applicable form below and submit it to our office via email, fax, or in person. Our team will review your request and respond within 1-2 business days. Fields marked with an asterisk (*) are required.

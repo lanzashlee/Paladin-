@@ -23,7 +23,7 @@ function OfficeHours() {
             When We're Here
           </p>
           <h2 className="text-4xl font-extrabold text-white tracking-tight mb-4">
-            Office Hours
+            OFFICE HOURS
           </h2>
           <p className="text-[#F7F4EF] text-lg leading-relaxed">
             Our team is available seven days a week from 6:00 AM to 12:00 AM to assist you with all

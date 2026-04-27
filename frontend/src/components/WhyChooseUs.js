@@ -29,8 +29,8 @@ function WhyChooseUs() {
           <p className="inline-flex items-center rounded-full border border-[#d8cbb8] bg-[#F7F4EF] px-6 py-1.5 text-xs font-semibold uppercase tracking-[0.2em] text-[#002DB5] shadow-sm">
             Why Choose Us
           </p>
-          <h2 className="mt-5 text-3xl font-extrabold tracking-tight text-white md:text-5xl">
-            Why Choose Paladin?
+          <h2 className="mt-5 mb-4 text-4xl font-extrabold tracking-tight text-white">
+            WHY CHOOSE PALADIN?
           </h2>
           <p className="mx-auto mt-4 max-w-2xl text-base leading-relaxed text-white/85 md:text-lg">
             Trusted guidance, fair pricing, and personalized protection designed around your needs.

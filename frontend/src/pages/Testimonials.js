@@ -213,7 +213,7 @@ function Testimonials() {
               Client Stories
             </p>
             <h1 className="mt-6 text-4xl md:text-5xl font-black tracking-tight leading-tight">
-              Testimonials From Businesses We Protect
+              TESTIMONIALS FROM BUSINESSES WE PROTECT
             </h1>
             <p className="mt-5 max-w-3xl mx-auto text-[#F7F4EF] text-base md:text-lg leading-relaxed">
               Every account is personal to us. Here is what Paladin clients say about the way we guide coverage decisions, communicate clearly, and stay dependable year-round.
