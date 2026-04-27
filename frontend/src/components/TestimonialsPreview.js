@@ -90,7 +90,7 @@ function TestimonialsPreview() {
           </div>
 
           {/* Right Testimonials - Responsive Layout */}
-          <div className="order-2 relative w-full">
+          <div className="order-2 relative w-full lg:flex lg:items-center lg:justify-center">
             {/* Mobile: Stacked cards */}
             <div className="lg:hidden space-y-3 sm:space-y-4">
               {previewTestimonials.map((item) => (
@@ -132,7 +132,7 @@ function TestimonialsPreview() {
             </div>
 
             {/* Desktop: Floating staggered cards */}
-            <div className="hidden lg:block relative ml-auto h-[610px] w-full max-w-[700px]">
+            <div className="hidden lg:block relative mx-auto h-[610px] w-full max-w-[700px]">
               {previewTestimonials.map((item, index) => (
                 <article
                   key={item.name}
