@@ -30,9 +30,8 @@ function Team() {
           <span className="inline-flex items-center rounded-full border border-[#b8c7dc] bg-white px-4 py-2 text-xs font-semibold uppercase tracking-wide text-[#012E72] shadow-[0_6px_14px_rgba(1,46,114,0.15)]">
             People behind Paladin
           </span>
-
-          <h2 className="mt-6 text-3xl font-extrabold  tracking-tight text-[#012E72] md:text-4xl">
-            MEET THE TEAM
+          <h2 className="mt-6 text-3xl font-extrabold tracking-tight text-[#012E72] md:text-4xl">
+            Meet The Team
           </h2>
 
           <p className="mt-4 max-w-md text-base font-medium leading-relaxed text-[#010407]/75 md:text-lg">

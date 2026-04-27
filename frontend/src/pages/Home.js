@@ -13,6 +13,7 @@ import Footer from '../components/Footer';
 import MapLocation from '../components/MapLocation';
 import Carriers from '../components/Carriers';
 import TestimonialsPreview from '../components/TestimonialsPreview';
+import QuickActionsSection from '../components/QuickActionsSection';
 
 function Home() {
   return (
@@ -26,6 +27,7 @@ function Home() {
       {/* <FeaturedProducts /> */}
       <TestimonialsPreview />
       <Team />
+      <QuickActionsSection />
       <OfficeHours />
       <ContactInfo />
       <MapLocation />
