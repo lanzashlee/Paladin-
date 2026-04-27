@@ -3,6 +3,7 @@ import { Link } from 'react-router-dom';
 import { ArrowUpRight } from 'lucide-react';
 import Header from '../components/Header';
 import Footer from '../components/Footer';
+import TestimonialsPreview from '../components/TestimonialsPreview';
 import { blogPosts, featuredPost, toSlug } from '../data/blogContent';
 import laptopImage from '../assets/Laptop.png';
 
@@ -344,6 +345,7 @@ function Blog() {
           </section>
         </section>
       </main>
+      <TestimonialsPreview />
       <Footer />
     </>
   );
@@ -401,6 +403,7 @@ function Blog() {
           </section>
         </section>
       </main>
+      <TestimonialsPreview />
       <Footer />
     </>
   );

@@ -144,6 +144,15 @@ function Service() {
                 <InsuranceLineCard key={item.title} item={item} />
               ))}
             </div>
+
+            <div className="mt-12 flex justify-center">
+              <Link
+                to="/quote"
+                className="inline-flex items-center gap-2 bg-[#012E72] text-white px-8 py-3 rounded-full font-bold shadow-lg shadow-[#012E72]/20 hover:bg-[#002DB5] transition-all hover:-translate-y-0.5"
+              >
+                Request a Quote
+              </Link>
+            </div>
           </div>
         </section>
 
