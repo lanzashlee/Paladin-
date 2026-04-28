@@ -33,7 +33,7 @@ function Header() {
       to: '/service',
       sections: [
         { label: 'Insurance Lines', anchor: '#insurance-lines' },
-        { label: 'Coverage Offerings', anchor: '#coverage-offerings' },
+        { label: 'What Our Clients Say', anchor: '#what-our-clients-say' },
       ],
     },
     {
@@ -130,7 +130,7 @@ function Header() {
       <header className="sticky top-0 z-40 bg-white/95 backdrop-blur border-b border-[#e7dccb]">
       <div className="flex items-center justify-between py-4 md:py-5 px-4 md:px-8 max-w-7xl mx-auto w-full">
         <div className="flex min-w-0 items-center gap-3">
-          <img src={logo} alt="Paladin Logo" className="h-8 md:h-10 w-auto object-contain" />
+          <img src={logo} alt="Paladin Logo" className="h-14 md:h-16 w-auto object-contain" />
           <div className="flex min-w-0 flex-col leading-tight">
             <span className="text-2xl font-black tracking-tight text-[#012E72] truncate">
               PALADIN
@@ -205,7 +205,7 @@ function Header() {
           <div className="flex h-full flex-col bg-white">
             <div className="flex items-center justify-between border-b border-[#e7dccb] px-4 py-4">
               <div className="flex min-w-0 items-center gap-3">
-                <img src={logo} alt="Paladin Logo" className="h-8 w-auto object-contain" />
+                <img src={logo} alt="Paladin Logo" className="h-14 w-auto object-contain" />
                 <span className="text-xl font-black tracking-tight text-[#012E72] truncate">PALADIN</span>
               </div>
               <button

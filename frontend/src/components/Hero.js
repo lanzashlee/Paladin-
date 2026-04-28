@@ -68,7 +68,7 @@ function Hero() {
             to="/quote"
             className="inline-flex items-center justify-center rounded-full bg-[#f0efec] text-[#161a22] text-xs py-2.5 shadow-[0_6px_10px_rgba(0,0,0,0.16)]"
           >
-            Get <span className="ml-1 font-bold text-[#0b3a89]">Free Quote</span>
+            Request <span className="ml-1 font-bold text-[#0b3a89]">a Quote</span>
           </Link>
           <a
             href="tel:8056926900"
