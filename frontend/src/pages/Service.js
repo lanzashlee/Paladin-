@@ -2,6 +2,7 @@ import React from 'react';
 import { Link } from 'react-router-dom';
 import Header from '../components/Header';
 import Footer from '../components/Footer';
+import TestimonialsPreview from '../components/TestimonialsPreview';
 import { coverageOfferings, insuranceLines } from '../data/insuranceContent';
 
 function SectionHeader({ eyebrow, title, description, dark = false }) {
@@ -26,102 +27,56 @@ function SectionHeader({ eyebrow, title, description, dark = false }) {
   );
 }
 
-function InsuranceLineCard({ item }) {
+function InsuranceLineCard({ item, className = '' }) {
   return (
-    <article className="relative overflow-hidden rounded-3xl border border-[#e7dccb] bg-white min-h-[280px] group shadow-xl shadow-[#012E72]/5">
-      <div className="relative h-44 overflow-hidden">
+    <article className={`relative flex h-full flex-col overflow-hidden rounded-3xl border border-[#e7dccb] bg-white group shadow-lg shadow-[#012E72]/8 transition-all duration-300 hover:-translate-y-1 hover:shadow-xl hover:shadow-[#012E72]/12 ${className}`}>
+      <div className="relative h-44 sm:h-48 overflow-hidden">
         <div
           className="absolute inset-0 bg-cover bg-center transition-transform duration-300 group-hover:scale-105"
           style={{ backgroundImage: `url(${item.image})` }}
           aria-hidden="true"
         />
-        <div className="absolute inset-0 bg-gradient-to-b from-[#012E72]/20 via-transparent to-[#F7F4EF]/70" aria-hidden="true" />
-        <div className="absolute top-4 left-4 w-12 h-12 rounded-2xl bg-white border border-[#d8cbb8] flex items-center justify-center shrink-0 shadow-md">
-          <span className="text-[#012E72] text-sm font-black">{item.badge}</span>
+        <div className="absolute inset-0 bg-gradient-to-b from-[#012E72]/20 via-transparent to-[#F7F4EF]/75" aria-hidden="true" />
+        <div className="absolute top-4 left-4 h-12 min-w-12 px-2 rounded-2xl bg-white border border-[#d8cbb8] flex items-center justify-center shrink-0 shadow-md">
+          <span className="text-[#012E72] text-xs sm:text-sm font-black leading-none text-center">{item.badge}</span>
         </div>
       </div>
 
-      <div className="relative z-10 p-5 sm:p-6 flex h-full flex-col">
-        <div className="flex items-center justify-end gap-4 mb-3">
+      <div className="relative z-10 p-5 sm:p-6 flex flex-1 flex-col">
+        <div className="flex items-center justify-end gap-4 mb-2">
           <span className="text-[11px] uppercase tracking-[0.22em] text-[#002DB5] font-semibold">Insurance Line</span>
         </div>
 
-        <h3 className="text-lg sm:text-xl font-bold text-[#012E72] mb-2 group-hover:text-[#002DB5] transition-colors">
+        <h3 className="text-lg sm:text-xl font-bold text-[#012E72] mb-3 leading-tight group-hover:text-[#002DB5] transition-colors">
           {item.title}
         </h3>
-        <p className="text-[#010407]/75 text-xs sm:text-sm leading-relaxed text-justify">
+        <p className="text-[#010407]/75 text-sm sm:text-[15px] leading-relaxed text-justify">
           {item.description}
         </p>
-
-        <ul className="mt-4 space-y-2 text-xs sm:text-sm text-[#010407]/80 text-justify">
-          {item.details.map((detail) => (
-            <li key={detail} className="flex gap-3">
-              <span className="mt-1 h-2 w-2 rounded-full bg-[#002DB5] shrink-0" aria-hidden="true" />
-              <span>{detail}</span>
-            </li>
-          ))}
-        </ul>
       </div>
     </article>
-  );
-}
-
-function CoverageCard({ item }) {
-  return (
-    <article className="relative overflow-hidden rounded-3xl border border-[#e7dccb] bg-white p-5 sm:p-6 flex flex-col gap-3 group min-h-[280px] hover:-translate-y-1.5 hover:shadow-xl hover:shadow-[#002DB5]/10 transition-all duration-300 shadow-lg shadow-[#012E72]/5">
-      <div className="relative h-40 -m-5 mb-4 sm:-m-6 sm:mb-5 overflow-hidden rounded-t-3xl">
-        <div
-          className="absolute inset-0 bg-cover bg-center transition-transform duration-300 group-hover:scale-105"
-          style={{ backgroundImage: `url(${item.image})` }}
-          aria-hidden="true"
-        />
-        <div className="absolute inset-0 bg-gradient-to-b from-[#012E72]/15 via-transparent to-[#F7F4EF]/75" aria-hidden="true" />
-      </div>
-
-      <div className="relative z-10 flex items-center justify-between">
-        <div className="w-10 h-10 rounded-2xl bg-[#F7F4EF] border border-[#d8cbb8] flex items-center justify-center shadow-md shadow-[#012E72]/10 shrink-0">
-          <span className="text-[#012E72] text-sm font-black">{item.number}</span>
-        </div>
-        <span className="text-[11px] uppercase tracking-[0.2em] text-[#002DB5] font-semibold">Featured</span>
-      </div>
-
-      <h3 className="relative z-10 text-lg sm:text-xl font-bold text-[#012E72] group-hover:text-[#002DB5] transition-colors">
-        {item.title}
-      </h3>
-      <p className="relative z-10 text-[#010407]/75 text-xs sm:text-sm leading-relaxed text-justify">
-        {item.description}
-      </p>
-
-      <ul className="relative z-10 mt-1 space-y-2 text-xs sm:text-sm text-[#010407]/80 text-justify">
-        {item.details.map((detail) => (
-          <li key={detail} className="flex gap-3">
-            <span className="mt-1 h-2 w-2 rounded-full bg-[#002DB5] shrink-0" aria-hidden="true" />
-            <span>{detail}</span>
-          </li>
-        ))}
-      </ul>
-    </article>
-  );
-}
-
-function CoverageSectionHeader() {
-  return (
-    <div className="relative z-10 text-center mb-16">
-      <p className="inline-flex items-center px-4 py-1.5 rounded-full bg-[#F7F4EF] text-[#002DB5] text-xs font-semibold tracking-widest uppercase mb-5 border border-[#d8cbb8] shadow-sm">
-        Coverage Portfolio
-      </p>
-      <h2 className="text-4xl sm:text-5xl font-extrabold text-[#012E72] tracking-tight mb-4">
-        COVERAGE OFFERINGS
-      </h2>
-      <p className="text-base sm:text-lg text-[#010407]/75 max-w-3xl mx-auto leading-relaxed text-justify">
-        Explore the same coverage portfolio styling used on the homepage, with the individual
-        offerings shown as a unified card grid.
-      </p>
-    </div>
   );
 }
 
 function Service() {
+  const coverageBadgeByTitle = {
+    'Renters Insurance': 'RE',
+    'Umbrella Insurance': 'UM',
+    'Disability Insurance': 'DI',
+    'Flood Insurance': 'FL',
+    'Identity Theft Protection': 'ID',
+  };
+
+  const allInsuranceLines = [
+    ...insuranceLines,
+    ...coverageOfferings.map((item) => ({
+      ...item,
+      badge: coverageBadgeByTitle[item.title] || 'CV',
+    })),
+  ];
+  const lineCount = allInsuranceLines.length;
+  const hasTwoCardsOnLastRow = lineCount % 3 === 2;
+
   return (
     <>
       <Header />
@@ -139,10 +94,25 @@ function Service() {
               description="Paladin serves a wide range of clients across multiple insurance lines. Each card below is presented up front so the full structure stays clear and consistent."
             />
 
-            <div className="grid grid-cols-1 md:grid-cols-2 xl:grid-cols-3 gap-5">
-              {insuranceLines.map((item) => (
-                <InsuranceLineCard key={item.title} item={item} />
-              ))}
+            <div className="grid grid-cols-1 md:grid-cols-2 xl:grid-cols-6 gap-5">
+              {allInsuranceLines.map((item, index) => {
+                const isSecondToLast = index === lineCount - 2;
+                const isLast = index === lineCount - 1;
+                const centeredLastRowClass =
+                  hasTwoCardsOnLastRow && isSecondToLast
+                    ? 'xl:col-span-2 xl:col-start-2'
+                    : hasTwoCardsOnLastRow && isLast
+                      ? 'xl:col-span-2 xl:col-start-4'
+                      : 'xl:col-span-2';
+
+                return (
+                  <InsuranceLineCard
+                    key={item.title}
+                    item={item}
+                    className={centeredLastRowClass}
+                  />
+                );
+              })}
             </div>
 
             <div className="mt-12 flex justify-center">
@@ -156,26 +126,31 @@ function Service() {
           </div>
         </section>
 
-        <section className="relative py-24 overflow-hidden bg-white w-full" id="coverage-offerings">
-          <div className="pointer-events-none absolute -top-16 left-1/2 -translate-x-1/2 w-[760px] h-[300px] rounded-full bg-[#002DB5]/10 blur-3xl" />
-          <div className="pointer-events-none absolute -bottom-24 right-0 w-[360px] h-[360px] rounded-full bg-[#F7F4EF] blur-3xl" />
+        <TestimonialsPreview />
 
-          <div className="relative z-10 max-w-7xl mx-auto px-6 sm:px-8 w-full">
-            <CoverageSectionHeader />
-
-            <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-5">
-              {coverageOfferings.map((item) => (
-                <CoverageCard key={item.title} item={item} />
-              ))}
-            </div>
-
-            <div className="mt-12 flex justify-center">
-              <Link
-                to="/quote"
-                className="inline-flex items-center gap-2 bg-[#012E72] text-white px-8 py-3 rounded-full font-bold shadow-lg shadow-[#012E72]/20 hover:bg-[#002DB5] transition-all hover:-translate-y-0.5"
-              >
-                Request a Quote
-              </Link>
+        <section className="relative py-10 sm:py-12 bg-white">
+          <div className="relative z-10 max-w-5xl mx-auto px-5 sm:px-6 lg:px-8">
+            <div className="rounded-3xl bg-[#f8fbff] px-8 py-9 sm:px-10 sm:py-10 text-center">
+              <h2 className="text-2xl sm:text-[2rem] font-extrabold text-[#012E72] tracking-tight">
+                Not sure what insurance to take?
+              </h2>
+              <p className="mt-2.5 text-sm sm:text-base text-[#010407]/70 leading-relaxed max-w-2xl mx-auto">
+                Talk with our team for personalized guidance and get the right coverage based on your needs and budget.
+              </p>
+              <div className="mt-5 flex flex-col sm:flex-row items-center justify-center gap-3">
+                <Link
+                  to="/contact?request=consultation#quick-actions"
+                  className="inline-flex items-center justify-center w-full sm:w-auto min-w-[220px] bg-[#012E72] text-white px-6 py-3 rounded-full font-bold shadow-lg shadow-[#012E72]/20 hover:bg-[#002DB5] transition-all hover:-translate-y-0.5"
+                >
+                  Personalized Consultation
+                </Link>
+                <Link
+                  to="/contact"
+                  className="inline-flex items-center justify-center w-full sm:w-auto min-w-[220px] border border-[#012E72]/35 text-[#012E72] px-6 py-3 rounded-full font-bold hover:bg-[#012E72]/5 transition-all hover:-translate-y-0.5"
+                >
+                  Contact Us Directly
+                </Link>
+              </div>
             </div>
           </div>
         </section>

@@ -20,11 +20,11 @@ function ContactInfo({ className = '' }) {
       <div className="max-w-[1100px] mx-auto px-5 md:px-8">
         <div className="rounded-[1.35rem] border border-[#b9cdec] bg-white p-5 md:p-7 shadow-[0_14px_30px_rgba(6,35,86,0.12)]">
           <div className="grid grid-cols-1 lg:grid-cols-[0.46fr_0.54fr] gap-8 md:gap-10 items-start justify-items-center">
-          <div className="pt-1 w-full max-w-[360px] flex flex-col items-center lg:items-start">
+          <div className="pt-1 w-full max-w-[360px] flex flex-col items-center text-center">
             <h2 className="text-[#0a3d90] font-extrabold tracking-tight text-4xl leading-tight">
               CONTACT & LOCATION
             </h2>
-            <p className="mt-4 text-[#234f90] text-[14px] md:text-[15px] leading-[1.45] text-justify max-w-[320px]">
+            <p className="mt-4 text-[#234f90] text-[14px] md:text-[15px] leading-[1.45] max-w-[320px] mx-auto">
               We'd love to hear from you. Reach out to us through any of the channels below - our
               licensed agents are ready to assist.
             </p>
