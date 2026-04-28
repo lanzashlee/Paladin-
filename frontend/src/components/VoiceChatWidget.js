@@ -993,68 +993,85 @@ function VoiceChatWidget() {
     });
   };
 
-  const handleExportChat = () => {
-    const chatText = messages
-      .map((msg) => `${msg.role.toUpperCase()}: ${msg.text}`)
-      .join('\n\n');
-    
-    const element = document.createElement('a');
-    element.setAttribute('href', `data:text/plain;charset=utf-8,${encodeURIComponent(chatText)}`);
-    element.setAttribute('download', `paladin-chat-${new Date().toISOString().split('T')[0]}.txt`);
-    element.style.display = 'none';
-    document.body.appendChild(element);
-    element.click();
-    document.body.removeChild(element);
-  };
-
   return (
-    <div className="fixed inset-x-2 bottom-2 z-50 flex flex-col items-end sm:inset-x-auto sm:bottom-6 sm:right-6">
+    <div className="fixed inset-x-2 bottom-2 z-50 flex flex-col items-end sm:inset-x-auto sm:bottom-5 sm:right-5 lg:bottom-6 lg:right-6">
       {isOpen && (
-        <section className="mb-2 flex w-full max-w-[96vw] flex-col overflow-hidden rounded-3xl border border-[#e7dccb] bg-white shadow-2xl shadow-[#012E72]/15 sm:mb-3 sm:w-[360px] sm:max-w-[92vw] max-h-[calc(100vh-5.25rem)] sm:max-h-[calc(100vh-7rem)]">
-          <header className="border-b border-[#e7dccb] bg-white px-4 py-3 flex items-center justify-between">
-            <div>
-              <h2 className="text-sm font-semibold text-[#012E72]">Voice Assistant</h2>
-              <p className="text-xs text-[#010407]/60 mt-0.5">{status}</p>
+        <section className="mb-2 flex h-[min(84dvh,720px)] w-full max-w-[calc(100vw-1rem)] min-h-0 flex-col overflow-hidden rounded-[1.4rem] border border-[#d7e5ff] bg-gradient-to-b from-[#f8fbff] to-white shadow-[0_20px_45px_-25px_rgba(2,37,91,0.45)] sm:mb-3 sm:h-[min(80dvh,740px)] sm:w-[390px] sm:max-w-[92vw] sm:rounded-[1.75rem] lg:w-[430px] xl:w-[460px]">
+          <header className="relative shrink-0 overflow-hidden border-b border-[#d7e5ff] bg-[#072e73] px-3 py-3 text-white sm:px-4">
+            <div className="pointer-events-none absolute -right-8 -top-10 h-24 w-24 rounded-full bg-[#00c2a8]/35 blur-xl" />
+            <div className="pointer-events-none absolute -left-8 -bottom-10 h-20 w-20 rounded-full bg-[#2f7ff0]/30 blur-xl" />
+            <div className="relative flex items-start justify-between gap-2 sm:gap-3">
+              <div className="min-w-0 flex-1">
+                <h2 className="text-sm font-semibold tracking-wide">Paladin Voice AI</h2>
+                <p className="mt-1 inline-flex max-w-full items-center truncate rounded-full bg-white/15 px-2 py-0.5 text-[10px] font-medium text-white/95">
+                  {status}
+                </p>
+                {ENABLE_AGORA && (
+                  <p className="mt-1.5 text-[10px] font-medium uppercase tracking-wide text-white/80">
+                    {isAgoraConnected ? 'Live Voice Channel: Connected' : isAgoraConnecting ? 'Live Voice Channel: Connecting' : 'Live Voice Channel: Idle'}
+                  </p>
+                )}
+              </div>
+              <button
+                type="button"
+                onClick={() => {
+                  setIsOpen(false);
+                  if (ENABLE_AGORA) {
+                    disconnectAgoraVoice();
+                  }
+                }}
+                className="shrink-0 rounded-full border border-white/25 bg-white/10 px-2 py-1 text-xs font-semibold text-white transition-colors hover:bg-white/20"
+              >
+                Close
+              </button>
             </div>
-            <button
-              type="button"
-              onClick={() => {
-                setIsOpen(false);
-                if (ENABLE_AGORA) {
-                  disconnectAgoraVoice();
-                }
-              }}
-              className="text-[#010407]/60 hover:text-[#012E72] text-lg"
-            >
-              ✕
-            </button>
           </header>
 
-          <div className="min-h-[180px] flex-1 space-y-2 overflow-y-auto bg-white px-3 py-3 text-sm sm:min-h-[240px]">
+          <div className="min-h-0 flex-1 space-y-2 overflow-y-auto bg-gradient-to-b from-[#f2f7ff] via-[#f8fbff] to-[#ffffff] px-2.5 py-2.5 text-sm sm:px-3 sm:py-3">
             {messages.map((msg, index) => (
               <div
                 key={`${msg.role}-${index}`}
-                className={`flex gap-2 ${msg.role === 'user' ? 'flex-row-reverse' : ''}`}
+                className={`group flex items-end gap-2 ${msg.role === 'user' ? 'flex-row-reverse' : ''}`}
               >
                 <div
-                  className={`rounded-lg px-3 py-2 max-w-[72%] break-words ${
+                  className={`mb-1 inline-flex h-6 w-6 shrink-0 items-center justify-center rounded-full text-[10px] font-bold ${
                     msg.role === 'assistant'
-                      ? 'bg-[#F7F4EF] text-[#010407]'
-                      : 'bg-[#012E72] text-white'
+                      ? 'bg-[#0a4ab3] text-white'
+                      : 'border border-[#bfd5ff] bg-white text-[#08337e]'
                   }`}
                 >
-                  <p>{msg.text}</p>
+                  {msg.role === 'assistant' ? 'AI' : 'You'}
                 </div>
+                <div
+                  className={`max-w-[82%] break-words rounded-2xl px-3 py-2.5 shadow-sm sm:max-w-[74%] ${
+                    msg.role === 'assistant'
+                      ? 'border border-[#dce8ff] bg-white text-[#0b1f3f]'
+                      : 'bg-gradient-to-br from-[#0a4ab3] to-[#072e73] text-white'
+                  }`}
+                >
+                  <p className="leading-relaxed">{msg.text}</p>
+                  <div className={`mt-1.5 text-[10px] ${msg.role === 'assistant' ? 'text-[#6e7e98]' : 'text-white/75'}`}>
+                    {formatTimestamp(msg.timestamp)}
+                  </div>
+                </div>
+                <button
+                  type="button"
+                  onClick={() => handleDeleteMessage(index)}
+                  className="mb-1 hidden rounded-full border border-[#d7e5ff] bg-white px-1.5 py-0.5 text-[10px] font-semibold text-[#6e7e98] transition-colors hover:border-[#0a4ab3] hover:text-[#0a4ab3] md:group-hover:inline-flex"
+                  aria-label="Delete message"
+                >
+                  Del
+                </button>
               </div>
             ))}
             
             {isLoading && (
               <div className="flex gap-2">
-                <div className="rounded-lg px-3 py-2 bg-[#F7F4EF] text-[#010407]">
+                <div className="rounded-2xl border border-[#dce8ff] bg-white px-3 py-2 text-[#010407] shadow-sm">
                   <div className="flex gap-1">
-                    <span className="inline-block h-2 w-2 bg-[#002DB5] rounded-full"></span>
-                    <span className="inline-block h-2 w-2 bg-[#002DB5] rounded-full opacity-60"></span>
-                    <span className="inline-block h-2 w-2 bg-[#002DB5] rounded-full opacity-30"></span>
+                    <span className="inline-block h-2 w-2 animate-bounce rounded-full bg-[#0a4ab3]"></span>
+                    <span className="inline-block h-2 w-2 animate-bounce rounded-full bg-[#0a4ab3]/70 [animation-delay:120ms]"></span>
+                    <span className="inline-block h-2 w-2 animate-bounce rounded-full bg-[#0a4ab3]/40 [animation-delay:220ms]"></span>
                   </div>
                 </div>
               </div>
@@ -1063,56 +1080,81 @@ function VoiceChatWidget() {
             <div ref={messagesEndRef} />
           </div>
 
-          <div className="space-y-3 border-t border-[#e7dccb] bg-white px-3 py-3">
-            <div className="grid grid-cols-3 gap-2">
+          <div className="shrink-0 space-y-3 border-t border-[#d7e5ff] bg-white/95 px-2.5 py-3 sm:px-3">
+            <div className="grid grid-cols-2 gap-2 sm:grid-cols-4">
               <button
                 type="button"
                 onClick={handleMicToggle}
                 disabled={!canUseMic}
-                className={`rounded-lg px-2 py-2 text-xs font-bold text-white transition-all ${
+                className={`rounded-xl px-2 py-2 text-[11px] font-semibold text-white transition-all sm:text-xs ${
                   isListening
                     ? 'bg-[#0f766e]'
                     : micEnabled
-                    ? 'bg-[#002DB5]'
-                    : 'bg-[#012E72]'
-                } disabled:opacity-50`}
+                    ? 'bg-[#0a4ab3]'
+                    : 'bg-[#072e73]'
+                } disabled:cursor-not-allowed disabled:opacity-50`}
               >
-                {isListening ? '🎤 On' : micEnabled ? '🎤 Off' : '🎙️'}
+                {isListening ? 'Listening' : micEnabled ? 'Mic On' : 'Mic Off'}
               </button>
               <button
                 type="button"
                 onClick={() => setIsVoiceMuted((value) => !value)}
-                className={`rounded-lg px-2 py-2 text-xs font-bold transition-all ${
+                className={`rounded-xl px-2 py-2 text-[11px] font-semibold transition-all sm:text-xs ${
                   isVoiceMuted
-                    ? 'bg-[#d8cbb8] text-[#012E72]'
-                    : 'bg-[#012E72] text-white'
+                    ? 'bg-[#dbe8ff] text-[#08337e]'
+                    : 'bg-[#08337e] text-white'
                 }`}
               >
-                {isVoiceMuted ? '🔇' : '🔊'}
+                {isVoiceMuted ? 'Muted' : 'Voice'}
+              </button>
+              <button
+                type="button"
+                onClick={handleCopyLatestReply}
+                disabled={lastAssistantMessageIndex === -1}
+                className="rounded-xl border border-[#bfd5ff] bg-white px-2 py-2 text-[11px] font-semibold text-[#08337e] transition-colors hover:border-[#0a4ab3] hover:text-[#0a4ab3] disabled:cursor-not-allowed disabled:opacity-50 sm:text-xs"
+              >
+                {copiedReply ? 'Copied' : 'Copy'}
               </button>
               <button
                 type="button"
                 onClick={handleClearChat}
-                className="rounded-lg bg-[#b91c1c] px-2 py-2 text-xs font-bold text-white hover:bg-[#991b1b] transition-all"
+                className="rounded-xl bg-[#b91c1c] px-2 py-2 text-[11px] font-semibold text-white transition-colors hover:bg-[#991b1b] sm:text-xs"
               >
-                🗑️
+                Clear
               </button>
             </div>
 
-            <form onSubmit={handleTextSubmit} className="flex gap-2">
+            <div className="flex flex-col gap-2 rounded-xl border border-[#d7e5ff] bg-[#f8fbff] px-3 py-2 sm:flex-row sm:items-center sm:justify-between">
+              <div className="min-w-0">
+                <p className="text-[11px] font-semibold text-[#08337e]">Auto-listen after replies</p>
+                <p className="text-[10px] text-[#6e7e98]">Keeps the mic loop active for faster follow-ups.</p>
+              </div>
+              <button
+                type="button"
+                onClick={() => setAutoListen((value) => !value)}
+                className={`relative h-6 w-11 rounded-full transition-colors ${autoListen ? 'bg-[#0a4ab3]' : 'bg-[#b8cbe9]'}`}
+                aria-label="Toggle auto-listen"
+              >
+                <span
+                  className={`absolute top-0.5 h-5 w-5 rounded-full bg-white shadow transition-transform ${autoListen ? 'translate-x-5' : 'translate-x-0.5'}`}
+                />
+              </button>
+            </div>
+
+            <form onSubmit={handleTextSubmit} className="flex flex-col gap-2 sm:flex-row">
               <input
                 type="text"
                 value={textInput}
                 onChange={(event) => setTextInput(event.target.value)}
                 placeholder="Ask something..."
-                className="flex-1 rounded-lg border border-[#d8cbb8] bg-white px-3 py-2 text-sm text-[#010407] outline-none focus:border-[#002DB5] focus:ring-1 focus:ring-[#002DB5]/50"
+                className="flex-1 rounded-xl border border-[#bfd5ff] bg-[#fdfefe] px-3 py-2 text-sm text-[#0b1f3f] outline-none transition-shadow focus:border-[#0a4ab3] focus:ring-2 focus:ring-[#0a4ab3]/25"
               />
               <button
                 type="submit"
                 disabled={!textInput.trim() || isLoading}
-                className="rounded-lg bg-[#012E72] px-3 py-2 font-bold text-white hover:bg-[#002DB5] disabled:opacity-50"
+                className="rounded-xl bg-gradient-to-br from-[#0a4ab3] to-[#072e73] px-3 py-2 text-sm font-semibold text-white transition-transform hover:-translate-y-0.5 disabled:cursor-not-allowed disabled:opacity-50 sm:min-w-[88px]"
               >
-                ↲
+                Send
               </button>
             </form>
 
@@ -1123,10 +1165,10 @@ function VoiceChatWidget() {
                     key={categoryKey}
                     type="button"
                     onClick={() => setQuestionCategory(categoryKey)}
-                    className={`rounded-full border px-2.5 py-1 text-[10px] font-semibold transition-colors ${
+                    className={`rounded-full border px-2.5 py-1 text-[10px] font-semibold uppercase tracking-wide transition-colors ${
                       questionCategory === categoryKey
-                        ? 'border-[#002DB5] bg-[#002DB5] text-white'
-                        : 'border-[#d8cbb8] bg-[#F7F4EF] text-[#012E72] hover:border-[#002DB5]'
+                        ? 'border-[#0a4ab3] bg-[#0a4ab3] text-white'
+                        : 'border-[#bfd5ff] bg-[#f3f8ff] text-[#08337e] hover:border-[#0a4ab3]'
                     }`}
                   >
                     {QUESTION_CATEGORY_LABELS[categoryKey] || categoryKey}
@@ -1134,7 +1176,7 @@ function VoiceChatWidget() {
                 ))}
               </div>
 
-              <div className="max-h-[82px] overflow-y-auto pr-1">
+              <div className="max-h-[95px] overflow-y-auto pr-1 sm:max-h-[82px]">
                 <div className="flex flex-wrap gap-1.5">
                   {sampleQuestions.map((question) => (
                     <button
@@ -1142,7 +1184,7 @@ function VoiceChatWidget() {
                       type="button"
                       onClick={() => handleSampleQuestion(question)}
                       disabled={isLoading}
-                      className="rounded-lg border border-[#d8cbb8] bg-[#F7F4EF] px-2 py-1 text-[10px] font-medium text-[#012E72] hover:border-[#002DB5] disabled:opacity-50"
+                      className="rounded-lg border border-[#cfe0ff] bg-white px-2 py-1 text-[10px] font-medium text-[#08337e] transition-colors hover:border-[#0a4ab3] hover:bg-[#f0f6ff] disabled:opacity-50"
                     >
                       {question}
                     </button>
@@ -1151,8 +1193,8 @@ function VoiceChatWidget() {
               </div>
 
               {followUpQuestions.length > 0 && (
-                <div className="rounded-lg border border-[#e7dccb] bg-[#F7F4EF]/65 p-2">
-                  <p className="mb-1 text-[10px] font-semibold uppercase tracking-wide text-[#012E72]">Helpful follow-ups</p>
+                <div className="rounded-xl border border-[#cfe0ff] bg-[#f3f8ff] p-2">
+                  <p className="mb-1 text-[10px] font-semibold uppercase tracking-wide text-[#08337e]">Helpful follow-ups</p>
                   <div className="flex flex-wrap gap-1.5">
                     {followUpQuestions.map((question) => (
                       <button
@@ -1160,7 +1202,7 @@ function VoiceChatWidget() {
                         type="button"
                         onClick={() => handleSampleQuestion(question)}
                         disabled={isLoading}
-                        className="rounded-md border border-[#d8cbb8] bg-white px-2 py-1 text-[10px] font-medium text-[#012E72] hover:border-[#002DB5] disabled:opacity-50"
+                        className="rounded-md border border-[#bfd5ff] bg-white px-2 py-1 text-[10px] font-medium text-[#08337e] transition-colors hover:border-[#0a4ab3] disabled:opacity-50"
                       >
                         {question}
                       </button>
@@ -1170,15 +1212,15 @@ function VoiceChatWidget() {
               )}
 
               {suggestedActions.length > 0 && (
-                <div className="rounded-lg border border-[#e7dccb] bg-white p-2">
-                  <p className="mb-1 text-[10px] font-semibold uppercase tracking-wide text-[#012E72]">Take action</p>
+                <div className="rounded-xl border border-[#cfe0ff] bg-white p-2">
+                  <p className="mb-1 text-[10px] font-semibold uppercase tracking-wide text-[#08337e]">Take action</p>
                   <div className="flex flex-wrap gap-1.5">
                     {suggestedActions.map((action) => (
                       <button
                         key={action.id || `${action.type}-${action.label}`}
                         type="button"
                         onClick={() => executeSuggestedAction(action)}
-                        className="rounded-md bg-[#012E72] px-2.5 py-1 text-[10px] font-semibold text-white hover:bg-[#002DB5]"
+                        className="rounded-md bg-gradient-to-br from-[#0a4ab3] to-[#072e73] px-2.5 py-1 text-[10px] font-semibold text-white transition-transform hover:-translate-y-0.5"
                       >
                         {action.label || ACTION_LABEL_BY_TYPE[action.type] || 'Action'}
                       </button>
@@ -1197,11 +1239,11 @@ function VoiceChatWidget() {
           setIsOpen((prev) => !prev);
           setUnreadCount(0);
         }}
-        className="group relative rounded-full bg-[#012E72] px-4 py-3 text-sm font-semibold text-white shadow-lg shadow-[#012E72]/25 transition-all hover:bg-[#002DB5] hover:translate-y-[-2px] active:translate-y-0 sm:px-5"
+        className="group relative w-full overflow-hidden rounded-full border border-[#74a2ef] bg-gradient-to-br from-[#0a4ab3] to-[#072e73] px-4 py-3 text-sm font-semibold text-white shadow-lg shadow-[#072e73]/35 transition-all hover:-translate-y-0.5 active:translate-y-0 sm:w-auto sm:px-5"
       >
-        <span className="flex items-center gap-2">
-          {isOpen ? '✕' : '💬'}
-          {isOpen ? 'Close' : 'Chat'}
+        <span className="pointer-events-none absolute inset-0 -translate-x-full bg-gradient-to-r from-transparent via-white/20 to-transparent transition-transform duration-700 group-hover:translate-x-full" />
+        <span className="relative flex items-center gap-2">
+          {isOpen ? 'Close' : 'Voice AI'}
         </span>
         {!isOpen && unreadCount > 0 && (
           <span className="absolute -right-2 -top-2 inline-flex min-h-6 min-w-6 items-center justify-center rounded-full bg-[#ff7f11] text-xs font-bold text-white">
