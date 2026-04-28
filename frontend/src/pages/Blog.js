@@ -4,7 +4,7 @@ import { ArrowUpRight } from 'lucide-react';
 import Header from '../components/Header';
 import Footer from '../components/Footer';
 import TestimonialsPreview from '../components/TestimonialsPreview';
-import { blogPosts, featuredPost, toSlug } from '../data/blogContent';
+import { blogPosts, toSlug } from '../data/blogContent';
 import laptopImage from '../assets/Laptop.png';
 
 function LaptopIllustration() {
@@ -44,7 +44,7 @@ function BlogCard({ post }) {
 }
 
 function Blog() {
-  const spotlightPosts = [featuredPost, ...blogPosts].slice(0, 8);
+  const spotlightPosts = blogPosts.slice(0, 7);
   const [currentPage, setCurrentPage] = useState(1);
   const [selectedCategory, setSelectedCategory] = useState('All categories');
   const [selectedTag, setSelectedTag] = useState('All tags');
@@ -141,22 +141,22 @@ function Blog() {
         <div className="pointer-events-none absolute left-0 top-20 h-64 w-64 rounded-full bg-[#cfe0ff]/50 blur-3xl" />
         <div className="pointer-events-none absolute right-0 top-[26rem] h-72 w-72 rounded-full bg-[#d8e7ff]/40 blur-3xl" />
 
-        <section className="relative z-10 mx-auto w-full max-w-6xl overflow-visible px-4 py-8 md:px-6 md:py-9 lg:px-8">
-          <div className="relative overflow-visible rounded-[24px] bg-[#0b3e8d] px-5 py-1 shadow-[0_16px_32px_rgba(1,46,114,0.24)] md:px-7 md:py-1.5">
+        <section className="relative z-10 mx-auto w-full max-w-[1400px] overflow-visible px-3 py-10 sm:px-4 md:px-6 md:py-11 lg:px-8">
+          <div className="relative overflow-visible rounded-[28px] bg-[#0b3e8d] px-6 py-6 shadow-[0_16px_32px_rgba(1,46,114,0.24)] md:px-9 md:py-5">
             <div className="grid items-center gap-4 lg:grid-cols-[1.08fr,0.92fr] lg:gap-6">
               <div className="text-white">
-                <h1 className="mt-1 max-w-md text-[18px] font-semibold uppercase leading-[1.12] md:text-[24px]">
-                  Stay Updated With Our Latest Posts By Subscribing To Our Blog.
+                <h1 className="mt-1 max-w-[300px] text-[18px] font-semibold uppercase leading-[1.08] sm:max-w-xl sm:text-[24px] md:text-[32px]">
+                  Explore Our Latest Insights On Insurance And Risk Protection.
                 </h1>
-                <p className="mt-2.5 max-w-md text-[9px] leading-relaxed text-white/72 md:text-[10px]">
-                  Practical guidance on insurance strategy, business protection, and risk management.
+                <p className="mt-3 max-w-[300px] text-[11px] leading-relaxed text-white/72 sm:max-w-xl sm:text-[12px] md:text-[14px]">
+                  Browse practical guidance on insurance strategy, business protection, and risk management.
                 </p>
 
-                <div className="mt-4 flex max-w-[296px] items-center gap-1 rounded-full bg-white p-1.5 shadow-[0_10px_24px_rgba(0,0,0,0.12)]">
+                <div className="mt-5 flex w-full max-w-[320px] flex-col items-stretch gap-2 rounded-[22px] bg-white p-2 shadow-[0_10px_24px_rgba(0,0,0,0.12)] sm:max-w-[420px] sm:flex-wrap sm:flex-row sm:items-center sm:gap-2 sm:rounded-[22px] md:flex-nowrap md:rounded-full">
                   <select
                     value={selectedCategory}
                     onChange={(event) => setSelectedCategory(event.target.value)}
-                    className="h-7 w-[88px] rounded-full bg-[#f5f9ff] px-2 text-[9px] font-medium text-[#0b3e8d] outline-none ring-1 ring-[#d6def2]"
+                    className="h-9 w-full rounded-full bg-[#f5f9ff] px-3 text-[11px] font-medium text-[#0b3e8d] outline-none ring-1 ring-[#d6def2] sm:min-w-0 sm:flex-1 md:w-[122px] md:flex-none"
                     aria-label="Quick category filter"
                   >
                     {categoryOptions.map((category) => (
@@ -168,7 +168,7 @@ function Blog() {
                   <select
                     value={selectedTag}
                     onChange={(event) => setSelectedTag(event.target.value)}
-                    className="h-7 w-[78px] rounded-full bg-[#f5f9ff] px-2 text-[9px] font-medium text-[#0b3e8d] outline-none ring-1 ring-[#d6def2]"
+                    className="h-9 w-full rounded-full bg-[#f5f9ff] px-3 text-[11px] font-medium text-[#0b3e8d] outline-none ring-1 ring-[#d6def2] sm:min-w-0 sm:flex-1 md:w-[108px] md:flex-none"
                     aria-label="Quick tag filter"
                   >
                     {tagOptions.map((tag) => (
@@ -180,7 +180,7 @@ function Blog() {
                   <select
                     value={sortOption}
                     onChange={(event) => setSortOption(event.target.value)}
-                    className="h-7 w-[70px] rounded-full bg-[#f5f9ff] px-2 text-[9px] font-medium text-[#0b3e8d] outline-none ring-1 ring-[#d6def2]"
+                    className="h-9 w-full rounded-full bg-[#f5f9ff] px-3 text-[11px] font-medium text-[#0b3e8d] outline-none ring-1 ring-[#d6def2] sm:min-w-0 sm:flex-1 md:w-[92px] md:flex-none"
                     aria-label="Quick sort filter"
                   >
                     <option value="newest">Newest</option>
@@ -196,7 +196,7 @@ function Blog() {
                       selectedTag === 'All tags' &&
                       sortOption === 'newest'
                     }
-                    className="inline-flex h-7 items-center rounded-full bg-[#0b3e8d] px-2.5 text-[9px] font-semibold text-white transition-colors hover:bg-[#092f6a] disabled:cursor-not-allowed disabled:opacity-45"
+                    className="inline-flex h-9 w-full items-center justify-center rounded-full bg-[#0b3e8d] px-3.5 text-[11px] font-semibold text-white transition-colors hover:bg-[#092f6a] disabled:cursor-not-allowed disabled:opacity-45 sm:w-auto"
                   >
                     Reset
                   </button>
@@ -209,13 +209,13 @@ function Blog() {
             </div>
           </div>
 
-          <section id="blogs-articles" className="mt-5">
-            <div className="mb-3 flex items-center justify-end gap-2">
+          <section id="blogs-articles" className="mt-7">
+            <div className="mb-4 flex items-center justify-end gap-2">
               <button
                 type="button"
                 onClick={goToPreviousStories}
                 disabled={storyStartIndex === 0}
-                className="inline-flex h-8 w-8 items-center justify-center rounded-full bg-white text-[#0b3e8d] shadow-[0_8px_18px_rgba(1,46,114,0.12)] ring-1 ring-[#d6e3ff] transition-colors hover:bg-[#f4f8ff] disabled:cursor-not-allowed disabled:opacity-35"
+                className="inline-flex h-10 w-10 items-center justify-center rounded-full bg-white text-[#0b3e8d] shadow-[0_8px_18px_rgba(1,46,114,0.12)] ring-1 ring-[#d6e3ff] transition-colors hover:bg-[#f4f8ff] disabled:cursor-not-allowed disabled:opacity-35"
                 aria-label="Previous stories"
               >
                 {'<'}
@@ -224,23 +224,23 @@ function Blog() {
                 type="button"
                 onClick={goToNextStories}
                 disabled={storyStartIndex >= Math.max(0, spotlightPosts.length - storiesPerView)}
-                className="inline-flex h-8 w-8 items-center justify-center rounded-full bg-white text-[#0b3e8d] shadow-[0_8px_18px_rgba(1,46,114,0.12)] ring-1 ring-[#d6e3ff] transition-colors hover:bg-[#f4f8ff] disabled:cursor-not-allowed disabled:opacity-35"
+                className="inline-flex h-10 w-10 items-center justify-center rounded-full bg-white text-[#0b3e8d] shadow-[0_8px_18px_rgba(1,46,114,0.12)] ring-1 ring-[#d6e3ff] transition-colors hover:bg-[#f4f8ff] disabled:cursor-not-allowed disabled:opacity-35"
                 aria-label="Next stories"
               >
                 {'>'}
               </button>
             </div>
-            <div className="grid gap-3 sm:grid-cols-2 lg:grid-cols-4">
+            <div className="grid gap-4 sm:grid-cols-2 lg:grid-cols-4">
               {visibleStoryPosts.map((post) => (
                 <BlogCard key={post.title} post={post} />
               ))}
             </div>
           </section>
 
-          <section className="mt-8 rounded-[22px] bg-white px-4 py-6 shadow-[0_12px_30px_rgba(1,46,114,0.1)] ring-1 ring-[#d6e3ff] md:px-6 md:py-8">
-            <h3 className="text-2xl font-extrabold tracking-tight text-[#012E72] md:text-3xl">Blogs & Articles</h3>
+          <section className="mt-10 rounded-[24px] bg-white px-5 py-7 shadow-[0_12px_30px_rgba(1,46,114,0.1)] ring-1 ring-[#d6e3ff] md:px-7 md:py-9">
+            <h3 className="text-3xl font-extrabold tracking-tight text-[#012E72] md:text-4xl">BLOG POSTS & ARTICLES</h3>
 
-            <div className="mt-6 grid items-stretch gap-5 sm:grid-cols-2 md:gap-6 lg:grid-cols-2">
+            <div className="mt-7 grid items-stretch gap-6 sm:grid-cols-2 md:gap-7 lg:grid-cols-2">
               {paginatedPosts.length ? (
                 paginatedPosts.map((post) => (
                   <Link
@@ -256,36 +256,36 @@ function Blog() {
                       />
                       <div className="absolute inset-0 bg-gradient-to-t from-[#012E72]/25 to-transparent" />
                     </div>
-                    <div className="flex h-[calc(100%-180px)] min-h-[225px] flex-col p-4">
-                      <div className="flex items-center gap-2 text-[11px] text-[#010407]/60">
+                    <div className="flex h-[calc(100%-180px)] min-h-[255px] flex-col p-5">
+                      <div className="flex items-center gap-2 text-[12px] text-[#010407]/60">
                         <span>{post.date}</span>
-                        <span className="inline-flex rounded-full border border-[#b8cbf3] bg-[#ecf3ff] px-2 py-0.5 text-[10px] font-semibold uppercase tracking-wide text-[#002DB5]">
+                        <span className="inline-flex rounded-full border border-[#b8cbf3] bg-[#ecf3ff] px-2.5 py-0.5 text-[11px] font-semibold uppercase tracking-wide text-[#002DB5]">
                           {post.category}
                         </span>
                       </div>
-                      <h3 className="mt-2 text-xl font-bold leading-tight text-[#012E72] transition-colors group-hover:text-[#002DB5]">
+                      <h3 className="mt-2.5 text-2xl font-bold leading-tight text-[#012E72] transition-colors group-hover:text-[#002DB5]">
                         {post.title}
                       </h3>
-                      <p className="mt-2 text-sm font-medium leading-relaxed text-[#010407]/75">{post.excerpt}</p>
+                      <p className="mt-3 text-base font-medium leading-relaxed text-[#010407]/75">{post.excerpt}</p>
 
-                      <div className="mt-3 flex flex-wrap gap-1.5">
+                      <div className="mt-4 flex flex-wrap gap-2">
                         {post.tags.map((tag) => (
                           <span
                             key={`${post.title}-${tag}`}
-                            className="rounded-full bg-gradient-to-r from-[#e8eefc] to-[#dfe8ff] px-2 py-0.5 text-[10px] font-semibold uppercase tracking-wide text-[#012E72]"
+                            className="rounded-full bg-gradient-to-r from-[#e8eefc] to-[#dfe8ff] px-2.5 py-1 text-[11px] font-semibold uppercase tracking-wide text-[#012E72]"
                           >
                             {tag}
                           </span>
                         ))}
                       </div>
 
-                      <div className="mt-auto flex items-center gap-2.5 pt-4">
-                        <span className="flex h-8 w-8 items-center justify-center rounded-full bg-[#012E72] text-xs font-bold text-white">
+                      <div className="mt-auto flex items-center gap-3 pt-5">
+                        <span className="flex h-9 w-9 items-center justify-center rounded-full bg-[#012E72] text-xs font-bold text-white">
                           {initialFromName(post.author)}
                         </span>
                         <div className="leading-tight">
-                          <p className="text-xs font-semibold text-[#012E72]">{post.author}</p>
-                          <p className="mt-1 text-[11px] text-[#010407]/65">{post.role}</p>
+                          <p className="text-sm font-semibold text-[#012E72]">{post.author}</p>
+                          <p className="mt-1 text-xs text-[#010407]/65">{post.role}</p>
                         </div>
                       </div>
                     </div>
@@ -299,12 +299,12 @@ function Blog() {
               )}
             </div>
 
-            <div className="flex items-center justify-center gap-2 pb-2 pt-6">
+            <div className="flex items-center justify-center gap-2.5 pb-2 pt-7">
               <button
                 type="button"
                 onClick={() => goToPage(currentPage - 1)}
                 disabled={currentPage === 1 || !paginatedPosts.length}
-                className="h-9 w-9 rounded-full bg-white text-[#012E72] ring-1 ring-[#d8cbb8] transition-colors hover:bg-[#F7F4EF] disabled:cursor-not-allowed disabled:opacity-40"
+                className="h-10 w-10 rounded-full bg-white text-[#012E72] ring-1 ring-[#d8cbb8] transition-colors hover:bg-[#F7F4EF] disabled:cursor-not-allowed disabled:opacity-40"
                 aria-label="Previous page"
               >
                 {'<'}
@@ -319,7 +319,7 @@ function Blog() {
                     key={page}
                     type="button"
                     onClick={() => goToPage(page)}
-                    className={`h-9 w-9 rounded-full font-semibold transition-colors ${
+                    className={`h-10 w-10 rounded-full font-semibold transition-colors ${
                       isActive
                         ? 'bg-[#002DB5] text-white shadow-[0_6px_14px_rgba(0,45,181,0.35)]'
                         : 'bg-white ring-1 ring-[#d8cbb8] text-[#012E72] hover:bg-[#F7F4EF]'
@@ -336,7 +336,7 @@ function Blog() {
                 type="button"
                 onClick={() => goToPage(currentPage + 1)}
                 disabled={currentPage === totalPages || !paginatedPosts.length}
-                className="h-9 w-9 rounded-full bg-white text-[#012E72] ring-1 ring-[#d8cbb8] transition-colors hover:bg-[#F7F4EF] disabled:cursor-not-allowed disabled:opacity-40"
+                className="h-10 w-10 rounded-full bg-white text-[#012E72] ring-1 ring-[#d8cbb8] transition-colors hover:bg-[#F7F4EF] disabled:cursor-not-allowed disabled:opacity-40"
                 aria-label="Next page"
               >
                 {'>'}
