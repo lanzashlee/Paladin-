@@ -1,4 +1,5 @@
 const nodemailer = require('nodemailer');
+const { Resend } = require('resend');
 const mongoose = require('mongoose');
 const path = require('path');
 const fs = require('fs');
@@ -120,7 +121,7 @@ const ensurePdfSpace = (doc, requiredHeight = 30) => {
 };
 
 const drawPdfHeader = (doc, title) => {
-  const logoAsset = getLogoAsset();
+  const logoAsset = isResendEnabled() ? null : getLogoAsset();
   const startX = doc.page.margins.left;
   const startY = doc.y;
 
@@ -959,6 +960,67 @@ const createTransporter = () => {
   return null;
 };
 
+const isResendEnabled = () => Boolean(String(process.env.RESEND_API_KEY || '').trim());
+
+const createResendTransporter = () => {
+  const resendApiKey = String(process.env.RESEND_API_KEY || '').trim();
+  if (!resendApiKey) {
+    return null;
+  }
+
+  const resend = new Resend(resendApiKey);
+
+  const toBase64 = (attachment) => {
+    if (!attachment) return null;
+    if (attachment.path) {
+      try {
+        return fs.readFileSync(attachment.path).toString('base64');
+      } catch (_error) {
+        return null;
+      }
+    }
+    if (Buffer.isBuffer(attachment.content)) {
+      return attachment.content.toString('base64');
+    }
+    if (typeof attachment.content === 'string') {
+      return attachment.encoding === 'base64'
+        ? attachment.content
+        : Buffer.from(attachment.content).toString('base64');
+    }
+    return null;
+  };
+
+  return {
+    sendMail: async ({ from, to, replyTo, subject, text, html, attachments = [] }) => {
+      const resendAttachments = attachments
+        .filter((attachment) => !attachment?.cid)
+        .map((attachment) => {
+          const content = toBase64(attachment);
+          if (!attachment?.filename || !content) {
+            return null;
+          }
+
+          return {
+            filename: attachment.filename,
+            content,
+            contentType: attachment.contentType || undefined,
+          };
+        })
+        .filter(Boolean);
+
+      await resend.emails.send({
+        from,
+        to: Array.isArray(to) ? to : [to],
+        replyTo,
+        subject,
+        text,
+        html,
+        attachments: resendAttachments.length ? resendAttachments : undefined,
+      });
+    },
+  };
+};
+
 const isGmailAuthError = (error) => {
   if (!error) {
     return false;
@@ -985,12 +1047,21 @@ const getEmailDeliveryReadiness = () => {
     process.env.EMAIL_USER ||
     ''
   ).trim();
-  const transporter = createTransporter();
+  const senderAddress = (
+    process.env.EMAIL_FROM ||
+    process.env.SMTP_USER ||
+    process.env.EMAIL_USER ||
+    ''
+  ).trim();
+  const transporter = createResendTransporter() || createTransporter();
+  const provider = isResendEnabled() ? 'resend' : 'smtp';
 
   return {
-    ready: Boolean(recipient && transporter),
+    ready: Boolean(recipient && senderAddress && transporter),
     recipient,
+    senderAddress,
     transporter,
+    provider,
   };
 };
 
@@ -1128,7 +1199,7 @@ const sendSimpleContactEmail = async ({ name, email, subject, message }) => {
     .join('');
 
   const messageHtml = escapeHtml(contactMessage).replace(/\n/g, '<br>');
-  const logoAsset = getLogoAsset();
+  const logoAsset = isResendEnabled() ? null : getLogoAsset();
   const logoHtml = getLogoHtml(logoAsset);
 
   await transporter.sendMail({
@@ -1250,7 +1321,7 @@ const sendServiceRequestEmail = async (contactData) => {
     )
     .join('');
 
-  const logoAsset = getLogoAsset();
+  const logoAsset = isResendEnabled() ? null : getLogoAsset();
   const logoHtml = getLogoHtml(logoAsset);
 
   await transporter.sendMail({
@@ -1449,8 +1520,8 @@ exports.createContact = async (req, res) => {
     if (!canPersist && !emailReadiness.ready) {
       return res.status(503).json({
         error: persistenceEnabled
-          ? 'Contact service is temporarily unavailable. Configure MongoDB or email settings (SMTP_HOST/SMTP_PORT/SMTP_USER/SMTP_PASS and PALADIN_CONTACT_EMAIL or EMAIL_USER).'
-          : 'Contact service is temporarily unavailable. Configure email settings (SMTP_HOST/SMTP_PORT/SMTP_USER/SMTP_PASS and PALADIN_CONTACT_EMAIL or EMAIL_USER).',
+          ? 'Contact service is temporarily unavailable. Configure MongoDB or email settings (RESEND_API_KEY or SMTP_HOST/SMTP_PORT/SMTP_USER/SMTP_PASS), plus EMAIL_FROM and PALADIN_CONTACT_EMAIL.'
+          : 'Contact service is temporarily unavailable. Configure email settings (RESEND_API_KEY or SMTP_HOST/SMTP_PORT/SMTP_USER/SMTP_PASS), plus EMAIL_FROM and PALADIN_CONTACT_EMAIL.',
       });
     }
 
