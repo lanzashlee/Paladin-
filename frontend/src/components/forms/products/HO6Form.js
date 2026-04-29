@@ -63,6 +63,11 @@ const DEDUCTIBLE_OPTIONS = [
 
 const initialForm = {
   condoUnitAddress: '',
+  condoAddressStreet: '',
+  condoAddressUnitNumber: '',
+  condoAddressCity: '',
+  condoAddressState: '',
+  condoAddressZip: '',
   buildingComplexName: '',
   yearBuildingBuilt: '',
   floorNumberOfUnit: '',
@@ -94,11 +99,18 @@ const initialForm = {
   earthquakeEndorsement: '',
   mortgageLenderLienholder: '',
   mortgageLenderAddress: '',
+  mortgageLenderAddressStreet: '',
+  mortgageLenderAddressCity: '',
+  mortgageLenderAddressState: '',
+  mortgageLenderAddressZip: '',
   effectiveDate: '',
 };
 
 const requiredFields = [
-  'condoUnitAddress',
+  'condoAddressStreet',
+  'condoAddressCity',
+  'condoAddressState',
+  'condoAddressZip',
   'yearBuildingBuilt',
   'constructionTypeOfBuilding',
   'squareFootageOfUnit',
@@ -114,6 +126,42 @@ const requiredFields = [
 const isBlank = (value) => String(value ?? '').trim() === '';
 const isFourDigitYear = (value) => /^\d{4}$/.test(String(value || '').trim());
 const isDigitsOnly = (value) => /^\d+$/.test(String(value || '').trim());
+const isValidZipCode = (value) => /^\d{5}(-\d{4})?$/.test(String(value || '').trim());
+const buildCombinedAddress = (nextForm) => {
+  const segments = [
+    nextForm.condoAddressStreet,
+    nextForm.condoAddressUnitNumber ? `Unit ${nextForm.condoAddressUnitNumber}` : '',
+    [nextForm.condoAddressCity, nextForm.condoAddressState].filter(Boolean).join(', '),
+    nextForm.condoAddressZip,
+  ]
+    .map((value) => String(value || '').trim())
+    .filter(Boolean);
+
+  return segments.join(', ');
+};
+
+const buildCombinedMortgageAddress = (nextForm) => {
+  const segments = [
+    nextForm.mortgageLenderAddressStreet,
+    [nextForm.mortgageLenderAddressCity, nextForm.mortgageLenderAddressState].filter(Boolean).join(', '),
+    nextForm.mortgageLenderAddressZip,
+  ]
+    .map((value) => String(value || '').trim())
+    .filter(Boolean);
+
+  return segments.join(', ');
+};
+
+const formatZipCodeInput = (rawValue = '') => {
+  const digitsOnly = String(rawValue).replace(/\D/g, '').slice(0, 9);
+
+  if (digitsOnly.length <= 5) {
+    return digitsOnly;
+  }
+
+  return `${digitsOnly.slice(0, 5)}-${digitsOnly.slice(5)}`;
+};
+
 const formatWholeNumberWithCommas = (rawValue = '') => {
   const digitsOnly = String(rawValue).replace(/\D/g, '');
   if (!digitsOnly) {
@@ -188,6 +236,14 @@ function HO6Form({ onBack, onFormChange, onValidityChange, onPreviewRequest }) {
       nextErrors.yearOfLastRenovation = 'Please enter a valid 4-digit year.';
     }
 
+    if (nextForm.condoAddressZip && !isValidZipCode(nextForm.condoAddressZip)) {
+      nextErrors.condoAddressZip = 'Please enter a valid ZIP code (12345 or 12345-6789).';
+    }
+
+    if (nextForm.mortgageLenderAddressZip && !isValidZipCode(nextForm.mortgageLenderAddressZip)) {
+      nextErrors.mortgageLenderAddressZip = 'Please enter a valid ZIP code (12345 or 12345-6789).';
+    }
+
     return nextErrors;
   };
 
@@ -227,12 +283,33 @@ function HO6Form({ onBack, onFormChange, onValidityChange, onPreviewRequest }) {
       'floorNumberOfUnit',
     ].includes(name)) {
       normalizedValue = String(value).replace(/\D/g, '');
+    } else if (['condoAddressZip', 'mortgageLenderAddressZip'].includes(name)) {
+      normalizedValue = formatZipCodeInput(value);
     }
 
     const nextForm = {
       ...formData,
       [name]: normalizedValue,
     };
+
+    if ([
+      'condoAddressStreet',
+      'condoAddressUnitNumber',
+      'condoAddressCity',
+      'condoAddressState',
+      'condoAddressZip',
+    ].includes(name)) {
+      nextForm.condoUnitAddress = buildCombinedAddress(nextForm);
+    }
+
+    if ([
+      'mortgageLenderAddressStreet',
+      'mortgageLenderAddressCity',
+      'mortgageLenderAddressState',
+      'mortgageLenderAddressZip',
+    ].includes(name)) {
+      nextForm.mortgageLenderAddress = buildCombinedMortgageAddress(nextForm);
+    }
 
     if (name === 'kitchenRenovation' && value !== 'yes') {
       nextForm.kitchenRenovationDescription = '';
@@ -293,9 +370,32 @@ function HO6Form({ onBack, onFormChange, onValidityChange, onPreviewRequest }) {
         <h4 className="quote-request__section-title">Condo and Building Profile</h4>
         <div className="quote-request__grid">
           <label className="quote-request__field quote-request__field--full">
-            <span className="quote-request__field-label">Condo / Unit Address (Including Unit Number) <span className="quote-request__required-mark">*</span></span>
-            <input name="condoUnitAddress" value={formData.condoUnitAddress} onChange={handleChange} placeholder="Full address and unit number" className={fieldError('condoUnitAddress') ? 'quote-request__input--invalid' : ''} />
-            {fieldError('condoUnitAddress') ? <span className="quote-request__validation-message">{fieldError('condoUnitAddress')}</span> : null}
+            <span className="quote-request__field-label">Condo Street Address <span className="quote-request__required-mark">*</span></span>
+            <input name="condoAddressStreet" value={formData.condoAddressStreet} onChange={handleChange} placeholder="Street address" className={fieldError('condoAddressStreet') ? 'quote-request__input--invalid' : ''} />
+            {fieldError('condoAddressStreet') ? <span className="quote-request__validation-message">{fieldError('condoAddressStreet')}</span> : null}
+          </label>
+
+          <label className="quote-request__field">
+            <span className="quote-request__field-label">Unit Number</span>
+            <input name="condoAddressUnitNumber" value={formData.condoAddressUnitNumber} onChange={handleChange} placeholder="Unit / Apt number" />
+          </label>
+
+          <label className="quote-request__field">
+            <span className="quote-request__field-label">City <span className="quote-request__required-mark">*</span></span>
+            <input name="condoAddressCity" value={formData.condoAddressCity} onChange={handleChange} placeholder="City" className={fieldError('condoAddressCity') ? 'quote-request__input--invalid' : ''} />
+            {fieldError('condoAddressCity') ? <span className="quote-request__validation-message">{fieldError('condoAddressCity')}</span> : null}
+          </label>
+
+          <label className="quote-request__field">
+            <span className="quote-request__field-label">State <span className="quote-request__required-mark">*</span></span>
+            <input name="condoAddressState" value={formData.condoAddressState} onChange={handleChange} placeholder="State" className={fieldError('condoAddressState') ? 'quote-request__input--invalid' : ''} />
+            {fieldError('condoAddressState') ? <span className="quote-request__validation-message">{fieldError('condoAddressState')}</span> : null}
+          </label>
+
+          <label className="quote-request__field">
+            <span className="quote-request__field-label">ZIP Code <span className="quote-request__required-mark">*</span></span>
+            <input name="condoAddressZip" value={formData.condoAddressZip} onChange={handleChange} placeholder="12345 or 12345-6789" inputMode="numeric" maxLength={10} className={fieldError('condoAddressZip') ? 'quote-request__input--invalid' : ''} />
+            {fieldError('condoAddressZip') ? <span className="quote-request__validation-message">{fieldError('condoAddressZip')}</span> : null}
           </label>
 
           <label className="quote-request__field">
@@ -502,8 +602,24 @@ function HO6Form({ onBack, onFormChange, onValidityChange, onPreviewRequest }) {
           </label>
 
           <label className="quote-request__field quote-request__field--full">
-            <span className="quote-request__field-label">Mortgage Lender / Lienholder Address Details</span>
-            <input name="mortgageLenderAddress" value={formData.mortgageLenderAddress} onChange={handleChange} placeholder="Street, City, State, ZIP" />
+            <span className="quote-request__field-label">Mortgage Lender Street Address</span>
+            <input name="mortgageLenderAddressStreet" value={formData.mortgageLenderAddressStreet} onChange={handleChange} placeholder="Street address" />
+          </label>
+
+          <label className="quote-request__field">
+            <span className="quote-request__field-label">Mortgage Lender City</span>
+            <input name="mortgageLenderAddressCity" value={formData.mortgageLenderAddressCity} onChange={handleChange} placeholder="City" />
+          </label>
+
+          <label className="quote-request__field">
+            <span className="quote-request__field-label">Mortgage Lender State</span>
+            <input name="mortgageLenderAddressState" value={formData.mortgageLenderAddressState} onChange={handleChange} placeholder="State" />
+          </label>
+
+          <label className="quote-request__field">
+            <span className="quote-request__field-label">Mortgage Lender ZIP Code</span>
+            <input name="mortgageLenderAddressZip" value={formData.mortgageLenderAddressZip} onChange={handleChange} placeholder="12345 or 12345-6789" inputMode="numeric" maxLength={10} className={fieldError('mortgageLenderAddressZip') ? 'quote-request__input--invalid' : ''} />
+            {fieldError('mortgageLenderAddressZip') ? <span className="quote-request__validation-message">{fieldError('mortgageLenderAddressZip')}</span> : null}
           </label>
 
           <label className="quote-request__field">

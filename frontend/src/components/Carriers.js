@@ -302,7 +302,7 @@ function Carriers({ showViewPartnersButton = false, featuredOnly = false } = {})
 					<div className="mt-10 flex justify-center">
 						<Link
 							to="/about#partners-carriers"
-							className="inline-flex items-center justify-center px-6 py-3 rounded-full bg-[#002DB5] text-white font-semibold text-sm md:text-base shadow-lg shadow-[#002DB5]/20 hover:bg-[#012E72] transition-colors"
+							className="inline-flex items-center justify-center px-6 py-3 rounded-full bg-[#012E72] text-white font-semibold text-sm md:text-base shadow-lg shadow-[#012E72]/20 hover:bg-[#002DB5] transition-colors"
 						>
 							View All Carriers and Partners
 						</Link>
