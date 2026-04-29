@@ -1,0 +1,312 @@
+// PART 1: UNIVERSAL APPLICANT
+  {
+    patterns: [/full legal name/i],
+    reply:
+      'You\'ll need to provide your first, middle, and last names as they appear on your government-issued ID.',
+  },
+  {
+    patterns: [/why.*date.*birth/i],
+    reply:
+      'Your date of birth is required for eligibility verification, rating, and underwriting purposes across all insurance lines.',
+  },
+  {
+    patterns: [/different phone/i],
+    reply:
+      'The phone number you provide should be the primary contact number where we can reach you for follow-ups and policy delivery.',
+  },
+  {
+    patterns: [/how.*email/i],
+    reply:
+      'We will use your email to send policy documents, quotes, and any important updates related to your insurance coverage.',
+  },
+  {
+    patterns: [/skip.*ssn/i, /full ssn/i],
+    reply:
+      'The last 4 digits of your SSN are required for identity verification and insurance score checks. The full SSN is optional unless required by certain carriers.',
+  },
+  // PART 2: HOMEOWNERS INSURANCE HO3
+  {
+    patterns: [/property address.*homeowners/i],
+    reply:
+      'Please enter the address of the home that you want to insure, not your mailing address.',
+  },
+  {
+    patterns: [/county.*affect.*homeowners/i],
+    reply:
+      'The county is important for certain insurance requirements, such as risk factors related to wildfire and earthquake zones, and it helps us determine the best coverage for your area.',
+  },
+  {
+    patterns: [/don.?t know.*year.*built/i],
+    reply:
+      'The year your property was built is essential for underwriting purposes, as it helps assess your home\'s eligibility for certain coverage types and determines the replacement cost.',
+  },
+  {
+    patterns: [/stories.*necessary/i],
+    reply:
+      'Yes, the number of stories is necessary because it impacts both the replacement cost and the overall rating for your policy.',
+  },
+  {
+    patterns: [/pool.*covered/i],
+    reply:
+      'If you have a pool, it can affect both your liability coverage and the overall premium. Certain safety measures may be required.',
+  },
+  // PART 3: CONDO OWNERS INSURANCE HO6
+  {
+    patterns: [/difference.*condo.*house/i],
+    reply:
+      'Condo insurance covers the interior of your unit and your personal property, while the building\'s exterior is covered by the HOA\'s master policy.',
+  },
+  {
+    patterns: [/construction type/i],
+    reply:
+      'The construction type affects the fire-resistance rating, which impacts your coverage and premiums.',
+  },
+  {
+    patterns: [/stories.*condo/i],
+    reply:
+      'High-floor units have a different risk profile, especially for water damage from the roof, so this helps us assess the appropriate coverage.',
+  },
+  {
+    patterns: [/renovations.*upgrades/i],
+    reply:
+      'Yes, providing details of any upgrades or renovations helps us assess the true replacement cost of your unit and ensures you\'re adequately covered.',
+  },
+  {
+    patterns: [/liability.*condo/i],
+    reply:
+      'Yes, liability coverage is included to protect against injuries or damage caused within your unit. You can also select higher limits if needed.',
+  },
+  // PART 4: RENTERS INSURANCE HO4
+  {
+    patterns: [/what is renters insurance/i],
+    reply:
+      'Renters insurance covers your personal belongings, liability protection, and sometimes additional living expenses if your home becomes uninhabitable.',
+  },
+  {
+    patterns: [/how much.*renters/i],
+    reply:
+      'You\'ll need to estimate the value of your personal belongings and select coverage that matches that value.',
+  },
+  {
+    patterns: [/liability.*renters/i],
+    reply:
+      'Liability coverage protects you if someone is injured in your rental unit or if you accidentally damage someone else\'s property.',
+  },
+  {
+    patterns: [/type of rental/i],
+    reply:
+      'Whether you\'re renting an apartment, condo, or house can affect your coverage options and premiums.',
+  },
+  {
+    patterns: [/landlord.*insurance/i],
+    reply:
+      'Yes, your landlord\'s insurance only covers the building, not your personal belongings. Renters insurance is necessary to protect your possessions.',
+  },
+  // PART 5: COMMERCIAL AUTO INSURANCE
+  {
+    patterns: [/what is commercial auto/i],
+    reply:
+      'Commercial auto insurance covers vehicles used for business purposes, including transporting goods, employees, or offering services.',
+  },
+  {
+    patterns: [/determine.*premium.*commercial/i],
+    reply:
+      'The premium is based on factors such as the type of vehicle, its use, the number of vehicles, and driving history.',
+  },
+  {
+    patterns: [/difference.*personal.*commercial/i],
+    reply:
+      'Yes, personal auto insurance covers personal use of a vehicle, while commercial auto insurance covers business-related use and provides higher liability limits.',
+  },
+  {
+    patterns: [/list all drivers/i],
+    reply:
+      'All drivers need to be listed for underwriting purposes, as unlisted drivers may not be covered in the event of an accident.',
+  },
+  {
+    patterns: [/past accidents.*commercial/i],
+    reply:
+      'Yes, past accidents are critical for determining your premium and coverage eligibility.',
+  },
+  // PART 6: GENERAL LIABILITY INSURANCE
+  {
+    patterns: [/what.*general liability/i],
+    reply:
+      'General liability insurance protects your business from third-party claims of bodily injury, property damage, and personal injury.',
+  },
+  {
+    patterns: [/describe.*business.*operations/i],
+    reply:
+      'The description helps determine your risk exposure and is a critical factor in calculating your premium.',
+  },
+  {
+    patterns: [/revenue.*impact/i],
+    reply:
+      'Higher revenue typically means a higher level of risk, which can affect your premium. It\'s important to provide an accurate estimate.',
+  },
+  {
+    patterns: [/subcontractors/i],
+    reply:
+      'Subcontractors may need their own insurance, or you may need to ensure that they are covered under your policy depending on the nature of their work.',
+  },
+  {
+    patterns: [/per occurrence.*aggregate/i],
+    reply:
+      'Per occurrence limits refer to the maximum payout for a single claim, while aggregate limits are the total payout for all claims during a policy period.',
+  },
+  // PART 7: WORKERS COMPENSATION INSURANCE
+  {
+    patterns: [/what is workers.? compensation/i],
+    reply:
+      'Workers\' compensation insurance covers medical expenses and lost wages for employees who are injured at work. It\'s required for most businesses with employees.',
+  },
+  {
+    patterns: [/job classification/i],
+    reply:
+      'Job classification helps determine the level of risk and premium for each worker based on their duties.',
+  },
+  {
+    patterns: [/premium.*calculated.*workers/i],
+    reply:
+      'Premiums are based on the estimated annual payroll and the risk classification of your business activities.',
+  },
+  {
+    patterns: [/history.*workers comp/i],
+    reply:
+      'A history of claims can affect your premium, and it may require you to provide additional documentation or purchase coverage through specialty markets.',
+  },
+  {
+    patterns: [/few employees.*workers/i],
+    reply:
+      'Yes, in most states, workers\' compensation is required for any business with employees, even if you have just one.',
+  },
+  // PART 8: EARTHQUAKE INSURANCE
+  {
+    patterns: [/earthquake.*homeowners/i],
+    reply:
+      'No, earthquake coverage is typically separate from standard homeowners insurance and requires an additional policy or endorsement.',
+  },
+  {
+    patterns: [/need.*earthquake/i],
+    reply:
+      'If you live in an area prone to earthquakes, it\'s highly recommended. Your insurance provider will assess the risk based on your location.',
+  },
+  {
+    patterns: [/cost.*earthquake/i],
+    reply:
+      'The cost is influenced by factors such as the age of your home, its construction type, and its location in relation to fault lines.',
+  },
+  {
+    patterns: [/deductible.*earthquake/i],
+    reply:
+      'Yes, earthquake policies usually have a deductible, which can vary based on the coverage you select.',
+  },
+  {
+    patterns: [/earthquake.*flood/i],
+    reply:
+      'No, earthquake insurance typically covers only damage caused by seismic activity. Flooding may require a separate flood insurance policy.',
+  },
+  // PART 9: FLOOD INSURANCE
+  {
+    patterns: [/why.*flood.*not near/i],
+    reply:
+      'Flooding can occur in unexpected areas due to heavy rainfall, storms, or infrastructure failure. FEMA\'s flood maps help determine your flood risk.',
+  },
+  {
+    patterns: [/how.*know.*flood zone/i],
+    reply:
+      'FEMA\'s flood zone maps will tell you if your property is located in a high-risk zone. You can also consult your insurance provider for guidance.',
+  },
+  {
+    patterns: [/flood.*required.*law/i],
+    reply:
+      'Flood insurance is not legally required unless you live in a high-risk flood zone and have a mortgage from a federally regulated lender.',
+  },
+  {
+    patterns: [/flood insurance.*covers/i],
+    reply:
+      'Flood insurance typically covers damages to your home\'s structure, personal property, and sometimes additional living expenses if the property becomes uninhabitable.',
+  },
+  {
+    patterns: [/increase.*flood/i],
+    reply:
+      'Yes, you can choose to increase your coverage limit depending on the needs of your property.',
+  },
+  // PART 10: UMBRELLA / EXCESS LIABILITY
+  {
+    patterns: [/what is umbrella/i],
+    reply:
+      'Umbrella insurance provides additional liability coverage beyond your primary policies, such as home and auto, offering extra protection in case of large claims.',
+  },
+  {
+    patterns: [/umbrella.*everything/i],
+    reply:
+      'It generally covers personal injury, property damage, and certain lawsuits, but there are exclusions, such as business-related claims.',
+  },
+  {
+    patterns: [/umbrella.*already.*liability/i],
+    reply:
+      'Umbrella insurance provides an extra layer of protection in case your primary liability coverage limits are exhausted.',
+  },
+  {
+    patterns: [/umbrella.*limit/i],
+    reply:
+      'The limit represents the maximum amount your umbrella policy will pay out. Higher limits offer more extensive protection.',
+  },
+  {
+    patterns: [/exclusions.*umbrella/i],
+    reply:
+      'Yes, umbrella insurance typically does not cover business-related liability, certain types of damage, or intentional acts.',
+  },
+  // PART 11: SPECIALTY PRODUCTS
+  {
+    patterns: [/cyber liability/i],
+    reply:
+      'Cyber liability insurance helps protect your business against data breaches, hacking, and other cyber threats.',
+  },
+  {
+    patterns: [/professional liability/i],
+    reply:
+      'Yes, this description is required to assess the type of coverage your business needs based on the professional services you provide.',
+  },
+  {
+    patterns: [/inland marine/i],
+    reply:
+      'Coverage is determined by the type and value of property you need to insure, such as equipment, electronics, or fine art.',
+  },
+  {
+    patterns: [/surety bond/i],
+    reply:
+      'A surety bond is a guarantee that a business will fulfill its contractual obligations. It\'s required for certain licenses or projects.',
+  },
+  {
+    patterns: [/pet insurance/i],
+    reply:
+      'Pet insurance typically covers accidents, illnesses, and sometimes wellness care for pets, depending on the plan you choose.',
+  },
+  // PART 12: CARRIER DIRECTORY & PRODUCT MAPPING
+  {
+    patterns: [/choose.*carrier/i],
+    reply:
+      'You can refer to our carrier directory for a list of active carriers and their specific product offerings based on your needs.',
+  },
+  {
+    patterns: [/specialty.*not listed/i],
+    reply:
+      'If you need a specialty product, we\'ll work with you to find the right carrier or alternative solution for your unique requirements.',
+  },
+  {
+    patterns: [/change.*carrier/i],
+    reply:
+      'Yes, you can switch carriers if necessary, but it may require review and adjustment of your policy terms.',
+  },
+  {
+    patterns: [/file.*claim.*carrier/i],
+    reply:
+      'The process for filing a claim will depend on your specific carrier, and we can provide guidance on how to do this efficiently.',
+  },
+  {
+    patterns: [/carrier directory.*all/i],
+    reply:
+      'Yes, the carrier directory includes information on all types of coverage, from standard homeowners to more specialized commercial policies.',
+  },

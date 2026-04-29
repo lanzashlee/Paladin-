@@ -184,317 +184,401 @@ const KNOWN_TOPICS = [
 ];
 
 const SAMPLE_QUESTION_RESPONSES = [
+  {
+    patterns: [/universal\s+applicant/i, /applicant.*information/i, /information.*applicant/i],
+    reply:
+      'For the universal applicant section, collect the client\'s full legal name, date of birth, contact phone number, email address, mailing address, SSN last 4, optional full SSN when allowed, marital status, gender, preferred language, prior carrier, prior policy expiration or cancellation date, cancellation reason, loss history, soft credit consent, and electronic delivery consent. Required items block submission, while optional items should still be shown because they improve quoting accuracy and reduce follow-up calls.',
+  },
+  {
+    patterns: [/full\s+legal\s+name.*required/i, /required.*legal\s+name/i, /legal\s+name.*submit/i],
+    reply:
+      'Yes. Full legal name is required and should match the government-issued ID and policy documents exactly. It is one of the fields that must be completed before the quote can be submitted.',
+  },
+  {
+    patterns: [/date\s+of\s+birth.*ssn/i, /ssn.*date\s+of\s+birth/i, /why.*ask.*contact\s+information/i],
+    reply:
+      'Date of birth, SSN last 4, and contact information are used for rating, eligibility, and identity verification. The phone and email are also used for follow-up, quote delivery, and policy documents.',
+  },
+  {
+    patterns: [/required.*versus.*optional/i, /optional.*versus.*required/i, /applicant.*fields.*required/i],
+    reply:
+      'Required universal applicant fields include full legal name, date of birth, contact phone number, email address, mailing address, SSN last 4, loss history, soft credit consent, and electronic signature or electronic delivery consent. Optional fields include full SSN when permitted, marital status, gender, preferred language, prior carrier, prior policy expiration or cancellation date, and prior cancellation or non-renewal reason.',
+  },
+  {
+    patterns: [/loss\s+history.*prior\s+carrier/i, /prior\s+carrier.*loss\s+history/i, /provide\s+loss\s+history/i],
+    reply:
+      'Yes. Prior carrier information and loss history help the carrier evaluate continuity, discounts, and underwriting. Loss history should include the date, type, and paid amount for each loss from the past 5 years.',
+  },
+  {
+    patterns: [/soft\s+credit/i, /consent\s+mean/i],
+    reply:
+      'The soft credit consent gives permission to run an insurance score or soft credit inquiry when a carrier uses it for rating or underwriting. It must be documented before the quote can proceed where required by the carrier or state rules.',
+  },
+  {
+    patterns: [/\breport\b.*\bclaim\b/i, /\bfile\b.*\bclaim\b/i],
+    reply:
+      'To report a claim, start the claim form on the website or call 805-692-6900. Share your policy number, date/time of loss, what happened, and any photos or documents you have. A licensed Paladin agent will follow up and walk you through carrier-specific next steps.',
+  },
+  {
+    patterns: [/\bwhat\s+fields\s+.*\bdocument\s+request\b/i, /\bwhat\s+do\s+i\s+need\s+for\s+.*\bcoi\b/i, /\bproof of insurance\b/i, /\bcertificate of insurance\b/i],
+    reply:
+      'For a document request, have your name, email, document type, the coverages to display, the certificate holder name and address, any endorsement wording, and the deadline ready. If you need a COI, include whether the request should show Additional Insured, Waiver of Subrogation, Primary and Non-Contributory, or Hired and Non-Owned Auto.',
+  },
+  {
+    patterns: [/\bwhat\s+fields\s+.*\bpolicy\s+change\b/i, /\bwhat\s+do\s+i\s+need\s+to\s+change\s+my\s+policy\b/i, /\badd\s+driver\b/i, /\bremove\s+vehicle\b/i, /\bchange\s+coverage\s+limits\b/i],
+    reply:
+      'For a policy change request, include your name, email, policy type, the requested change type, the effective date, notes, and mortgagee or lienholder details if the change affects those parties. The more specific the request, the faster the carrier can review it.',
+  },
+  {
+    patterns: [/\bwhat\s+fields\s+.*\bupdate\s+contact\b/i, /\bupdate\s+my\s+email\b/i, /\bchange\s+my\s+address\b/i, /\bchange\s+my\s+phone\b/i],
+    reply:
+      'For an update contact info request, have your name, email, the update type, the new contact or address details, and whether the change should apply to all policies or only one policy. If it is only one policy, include the policy number.',
+  },
+  {
+    patterns: [/\bwhat\s+fields\s+.*\bconsultation\b/i, /\brequest\s+a\s+consultation\b/i, /\bcoverage\s+type\b/i, /\bpreferred\s+contact\b/i],
+    reply:
+      'For a consultation request, use your full name, email, phone, coverage type, preferred contact method, timeline, and any notes about what you want to protect. That helps the agent prepare the right recommendations before reaching out.',
+  },
+  {
+    patterns: [/\bwhat\s+fields\s+.*\bcall\s+request\b/i, /\brequest\s+a\s+call\b/i, /\bcallback\b/i],
+    reply:
+      'For a call request, include your full name, phone number, optional email, policy number, preferred day, preferred time, alternate time if needed, and the topic you want to discuss. That helps us route the call to the right agent.',
+  },
+  {
+    patterns: [/\bwhat\s+fields\s+.*\bclaim\s+report\b/i, /\bwhat\s+do\s+i\s+need\s+to\s+report\s+a\s+claim\b/i],
+    reply:
+      'For a claim report, gather your name, email, policy number, phone number, incident date and time, claim type, location, other-party details, any police report information, the estimated loss, and any carrier claim number if you already have one.',
+  },
+  {
+    patterns: [/\boffice hours\b/i, /\bcontact details\b/i],
+    reply:
+      'Paladin office hours are Monday to Friday, 9:00 AM to 5:00 PM, and the office is closed on weekends. You can reach us at 805-692-6900, email support@paladinbusinessservices.net, or visit 3787 Transport ST Suite A7 Box #5, Ventura, CA 93003. If it is after hours, send an email and an agent will respond the next business day.',
+  },
+  {
+    patterns: [/\bproof of insurance\b/i, /\bcoi\b/i, /\bcertificate of insurance\b/i],
+    reply:
+      'For proof of insurance or a COI, submit a document request through the website. Include certificate holder details, job/property address, and any required endorsements like Waiver of Subrogation or Additional Insured. If urgent, call 805-692-6900 and ask for certificate processing support.',
+  },
+  {
+    patterns: [/\brequest\b.*\bcallback\b/i, /\bcall me\b/i, /\bcall back\b/i],
+    reply:
+      'To request a callback, use the call request form and include your preferred phone number, best time window, and topic. This helps the assigned agent prepare before calling you. You can also call 805-692-6900 during business hours for immediate routing.',
+  },
+  {
+    patterns: [/\bchange\b.*\bpolicy\b/i, /\bpolicy change\b/i, /\badd\b.*\bdriver\b/i, /\bremove\b.*\bdriver\b/i],
+    reply:
+      'Policy changes can be requested online or by phone. For updates like adding/removing a driver, vehicle, address, or coverage limits, provide the policy number, effective date, and complete change details so the carrier can process quickly. Some changes may require underwriting review before final approval.',
+  },
+  {
+    patterns: [/\blicensed\b.*\bstates\b/i, /\bwhat states\b/i],
+    reply:
+      'Paladin is licensed in CA, AZ, ID, IL, IN, NV, NC, OH, and TX. If your risk or business operates across multiple states, we can help you identify the best next step and route you to the right policy workflow.',
+  },
+  {
+    patterns: [/\bafter hours\b.*\bclaim\b/i],
+    reply:
+      'Yes, you can submit claim details after hours through the website. If there is immediate danger or emergency damage, contact emergency services first, then notify your carrier emergency line if available. Paladin will review your submission and follow up on the next business day.',
+  },
+  {
+    patterns: [/\bhow quickly\b.*\bfollow up\b.*\bclaim\b/i],
+    reply:
+      'Paladin aims to follow up on new claim reports as soon as possible during business hours. Response time can vary by claim severity and carrier requirements, but submitting complete details and supporting documents usually speeds up handling.',
+  },
+  {
+    patterns: [/\bclaim types\b/i, /\bwhat claim\b.*\bhelp\b/i],
+    reply:
+      'We can assist with common claim categories such as auto, home, commercial property, general liability, workers compensation, and related coverage claims. The exact process depends on your carrier and policy terms, and we can guide you through the right channel.',
+  },
+  {
+    patterns: [/\bbundle\b.*\bcoverages\b/i],
+    reply:
+      'Yes, Paladin can review bundled options for business coverages such as general liability, property, commercial auto, workers compensation, and umbrella depending on eligibility. Bundling may improve pricing and simplify renewals, but final terms come from the carrier quote.',
+  },
+  {
+    patterns: [/\bcompare\b.*\bcarriers\b/i],
+    reply:
+      'As an independent agency, Paladin can compare multiple carrier options for your risk profile. We look at coverage fit, limits, deductibles, exclusions, pricing, and service factors so you can make an informed choice instead of selecting only by premium.',
+  },
+  {
+    patterns: [/\bumbrella\b.*\bgeneral liability\b/i, /\bgeneral liability\b.*\bumbrella\b/i],
+    reply:
+      'General liability is primary coverage for common third-party bodily injury and property damage claims. Umbrella coverage typically sits on top of eligible underlying policies and adds extra liability limits once those base limits are exhausted. It is designed to provide broader financial protection for larger claims.',
+  },
   // PART 1: UNIVERSAL APPLICANT
   {
-    patterns: [/full legal name/i],
+    patterns: [/full legal name\b/i],
     reply:
-      'You\'ll need to provide your first, middle, and last names as they appear on your government-issued ID.',
+      'Please provide your full legal name, including your first, middle, and last name as they appear on your government-issued ID.',
   },
   {
-    patterns: [/why.*date.*birth/i],
-    reply:
-      'Your date of birth is required for eligibility verification, rating, and underwriting purposes across all insurance lines.',
+    patterns: [/date of birth\b/i, /born when\b/i],
+    reply: 'Kindly enter your date of birth in MM/DD/YYYY format.',
   },
   {
-    patterns: [/different phone/i],
-    reply:
-      'The phone number you provide should be the primary contact number where we can reach you for follow-ups and policy delivery.',
+    patterns: [/contact phone\b/i, /phone number\b/i],
+    reply: 'Please provide your phone number in the format (XXX) XXX-XXXX.',
   },
   {
-    patterns: [/how.*email/i],
+    patterns: [/email address\b/i],
     reply:
-      'We will use your email to send policy documents, quotes, and any important updates related to your insurance coverage.',
+      'Please enter your email address. This will be used for policy documents and correspondence.',
   },
   {
-    patterns: [/skip.*ssn/i, /full ssn/i],
+    patterns: [/mailing address\b/i],
     reply:
-      'The last 4 digits of your SSN are required for identity verification and insurance score checks. The full SSN is optional unless required by certain carriers.',
+      'Please provide your mailing address, including your street address, city, state, and ZIP code.',
+  },
+  {
+    patterns: [/soft credit\b.*\binsurance score\b/i, /consent.*soft credit\b/i],
+    reply:
+      'By selecting "Yes," you\'re consenting to a soft credit check, which will help us evaluate your insurance score. Rest assured, this will not impact your credit rating.',
   },
   // PART 2: HOMEOWNERS INSURANCE HO3
   {
-    patterns: [/property address.*homeowners/i],
-    reply:
-      'Please enter the address of the home that you want to insure, not your mailing address.',
+    patterns: [/insured property address\b/i, /ho3\b.*\bproperty address\b/i],
+    reply: 'Enter the address of the insured property.',
   },
   {
-    patterns: [/county.*affect.*homeowners/i],
+    patterns: [/county\b.*\bproperty\b/i, /ho3\b.*\bcounty\b/i],
     reply:
-      'The county is important for certain insurance requirements, such as risk factors related to wildfire and earthquake zones, and it helps us determine the best coverage for your area.',
+      'The county will be auto-populated from your ZIP code, but you can also select it manually if needed.',
   },
   {
-    patterns: [/don.?t know.*year.*built/i],
-    reply:
-      'The year your property was built is essential for underwriting purposes, as it helps assess your home\'s eligibility for certain coverage types and determines the replacement cost.',
+    patterns: [/year.*built\b/i, /ho3\b.*\byear\b/i],
+    reply: 'Please enter the year your property was built (4-digit year).',
   },
   {
-    patterns: [/stories.*necessary/i],
+    patterns: [/stories\b.*\bhome\b/i, /how many stories\b/i],
     reply:
-      'Yes, the number of stories is necessary because it impacts both the replacement cost and the overall rating for your policy.',
+      'Select the number of stories your home has from the dropdown (e.g., 1, 2, 3+).',
   },
   {
-    patterns: [/pool.*covered/i],
-    reply:
-      'If you have a pool, it can affect both your liability coverage and the overall premium. Certain safety measures may be required.',
+    patterns: [/pool\b.*\bproperty\b/i, /swimming pool\b/i],
+    reply: 'Select Yes or No.',
   },
   // PART 3: CONDO OWNERS INSURANCE HO6
   {
-    patterns: [/difference.*condo.*house/i],
-    reply:
-      'Condo insurance covers the interior of your unit and your personal property, while the building\'s exterior is covered by the HOA\'s master policy.',
+    patterns: [/condo.*address\b/i, /unit address\b/i],
+    reply: 'Enter the full address of your condo, including the unit number.',
   },
   {
-    patterns: [/construction type/i],
+    patterns: [/building.*complex name\b/i, /complex name\b/i],
     reply:
-      'The construction type affects the fire-resistance rating, which impacts your coverage and premiums.',
+      'If applicable, provide the name of the building or complex.',
   },
   {
-    patterns: [/stories.*condo/i],
+    patterns: [/condo.*built\b/i, /ho6\b.*\byear\b/i],
     reply:
-      'High-floor units have a different risk profile, especially for water damage from the roof, so this helps us assess the appropriate coverage.',
+      'Please enter the 4-digit year the building was constructed.',
   },
   {
-    patterns: [/renovations.*upgrades/i],
+    patterns: [/square footage\b/i, /condo unit\b.*\bsquare\b/i],
     reply:
-      'Yes, providing details of any upgrades or renovations helps us assess the true replacement cost of your unit and ensures you\'re adequately covered.',
+      'Provide the square footage of your condo unit.',
   },
   {
-    patterns: [/liability.*condo/i],
+    patterns: [/upgrades\b.*\bcondo\b/i, /betterments\b/i],
     reply:
-      'Yes, liability coverage is included to protect against injuries or damage caused within your unit. You can also select higher limits if needed.',
+      'If you\'ve made improvements, describe the upgrades (e.g., custom kitchen, renovations) and provide an estimated value.',
   },
   // PART 4: RENTERS INSURANCE HO4
   {
-    patterns: [/what is renters insurance/i],
+    patterns: [/rental property address\b/i, /ho4\b.*\baddress\b/i],
     reply:
-      'Renters insurance covers your personal belongings, liability protection, and sometimes additional living expenses if your home becomes uninhabitable.',
+      'Provide the full address of the rented property, including the unit number if applicable.',
   },
   {
-    patterns: [/how much.*renters/i],
+    patterns: [/type of rental\b/i, /rental unit\b/i],
     reply:
-      'You\'ll need to estimate the value of your personal belongings and select coverage that matches that value.',
+      'Select the type of unit from the dropdown (e.g., Apartment, Condo, House, Mobile Home, Studio, Other).',
   },
   {
-    patterns: [/liability.*renters/i],
-    reply:
-      'Liability coverage protects you if someone is injured in your rental unit or if you accidentally damage someone else\'s property.',
+    patterns: [/monthly rent\b/i],
+    reply: 'Please provide the amount you pay for monthly rent.',
   },
   {
-    patterns: [/type of rental/i],
+    patterns: [/personal property\b.*\bvalue\b/i, /property.*rental\b/i],
     reply:
-      'Whether you\'re renting an apartment, condo, or house can affect your coverage options and premiums.',
+      'Provide an estimate of the value of your personal property in the rented unit.',
   },
   {
-    patterns: [/landlord.*insurance/i],
+    patterns: [/pet\b.*\brental\b/i, /pet in the unit\b/i],
     reply:
-      'Yes, your landlord\'s insurance only covers the building, not your personal belongings. Renters insurance is necessary to protect your possessions.',
+      'Select Yes or No. If Yes, provide the breed and other details.',
   },
   // PART 5: COMMERCIAL AUTO INSURANCE
   {
-    patterns: [/what is commercial auto/i],
-    reply:
-      'Commercial auto insurance covers vehicles used for business purposes, including transporting goods, employees, or offering services.',
+    patterns: [/legal business name\b/i, /business name\b/i],
+    reply: 'Enter the full legal name of your business.',
   },
   {
-    patterns: [/determine.*premium.*commercial/i],
+    patterns: [/federal ein\b/i, /tax id\b/i, /ein\b/i],
     reply:
-      'The premium is based on factors such as the type of vehicle, its use, the number of vehicles, and driving history.',
+      'Provide your Federal Employer Identification Number.',
   },
   {
-    patterns: [/difference.*personal.*commercial/i],
+    patterns: [/vehicles.*insuring\b/i, /how many vehicles\b/i],
     reply:
-      'Yes, personal auto insurance covers personal use of a vehicle, while commercial auto insurance covers business-related use and provides higher liability limits.',
+      'Enter the total number of vehicles that require coverage.',
   },
   {
-    patterns: [/list all drivers/i],
+    patterns: [/commercial auto claims\b/i, /prior.*claims\b/i],
     reply:
-      'All drivers need to be listed for underwriting purposes, as unlisted drivers may not be covered in the event of an accident.',
+      'Provide details about any claims, including the date, description, and cost.',
   },
   {
-    patterns: [/past accidents.*commercial/i],
+    patterns: [/primary use\b.*\bvehicle\b/i, /vehicle use\b/i],
     reply:
-      'Yes, past accidents are critical for determining your premium and coverage eligibility.',
+      'Select the primary use of the vehicle from the dropdown (e.g., Transport of Goods, Service/Repair Calls, Employee Transport, Pickup/Delivery).',
   },
   // PART 6: GENERAL LIABILITY INSURANCE
   {
-    patterns: [/what.*general liability/i],
-    reply:
-      'General liability insurance protects your business from third-party claims of bodily injury, property damage, and personal injury.',
+    patterns: [/business address\b/i, /principal business address\b/i],
+    reply: 'Enter the principal business address.',
   },
   {
-    patterns: [/describe.*business.*operations/i],
+    patterns: [/business operations\b/i, /description.*business\b/i],
     reply:
-      'The description helps determine your risk exposure and is a critical factor in calculating your premium.',
+      'Describe what your business does, for whom, and how. This information is crucial for underwriting.',
   },
   {
-    patterns: [/revenue.*impact/i],
-    reply:
-      'Higher revenue typically means a higher level of risk, which can affect your premium. It\'s important to provide an accurate estimate.',
+    patterns: [/annual revenue\b/i],
+    reply: 'Provide the estimated annual revenue of your business.',
   },
   {
-    patterns: [/subcontractors/i],
-    reply:
-      'Subcontractors may need their own insurance, or you may need to ensure that they are covered under your policy depending on the nature of their work.',
-  },
-  {
-    patterns: [/per occurrence.*aggregate/i],
-    reply:
-      'Per occurrence limits refer to the maximum payout for a single claim, while aggregate limits are the total payout for all claims during a policy period.',
+    patterns: [/general liability claims\b/i, /prior.*liability.*claims\b/i],
+    reply: 'If so, provide details about the claims.',
   },
   // PART 7: WORKERS COMPENSATION INSURANCE
   {
-    patterns: [/what is workers.? compensation/i],
+    patterns: [/full-time employees\b/i, /how many.*employees\b/i],
     reply:
-      'Workers\' compensation insurance covers medical expenses and lost wages for employees who are injured at work. It\'s required for most businesses with employees.',
+      'Enter the total number of full-time employees working for your business.',
   },
   {
-    patterns: [/job classification/i],
+    patterns: [/annual payroll\b/i, /total.*payroll\b/i],
     reply:
-      'Job classification helps determine the level of risk and premium for each worker based on their duties.',
+      'Provide the estimated total payroll for your business.',
   },
   {
-    patterns: [/premium.*calculated.*workers/i],
+    patterns: [/primary business activity\b/i, /work performed\b/i],
     reply:
-      'Premiums are based on the estimated annual payroll and the risk classification of your business activities.',
+      'Provide a detailed description of the work performed by your employees.',
   },
   {
-    patterns: [/history.*workers comp/i],
+    patterns: [/workers.*compensation claims\b/i, /ongoing claims\b/i],
     reply:
-      'A history of claims can affect your premium, and it may require you to provide additional documentation or purchase coverage through specialty markets.',
-  },
-  {
-    patterns: [/few employees.*workers/i],
-    reply:
-      'Yes, in most states, workers\' compensation is required for any business with employees, even if you have just one.',
+      'If applicable, provide details of any ongoing claims.',
   },
   // PART 8: EARTHQUAKE INSURANCE
   {
-    patterns: [/earthquake.*homeowners/i],
+    patterns: [/earthquake.*property address\b/i, /earthquake coverage\b/i],
     reply:
-      'No, earthquake coverage is typically separate from standard homeowners insurance and requires an additional policy or endorsement.',
+      'Provide the address of the property needing earthquake insurance.',
   },
   {
-    patterns: [/need.*earthquake/i],
+    patterns: [/seismically retrofitted\b/i, /retrofit\b/i],
     reply:
-      'If you live in an area prone to earthquakes, it\'s highly recommended. Your insurance provider will assess the risk based on your location.',
+      'Indicate Yes or No. If Yes, provide retrofit details.',
   },
   {
-    patterns: [/cost.*earthquake/i],
+    patterns: [/earthquake.*deductible\b/i, /deductible.*earthquake\b/i],
     reply:
-      'The cost is influenced by factors such as the age of your home, its construction type, and its location in relation to fault lines.',
+      'Select the deductible amount from the available options.',
   },
   {
-    patterns: [/deductible.*earthquake/i],
+    patterns: [/replacement cost\b.*\bdwelling\b/i, /dwelling cost\b/i],
     reply:
-      'Yes, earthquake policies usually have a deductible, which can vary based on the coverage you select.',
-  },
-  {
-    patterns: [/earthquake.*flood/i],
-    reply:
-      'No, earthquake insurance typically covers only damage caused by seismic activity. Flooding may require a separate flood insurance policy.',
+      'Provide the replacement cost of your home.',
   },
   // PART 9: FLOOD INSURANCE
   {
-    patterns: [/why.*flood.*not near/i],
-    reply:
-      'Flooding can occur in unexpected areas due to heavy rainfall, storms, or infrastructure failure. FEMA\'s flood maps help determine your flood risk.',
+    patterns: [/flood.*property address\b/i, /flood coverage\b/i],
+    reply: 'Enter the full property address.',
   },
   {
-    patterns: [/how.*know.*flood zone/i],
+    patterns: [/fema flood zone\b/i, /flood zone\b/i],
     reply:
-      'FEMA\'s flood zone maps will tell you if your property is located in a high-risk zone. You can also consult your insurance provider for guidance.',
+      'This will be auto-populated based on your address. Alternatively, you can manually select from a dropdown.',
   },
   {
-    patterns: [/flood.*required.*law/i],
+    patterns: [/base flood elevation\b/i, /bfe\b/i],
     reply:
-      'Flood insurance is not legally required unless you live in a high-risk flood zone and have a mortgage from a federally regulated lender.',
+      'Provide the BFE, which is the height of the base of your property above sea level.',
   },
   {
-    patterns: [/flood insurance.*covers/i],
-    reply:
-      'Flood insurance typically covers damages to your home\'s structure, personal property, and sometimes additional living expenses if the property becomes uninhabitable.',
+    patterns: [/property located\b.*\bflood\b/i, /located.*flood zone\b/i],
+    reply: 'Confirm if your property is located in a flood zone.',
   },
   {
-    patterns: [/increase.*flood/i],
+    patterns: [/building coverage\b.*\bflood\b/i, /coverage amount\b.*\bflood\b/i],
     reply:
-      'Yes, you can choose to increase your coverage limit depending on the needs of your property.',
+      'Specify the coverage amount for your property\'s structure.',
   },
   // PART 10: UMBRELLA / EXCESS LIABILITY
   {
-    patterns: [/what is umbrella/i],
+    patterns: [/umbrella.*name\b/i, /umbrella liability limit\b/i],
     reply:
-      'Umbrella insurance provides additional liability coverage beyond your primary policies, such as home and auto, offering extra protection in case of large claims.',
+      'Provide either your full name (for personal umbrella) or business name (for commercial umbrella).',
   },
   {
-    patterns: [/umbrella.*everything/i],
+    patterns: [/underlying.*policy\b/i, /underlying.*carrier\b/i],
     reply:
-      'It generally covers personal injury, property damage, and certain lawsuits, but there are exclusions, such as business-related claims.',
+      'If applicable, provide the carrier\'s name for the underlying policies.',
   },
   {
-    patterns: [/umbrella.*already.*liability/i],
+    patterns: [/umbrella.*limit\b/i, /umbrella liability limit\b/i],
     reply:
-      'Umbrella insurance provides an extra layer of protection in case your primary liability coverage limits are exhausted.',
+      'Select the desired limit for your umbrella policy.',
   },
   {
-    patterns: [/umbrella.*limit/i],
+    patterns: [/pool\b.*\bumbrella\b/i, /swimming pool\b.*\bumbrella\b/i],
     reply:
-      'The limit represents the maximum amount your umbrella policy will pay out. Higher limits offer more extensive protection.',
+      'Indicate Yes or No. Pools significantly affect umbrella coverage.',
   },
   {
-    patterns: [/exclusions.*umbrella/i],
-    reply:
-      'Yes, umbrella insurance typically does not cover business-related liability, certain types of damage, or intentional acts.',
+    patterns: [/umbrella claims\b/i, /prior.*umbrella\b/i],
+    reply: 'If applicable, provide details on prior claims.',
   },
   // PART 11: SPECIALTY PRODUCTS
   {
-    patterns: [/cyber liability/i],
+    patterns: [/personally identifiable\b/i, /pii\b/i],
     reply:
-      'Cyber liability insurance helps protect your business against data breaches, hacking, and other cyber threats.',
+      'Indicate if you store PII, as it impacts cyber liability coverage.',
   },
   {
-    patterns: [/professional liability/i],
+    patterns: [/multi-factor authentication\b/i, /mfa\b/i],
     reply:
-      'Yes, this description is required to assess the type of coverage your business needs based on the professional services you provide.',
+      'Indicate Yes or No. MFA is important for cyber liability coverage.',
   },
   {
-    patterns: [/inland marine/i],
+    patterns: [/cyber incidents\b/i, /prior cyber\b/i],
     reply:
-      'Coverage is determined by the type and value of property you need to insure, such as equipment, electronics, or fine art.',
-  },
-  {
-    patterns: [/surety bond/i],
-    reply:
-      'A surety bond is a guarantee that a business will fulfill its contractual obligations. It\'s required for certain licenses or projects.',
-  },
-  {
-    patterns: [/pet insurance/i],
-    reply:
-      'Pet insurance typically covers accidents, illnesses, and sometimes wellness care for pets, depending on the plan you choose.',
+      'If yes, provide details including dates and costs.',
   },
   // PART 12: CARRIER DIRECTORY & PRODUCT MAPPING
   {
-    patterns: [/choose.*carrier/i],
-    reply:
-      'You can refer to our carrier directory for a list of active carriers and their specific product offerings based on your needs.',
+    patterns: [/carrier.*working\b/i, /what carrier\b/i],
+    reply: 'Provide the name of the carrier you work with.',
   },
   {
-    patterns: [/specialty.*not listed/i],
+    patterns: [/primary lines\b.*\bbusiness\b/i, /lines of business\b/i],
     reply:
-      'If you need a specialty product, we\'ll work with you to find the right carrier or alternative solution for your unique requirements.',
+      'List the types of insurance your business offers.',
   },
   {
-    patterns: [/change.*carrier/i],
+    patterns: [/policy number\b/i],
     reply:
-      'Yes, you can switch carriers if necessary, but it may require review and adjustment of your policy terms.',
+      'Enter the policy number provided by the carrier.',
   },
   {
-    patterns: [/file.*claim.*carrier/i],
+    patterns: [/additional coverage\b/i],
     reply:
-      'The process for filing a claim will depend on your specific carrier, and we can provide guidance on how to do this efficiently.',
+      'Specify any additional coverages you may need beyond standard policies.',
   },
   {
-    patterns: [/carrier directory.*all/i],
-    reply:
-      'Yes, the carrier directory includes information on all types of coverage, from standard homeowners to more specialized commercial policies.',
+    patterns: [/policy.*active\b/i, /currently active\b/i],
+    reply: 'Confirm if the policy is currently active.',
   },
 ];
 
@@ -736,27 +820,6 @@ const buildLocalReply = (message) => {
   }
 
   return 'I can help with claims, policy changes, document requests, consultations, callbacks, coverage options, and office contact details. Tell me your goal and I will give you exact next steps.';
-};
-
-const INTENT_LOCAL_RESPONSES = {
-  claim:
-    'To report a claim, start the claim form on the website or call 805-692-6900. Share your policy number, date/time of loss, what happened, and any documents or photos. A licensed agent will follow up shortly and guide you through the carrier-specific process.',
-  'universal-applicant':
-    'The universal applicant section collects client information used across several insurance products. This includes full legal name, date of birth, contact phone and email, mailing address, SSN last 4, employment history, prior coverage details, loss history, and consent to credit checks and e-delivery.',
-  'document-request':
-    'You can request proof of insurance or other documents through the website. Include your name, email, the document type, certificate holder details, and any special wording or endorsements needed. If urgent, call 805-692-6900 and ask for certificate support.',
-  'policy-change':
-    'Policy changes can be requested through the website or by phone. Provide your name, email, policy type, the requested change, the effective date, and complete details so the carrier can review quickly. Changes may require underwriting approval.',
-  'update-contact':
-    'You can update email, phone, address, or legal name through the website form. Specify whether the change applies to all active policies or one specific policy. If updating one policy, include the policy number.',
-  consultation:
-    'You can request a personalized consultation through the website. Provide your name, email, phone, coverage type of interest, preferred contact method, timeline, and any special notes. An agent will review your request and reach out.',
-  'call-request':
-    'You can request a callback through the website call request form. Provide your name, phone number, preferred day and time, alternate times if needed, and the topic for discussion. This helps the agent prepare before calling.',
-  'hours-contact':
-    'Paladin office hours are Monday to Friday, 9:00 AM to 5:00 PM. You can call 805-692-6900, email support@paladinbusinessservices.net, or mail to 3787 Transport ST Suite A7 Box #5, Ventura, CA 93003. After hours, email and get a response the next business day.',
-  'coverage-info':
-    'Paladin offers many coverage types: homeowners, renters, condo, umbrella, commercial auto, general liability, workers compensation, flood, earthquake, cyber liability, and specialty products. We can help you find the right coverage for your situation.',
 };
 
 const extractText = (payload) => {

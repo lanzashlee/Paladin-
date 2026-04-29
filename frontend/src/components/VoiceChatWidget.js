@@ -11,30 +11,73 @@ const ENABLE_AGORA = process.env.REACT_APP_ENABLE_AGORA === 'true';
 const VOICE_CHAT_STORAGE_KEY = 'paladin.voice-chat-widget.v1';
 const INITIAL_ASSISTANT_MESSAGE = {
   role: 'assistant',
-  text: 'Hi, I am your Paladin voice assistant. Ask me anything about insurance support and services.',
+  text: 'Hi, I am your Paladin voice assistant. Ask me about claims, documents, policy changes, contact updates, consultations, callback requests, or universal applicant information.',
   timestamp: new Date().toISOString(),
 };
 
 const QUESTION_PACKS = {
   popular: [
     'How do I report a claim with Paladin?',
-    'What are your office hours and contact details?',
     'How do I request proof of insurance or a COI?',
+    'How do I make a policy change request?',
+    'How do I update my contact information?',
+    'How do I request a consultation with an agent?',
     'How do I request a callback from an agent?',
-    'How do I make changes to an existing policy?',
-    'What states is Paladin licensed in?',
+  ],
+  consultation: [
+    'What information do I need for a consultation request?',
+    'Is the consultation request for personal or commercial coverage?',
+    'What coverage type should I select on the consultation form?',
+    'Can I request a consultation and a callback?',
+    'What timeline should I include on the consultation request form?',
+    'Who will follow up after I submit a consultation request?',
+  ],
+  documents: [
+    'What do I need for a document request or COI?',
+    'Which document types can I request?',
+    'What should I include for Additional Insured or endorsement wording?',
+    'What certificate holder details are needed on the document request form?',
+    'Can I request declarations or endorsement copies too?',
+    'What deadline information should I include on a document request?',
+  ],
+  policy: [
+    'What information is needed for a policy change request?',
+    'How do I add or remove a driver or vehicle?',
+    'When should I include mortgagee or lienholder information?',
+    'Can I change coverage limits or deductibles on the form?',
+    'What effective date should I use for a policy change?',
+    'Can I cancel a policy through the policy change request?',
+  ],
+  update: [
+    'What do I need to update my contact info?',
+    'Can I change my email, phone, or mailing address?',
+    'Can I update one policy or all policies at once?',
+    'When should I include my policy number on an update request?',
+    'Can I use the form to update a legal name?',
+    'What details should I include for other account updates?',
   ],
   claims: [
     'What details should I prepare before reporting a claim?',
     'Can I submit a claim after business hours?',
     'How quickly will a licensed agent follow up on a claim?',
     'What claim types can Paladin help with?',
+    'What should I include for police report or estimated loss details?',
+    'Can I report an auto, property, or liability claim through the form?',
   ],
-  policy: [
-    'How do I add or remove a driver from my policy?',
-    'How do I change coverage limits or deductibles?',
-    'What information is needed for a policy change request?',
-    'How do I update my contact info on file?',
+  'universal-applicant': [
+    'What information do I need to provide for my full legal name?',
+    'Why do you need my date of birth?',
+    'Can I enter a different phone number other than my personal one?',
+    'How will you use my email address?',
+    'What if I don\'t have a full SSN, can I skip that field?',
+  ],
+  call: [
+    'What information do I need for a callback request?',
+    'What day and time should I choose for a callback?',
+    'Can I add an alternate time if the first one is unavailable?',
+    'What topic should I include on the call request form?',
+    'Do I need a policy number for a callback request?',
+    'Can I request a callback after business hours?',
   ],
   coverage: [
     'Do you offer workers compensation and commercial auto?',
@@ -42,13 +85,106 @@ const QUESTION_PACKS = {
     'How can Paladin help compare multiple carriers?',
     'What is the difference between umbrella and general liability?',
   ],
+  'ho3': [
+    'What property address do I need to enter for homeowners insurance?',
+    'How does the county affect my homeowners insurance?',
+    'What happens if I don\'t know the year my property was built?',
+    'Do I need to provide the number of stories for my house?',
+    'Is a pool covered under my homeowners insurance?',
+  ],
+  'ho6': [
+    'What is the difference between a condo unit and a house when it comes to insurance?',
+    'Why do you ask for the construction type of the building?',
+    'How does the number of stories affect condo insurance?',
+    'Do I need to provide a description of any renovations or upgrades to my condo?',
+    'Is liability coverage included in condo insurance?',
+  ],
+  'ho4': [
+    'What is renters insurance and what does it cover?',
+    'How do I determine how much renters insurance I need?',
+    'What does liability coverage in renters insurance cover?',
+    'How does the type of rental unit affect my insurance?',
+    'Do I need renters insurance if my landlord has insurance?',
+  ],
+  'commercial-auto': [
+    'What is commercial auto insurance, and who needs it?',
+    'How do you determine the premium for commercial auto insurance?',
+    'Is there a difference in coverage for personal vs. commercial auto insurance?',
+    'Why do I need to list all drivers for my commercial vehicles?',
+    'Do I need to provide information on past accidents for commercial auto insurance?',
+  ],
+  'general-liability': [
+    'What does general liability insurance cover?',
+    'Why do I need to describe my business operations?',
+    'How does my business revenue impact the cost of general liability insurance?',
+    'Are subcontractors covered under my general liability policy?',
+    'What is the difference between per occurrence and aggregate limits?',
+  ],
+  'workers-comp': [
+    'What is workers\' compensation insurance, and who needs it?',
+    'Why do I need to list each employee\'s job classification for workers\' compensation?',
+    'How is my workers\' compensation premium calculated?',
+    'What happens if my business has a history of workers\' compensation claims?',
+    'Do I need to carry workers\' compensation insurance if I only have a few employees?',
+  ],
+  'earthquake': [
+    'Is earthquake coverage included in my homeowners insurance?',
+    'How do I determine if I need earthquake insurance?',
+    'What factors affect the cost of earthquake insurance?',
+    'Is there a deductible for earthquake insurance?',
+    'Does earthquake insurance cover flood damage?',
+  ],
+  'flood': [
+    'Why do I need flood insurance if my property isn\'t near water?',
+    'How do I know if my property is in a flood zone?',
+    'Is flood insurance required by law?',
+    'What does flood insurance cover?',
+    'Can I increase the coverage limit on my flood insurance policy?',
+  ],
+  'umbrella': [
+    'What is umbrella insurance, and who needs it?',
+    'Does umbrella insurance cover everything?',
+    'Why do I need umbrella insurance if I already have liability coverage?',
+    'How does the umbrella policy limit affect my coverage?',
+    'Are there any exclusions with umbrella insurance?',
+  ],
+  'specialty': [
+    'What is cyber liability insurance?',
+    'Do I need to provide a description of my business operations for professional liability insurance?',
+    'How do I determine the coverage needed for inland marine insurance?',
+    'What is a surety bond, and when do I need one?',
+    'What does pet insurance cover?',
+  ],
+  'carrier-directory': [
+    'How do I know which insurance carrier to choose for my needs?',
+    'What if I need a specialty insurance product not listed here?',
+    'Can I change my insurance carrier after purchasing coverage?',
+    'How do I file a claim with my insurance carrier?',
+    'Does the carrier directory include all types of coverage?',
+  ],
 };
 
 const QUESTION_CATEGORY_LABELS = {
-  popular: 'Popular',
-  claims: 'Claims',
-  policy: 'Policy',
-  coverage: 'Coverage',
+  popular: 'POPULAR',
+  consultation: 'CONSULTATION',
+  documents: 'DOCUMENTS',
+  policy: 'POLICY CHANGE',
+  update: 'UPDATE INFO',
+  claims: 'CLAIMS',
+  'universal-applicant': 'UNIVERSAL APPLICANT',
+  call: 'CALL REQUEST',
+  coverage: 'COVERAGE',
+  'ho3': 'HOMEOWNERS (HO3)',
+  'ho6': 'CONDO (HO6)',
+  'ho4': 'RENTERS (HO4)',
+  'commercial-auto': 'COMMERCIAL AUTO',
+  'general-liability': 'GENERAL LIABILITY',
+  'workers-comp': 'WORKERS COMP',
+  'earthquake': 'EARTHQUAKE',
+  'flood': 'FLOOD',
+  'umbrella': 'UMBRELLA',
+  'specialty': 'SPECIALTY PRODUCTS',
+  'carrier-directory': 'CARRIER DIRECTORY',
 };
 
 const ACTION_LABEL_BY_TYPE = {
@@ -65,7 +201,6 @@ function VoiceChatWidget() {
   const [isSpeaking, setIsSpeaking] = useState(false);
   const [isVoiceMuted, setIsVoiceMuted] = useState(false);
   const [micEnabled, setMicEnabled] = useState(false);
-  const [autoListen, setAutoListen] = useState(false);
   const [unreadCount, setUnreadCount] = useState(0);
   const [copiedReply, setCopiedReply] = useState(false);
   const [feedbackByMessageIndex, setFeedbackByMessageIndex] = useState({});
@@ -96,7 +231,7 @@ function VoiceChatWidget() {
   const isLoadingRef = useRef(false);
   const isSpeakingRef = useRef(false);
   const micEnabledRef = useRef(false);
-  const autoListenRef = useRef(false);
+  
   const agoraSdkRef = useRef(null);
   const agoraClientRef = useRef(null);
   const agoraMicTrackRef = useRef(null);
@@ -208,9 +343,7 @@ function VoiceChatWidget() {
       if (Array.isArray(parsed.messages) && parsed.messages.length > 0) {
         setMessages(parsed.messages);
       }
-      if (typeof parsed.autoListen === 'boolean') {
-        setAutoListen(parsed.autoListen);
-      }
+      
       if (typeof parsed.isVoiceMuted === 'boolean') {
         setIsVoiceMuted(parsed.isVoiceMuted);
       }
@@ -231,7 +364,6 @@ function VoiceChatWidget() {
 
     const payload = {
       messages,
-      autoListen,
       isVoiceMuted,
       feedbackByMessageIndex,
     };
@@ -241,7 +373,7 @@ function VoiceChatWidget() {
     } catch (error) {
       // Ignore persistence errors in private mode/quota limits.
     }
-  }, [messages, autoListen, isVoiceMuted, feedbackByMessageIndex]);
+  }, [messages, isVoiceMuted, feedbackByMessageIndex]);
 
   useEffect(() => {
     isOpenRef.current = isOpen;
@@ -314,9 +446,7 @@ function VoiceChatWidget() {
     micEnabledRef.current = micEnabled;
   }, [micEnabled]);
 
-  useEffect(() => {
-    autoListenRef.current = autoListen;
-  }, [autoListen]);
+  
 
   useEffect(() => {
     if (!ENABLE_AGORA || !isOpen || isAgoraConnected || isAgoraConnecting) {
@@ -495,29 +625,6 @@ function VoiceChatWidget() {
       setIsListening(false);
       clearVoiceFinalizeTimer();
       flushVoiceTranscript();
-
-      if (
-        micEnabledRef.current &&
-        autoListenRef.current &&
-        isOpenRef.current &&
-        !isLoadingRef.current &&
-        !isSpeakingRef.current
-      ) {
-        if (recognitionRestartTimerRef.current) {
-          clearTimeout(recognitionRestartTimerRef.current);
-        }
-
-        recognitionRestartTimerRef.current = setTimeout(() => {
-          recognitionRestartTimerRef.current = null;
-          resetVoiceBuffers();
-          const restarted = startListeningNow();
-          if (!restarted && micEnabledRef.current) {
-            setStatus('Mic is on. Tap "Turn Mic Off" to stop listening.');
-          }
-        }, 450);
-
-        return;
-      }
 
       if (micEnabledRef.current) {
         setStatus('Mic is on. Tap "Turn Mic Off" to stop listening.');
@@ -752,19 +859,7 @@ function VoiceChatWidget() {
       setStatus('Speaking response...');
       await speak(assistantText);
 
-      if (
-        fromVoice &&
-        micEnabledRef.current &&
-        autoListenRef.current &&
-        isOpenRef.current &&
-        supportsSpeechRecognition &&
-        recognitionRef.current
-      ) {
-        const restarted = startListeningNow();
-        if (!restarted) {
-          setStatus('Mic is on. Tap "Turn Mic Off" to stop listening.');
-        }
-      } else if (micEnabledRef.current) {
+      if (micEnabledRef.current) {
         setStatus('Mic is on. Tap "Turn Mic Off" to stop listening.');
       } else {
         setStatus('Tap the mic and ask your question.');
@@ -958,6 +1053,8 @@ function VoiceChatWidget() {
     }
   };
 
+  
+
   const canUseMic = supportsSpeechRecognition && !isLoading && !isSpeaking;
   const lastAssistantMessageIndex = useMemo(() => {
     for (let index = messages.length - 1; index >= 0; index -= 1) {
@@ -996,7 +1093,7 @@ function VoiceChatWidget() {
   return (
     <div className="fixed inset-x-2 bottom-2 z-50 flex flex-col items-end sm:inset-x-auto sm:bottom-5 sm:right-5 lg:bottom-6 lg:right-6">
       {isOpen && (
-        <section className="mb-2 flex h-[min(84dvh,720px)] w-full max-w-[calc(100vw-1rem)] min-h-0 flex-col overflow-hidden rounded-[1.4rem] border border-[#d7e5ff] bg-gradient-to-b from-[#f8fbff] to-white shadow-[0_20px_45px_-25px_rgba(2,37,91,0.45)] sm:mb-3 sm:h-[min(80dvh,740px)] sm:w-[390px] sm:max-w-[92vw] sm:rounded-[1.75rem] lg:w-[430px] xl:w-[460px]">
+        <section className="mb-2 flex h-[min(88dvh,780px)] w-full max-w-[calc(100vw-1rem)] min-h-0 flex-col overflow-hidden rounded-[1.4rem] border border-[#d7e5ff] bg-gradient-to-b from-[#f8fbff] to-white shadow-[0_20px_45px_-25px_rgba(2,37,91,0.45)] sm:mb-3 sm:h-[min(84dvh,780px)] sm:w-[390px] sm:max-w-[92vw] sm:rounded-[1.75rem] lg:w-[430px] xl:w-[460px]">
           <header className="relative shrink-0 overflow-hidden border-b border-[#d7e5ff] bg-[#072e73] px-3 py-3 text-white sm:px-4">
             <div className="pointer-events-none absolute -right-8 -top-10 h-24 w-24 rounded-full bg-[#00c2a8]/35 blur-xl" />
             <div className="pointer-events-none absolute -left-8 -bottom-10 h-20 w-20 rounded-full bg-[#2f7ff0]/30 blur-xl" />
@@ -1027,7 +1124,7 @@ function VoiceChatWidget() {
             </div>
           </header>
 
-          <div className="min-h-0 flex-1 space-y-2 overflow-y-auto bg-gradient-to-b from-[#f2f7ff] via-[#f8fbff] to-[#ffffff] px-2.5 py-2.5 text-sm sm:px-3 sm:py-3">
+          <div className="min-h-[260px] flex-[1.35] space-y-2 overflow-y-auto bg-gradient-to-b from-[#f2f7ff] via-[#f8fbff] to-[#ffffff] px-2.5 py-2.5 text-sm overscroll-contain sm:min-h-[300px] sm:px-3 sm:py-3">
             {messages.map((msg, index) => (
               <div
                 key={`${msg.role}-${index}`}
@@ -1080,7 +1177,7 @@ function VoiceChatWidget() {
             <div ref={messagesEndRef} />
           </div>
 
-          <div className="shrink-0 space-y-3 border-t border-[#d7e5ff] bg-white/95 px-2.5 py-3 sm:px-3">
+          <div className="shrink-0 space-y-2 border-t border-[#d7e5ff] bg-white/95 px-2.5 py-2.5 sm:px-3 sm:py-3">
             <div className="grid grid-cols-2 gap-2 sm:grid-cols-4">
               <button
                 type="button"
@@ -1124,22 +1221,7 @@ function VoiceChatWidget() {
               </button>
             </div>
 
-            <div className="flex flex-col gap-2 rounded-xl border border-[#d7e5ff] bg-[#f8fbff] px-3 py-2 sm:flex-row sm:items-center sm:justify-between">
-              <div className="min-w-0">
-                <p className="text-[11px] font-semibold text-[#08337e]">Auto-listen after replies</p>
-                <p className="text-[10px] text-[#6e7e98]">Keeps the mic loop active for faster follow-ups.</p>
-              </div>
-              <button
-                type="button"
-                onClick={() => setAutoListen((value) => !value)}
-                className={`relative h-6 w-11 rounded-full transition-colors ${autoListen ? 'bg-[#0a4ab3]' : 'bg-[#b8cbe9]'}`}
-                aria-label="Toggle auto-listen"
-              >
-                <span
-                  className={`absolute top-0.5 h-5 w-5 rounded-full bg-white shadow transition-transform ${autoListen ? 'translate-x-5' : 'translate-x-0.5'}`}
-                />
-              </button>
-            </div>
+            
 
             <form onSubmit={handleTextSubmit} className="flex flex-col gap-2 sm:flex-row">
               <input
@@ -1158,76 +1240,80 @@ function VoiceChatWidget() {
               </button>
             </form>
 
-            <div className="space-y-2">
-              <div className="flex flex-wrap gap-1.5">
-                {Object.keys(QUESTION_PACKS).map((categoryKey) => (
-                  <button
-                    key={categoryKey}
-                    type="button"
-                    onClick={() => setQuestionCategory(categoryKey)}
-                    className={`rounded-full border px-2.5 py-1 text-[10px] font-semibold uppercase tracking-wide transition-colors ${
-                      questionCategory === categoryKey
-                        ? 'border-[#0a4ab3] bg-[#0a4ab3] text-white'
-                        : 'border-[#bfd5ff] bg-[#f3f8ff] text-[#08337e] hover:border-[#0a4ab3]'
-                    }`}
-                  >
-                    {QUESTION_CATEGORY_LABELS[categoryKey] || categoryKey}
-                  </button>
-                ))}
-              </div>
-
-              <div className="max-h-[95px] overflow-y-auto pr-1 sm:max-h-[82px]">
-                <div className="flex flex-wrap gap-1.5">
-                  {sampleQuestions.map((question) => (
-                    <button
-                      key={question}
-                      type="button"
-                      onClick={() => handleSampleQuestion(question)}
-                      disabled={isLoading}
-                      className="rounded-lg border border-[#cfe0ff] bg-white px-2 py-1 text-[10px] font-medium text-[#08337e] transition-colors hover:border-[#0a4ab3] hover:bg-[#f0f6ff] disabled:opacity-50"
-                    >
-                      {question}
-                    </button>
-                  ))}
+            <div className="max-h-[34vh] space-y-2 overflow-y-auto pr-1 sm:max-h-[250px]">
+              <div className="space-y-2">
+                <div className="-mx-1 overflow-x-auto pb-1 sm:mx-0 sm:overflow-visible sm:pb-0">
+                  <div className="flex flex-nowrap gap-1.5 px-1 sm:flex-wrap sm:px-0">
+                    {Object.keys(QUESTION_PACKS).map((categoryKey) => (
+                      <button
+                        key={categoryKey}
+                        type="button"
+                        onClick={() => setQuestionCategory(categoryKey)}
+                        className={`rounded-full border px-2.5 py-1 text-[10px] font-semibold uppercase tracking-wide transition-colors ${
+                          questionCategory === categoryKey
+                            ? 'border-[#0a4ab3] bg-[#0a4ab3] text-white'
+                            : 'border-[#bfd5ff] bg-[#f3f8ff] text-[#08337e] hover:border-[#0a4ab3]'
+                        }`}
+                      >
+                        {QUESTION_CATEGORY_LABELS[categoryKey] || categoryKey}
+                      </button>
+                    ))}
+                  </div>
                 </div>
-              </div>
 
-              {followUpQuestions.length > 0 && (
-                <div className="rounded-xl border border-[#cfe0ff] bg-[#f3f8ff] p-2">
-                  <p className="mb-1 text-[10px] font-semibold uppercase tracking-wide text-[#08337e]">Helpful follow-ups</p>
+                <div className="max-h-[120px] overflow-y-auto pr-1 sm:max-h-[90px]">
                   <div className="flex flex-wrap gap-1.5">
-                    {followUpQuestions.map((question) => (
+                    {sampleQuestions.map((question) => (
                       <button
                         key={question}
                         type="button"
                         onClick={() => handleSampleQuestion(question)}
                         disabled={isLoading}
-                        className="rounded-md border border-[#bfd5ff] bg-white px-2 py-1 text-[10px] font-medium text-[#08337e] transition-colors hover:border-[#0a4ab3] disabled:opacity-50"
+                        className="rounded-lg border border-[#cfe0ff] bg-white px-2 py-1 text-[10px] font-medium text-[#08337e] transition-colors hover:border-[#0a4ab3] hover:bg-[#f0f6ff] disabled:opacity-50"
                       >
                         {question}
                       </button>
                     ))}
                   </div>
                 </div>
-              )}
 
-              {suggestedActions.length > 0 && (
-                <div className="rounded-xl border border-[#cfe0ff] bg-white p-2">
-                  <p className="mb-1 text-[10px] font-semibold uppercase tracking-wide text-[#08337e]">Take action</p>
-                  <div className="flex flex-wrap gap-1.5">
-                    {suggestedActions.map((action) => (
-                      <button
-                        key={action.id || `${action.type}-${action.label}`}
-                        type="button"
-                        onClick={() => executeSuggestedAction(action)}
-                        className="rounded-md bg-gradient-to-br from-[#0a4ab3] to-[#072e73] px-2.5 py-1 text-[10px] font-semibold text-white transition-transform hover:-translate-y-0.5"
-                      >
-                        {action.label || ACTION_LABEL_BY_TYPE[action.type] || 'Action'}
-                      </button>
-                    ))}
+                {followUpQuestions.length > 0 && (
+                  <div className="rounded-xl border border-[#cfe0ff] bg-[#f3f8ff] p-2">
+                    <p className="mb-1 text-[10px] font-semibold uppercase tracking-wide text-[#08337e]">Helpful follow-ups</p>
+                    <div className="flex flex-wrap gap-1.5">
+                      {followUpQuestions.map((question) => (
+                        <button
+                          key={question}
+                          type="button"
+                          onClick={() => handleSampleQuestion(question)}
+                          disabled={isLoading}
+                          className="rounded-md border border-[#bfd5ff] bg-white px-2 py-1 text-[10px] font-medium text-[#08337e] transition-colors hover:border-[#0a4ab3] disabled:opacity-50"
+                        >
+                          {question}
+                        </button>
+                      ))}
+                    </div>
                   </div>
-                </div>
-              )}
+                )}
+
+                {suggestedActions.length > 0 && (
+                  <div className="rounded-xl border border-[#cfe0ff] bg-white p-2">
+                    <p className="mb-1 text-[10px] font-semibold uppercase tracking-wide text-[#08337e]">Take action</p>
+                    <div className="flex flex-wrap gap-1.5">
+                      {suggestedActions.map((action) => (
+                        <button
+                          key={action.id || `${action.type}-${action.label}`}
+                          type="button"
+                          onClick={() => executeSuggestedAction(action)}
+                          className="rounded-md bg-gradient-to-br from-[#0a4ab3] to-[#072e73] px-2.5 py-1 text-[10px] font-semibold text-white transition-transform hover:-translate-y-0.5"
+                        >
+                          {action.label || ACTION_LABEL_BY_TYPE[action.type] || 'Action'}
+                        </button>
+                      ))}
+                    </div>
+                  </div>
+                )}
+              </div>
             </div>
           </div>
         </section>
