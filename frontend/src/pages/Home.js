@@ -35,7 +35,7 @@ function Home() {
       <MapLocation />
       <section className="py-14 md:py-16 px-6 bg-[#012E72] text-white">
         <div className="max-w-3xl mx-auto text-center space-y-5">
-          <h2 className="text-2xl md:text-3xl font-extrabold" style={{ fontFamily: FONT_DISPLAY }}>Still have questions?</h2>
+          <h2 className="text-2xl md:text-3xl font-extrabold" style={{ fontFamily: FONT_DISPLAY }}>STILL HAVE QUESTIONS?</h2>
           <p className="text-base md:text-lg text-[#F7F4EF] max-w-2xl mx-auto leading-relaxed" style={{ fontFamily: FONT_BODY }}>
             If you didn&apos;t find the answer you were looking for, we&apos;re here to help.
           </p>
