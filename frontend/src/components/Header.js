@@ -125,10 +125,30 @@ function Header() {
     };
   }, [mobileMenuOpen]);
 
+  useEffect(() => {
+    const mediaQuery = window.matchMedia('(min-width: 1280px)');
+    const handleViewportChange = (event) => {
+      if (event.matches) {
+        setMobileMenuOpen(false);
+        setOpenMobileSection(null);
+      }
+    };
+
+    if (mediaQuery.matches) {
+      setMobileMenuOpen(false);
+      setOpenMobileSection(null);
+    }
+
+    mediaQuery.addEventListener('change', handleViewportChange);
+    return () => {
+      mediaQuery.removeEventListener('change', handleViewportChange);
+    };
+  }, []);
+
   return (
     <>
       <header className="sticky top-0 z-40 bg-white/95 backdrop-blur border-b border-[#e7dccb]">
-      <div className="flex items-center justify-between py-4 md:py-5 px-4 md:px-8 max-w-7xl mx-auto w-full">
+      <div className="flex items-center justify-between py-4 md:py-5 px-4 sm:px-6 lg:px-8 max-w-7xl mx-auto w-full">
         <div className="flex min-w-0 items-center gap-3">
           <img src={logo} alt="Paladin Logo" className="h-14 md:h-16 w-auto object-contain" />
           <div className="flex min-w-0 flex-col leading-tight">
@@ -141,7 +161,7 @@ function Header() {
           </div>
         </div>
 
-        <nav className="hidden md:flex items-center gap-8 text-sm font-medium">
+        <nav className="hidden xl:flex items-center gap-6 2xl:gap-8 text-sm font-medium">
           {navItems.map((item) => {
             const hasDropdown = Array.isArray(item.sections) && item.sections.length > 0;
 
@@ -182,7 +202,7 @@ function Header() {
           })}
         </nav>
 
-        <div className="hidden md:flex items-center gap-6 text-sm font-medium">
+        <div className="hidden xl:flex items-center gap-6 text-sm font-medium">
           <Link to="/quote" className="bg-[#012E72] text-white px-6 py-2.5 rounded-full shadow-lg shadow-[#012E72]/20 hover:bg-[#002DB5] transition-all hover:-translate-y-0.5">
             Request a Quote
           </Link>
@@ -190,7 +210,7 @@ function Header() {
 
         <button
           type="button"
-          className="md:hidden inline-flex h-11 w-11 items-center justify-center rounded-full border border-[#d5c8b4] bg-white text-[#012E72] shadow-sm"
+          className="xl:hidden inline-flex h-11 w-11 items-center justify-center rounded-full border border-[#d5c8b4] bg-white text-[#012E72] shadow-sm"
           aria-label="Open navigation menu"
           onClick={() => setMobileMenuOpen(true)}
         >
@@ -201,8 +221,17 @@ function Header() {
       </header>
 
       {mobileMenuOpen && (
-        <div className="fixed inset-0 z-[1000] bg-white md:hidden">
-          <div className="flex h-full flex-col bg-white">
+        <div className="fixed inset-0 z-[1000] xl:hidden">
+          <button
+            type="button"
+            aria-label="Close navigation menu overlay"
+            className="absolute inset-0 bg-[#010407]/30"
+            onClick={() => {
+              setMobileMenuOpen(false);
+              setOpenMobileSection(null);
+            }}
+          />
+          <div className="relative ml-auto flex h-full w-1/2 min-w-[320px] max-w-[520px] flex-col bg-white shadow-2xl">
             <div className="flex items-center justify-between border-b border-[#e7dccb] px-4 py-4">
               <div className="flex min-w-0 items-center gap-3">
                 <img src={logo} alt="Paladin Logo" className="h-14 w-auto object-contain" />

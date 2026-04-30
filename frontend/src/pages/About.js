@@ -19,9 +19,9 @@ export default function About() {
       {/* Company Overview Section */}
       <section id="company-overview" className="w-full bg-[#f7f9fd] px-0 pb-0 pt-0">
         <div className="w-full overflow-hidden bg-[#f7f9fd]">
-          <div className="relative h-[130px] bg-[#0b357f]">
+          <div className="relative h-[130px] overflow-hidden bg-[#0b357f]">
             <svg
-              className="absolute -bottom-1 left-0 block h-[78px] w-full"
+              className="absolute -bottom-px left-0 block h-[78px] w-full"
               viewBox="0 0 1440 200"
               preserveAspectRatio="none"
               aria-hidden="true"
@@ -34,7 +34,7 @@ export default function About() {
             </svg>
           </div>
 
-          <div className="grid grid-cols-1 gap-10 px-6 pb-10 pt-4 md:grid-cols-2 md:items-center md:gap-12 md:px-12 md:pb-14 md:pt-6">
+          <div className="relative -mt-px grid grid-cols-1 gap-10 px-6 pb-10 pt-4 md:grid-cols-2 md:items-center md:gap-12 md:px-12 md:pb-14 md:pt-6">
             <div className="mx-auto flex w-full max-w-xl flex-col items-start text-left">
               <div className="mb-6 inline-flex items-center gap-2 rounded-full bg-white px-4 py-2 text-sm font-bold text-[#002DB5] shadow-[0_8px_16px_rgba(8,35,76,0.12)]">
                 <Building2 className="h-4 w-4" />
