@@ -36,21 +36,21 @@ export default function About() {
 
           <div className="grid grid-cols-1 gap-10 px-6 pb-10 pt-4 md:grid-cols-2 md:items-center md:gap-12 md:px-12 md:pb-14 md:pt-6">
             <div className="mx-auto flex w-full max-w-xl flex-col items-start text-left">
-              <div className="mb-6 inline-flex items-center gap-2 rounded-full bg-white px-4 py-2 text-sm font-bold text-[#002DB5] shadow-[0_8px_16px_rgba(8,35,76,0.12)]">
+              <div style={{ fontFamily: 'Constantia, serif' }} className="mb-6 inline-flex items-center gap-2 rounded-full bg-white px-4 py-2 text-sm font-bold text-[#002DB5] shadow-[0_8px_16px_rgba(8,35,76,0.12)]">
                 <Building2 className="h-4 w-4" />
                 <span>COMPANY OVERVIEW</span>
               </div>
 
-              <h2 className="mb-6 text-3xl font-extrabold leading-tight text-[#012E72] md:text-4xl">
+              <h2 style={{ fontFamily: 'Cinzel, serif' }} className="mb-6 text-3xl font-bold leading-tight text-[#012E72] md:text-4xl uppercase">
                 A LEGACY OF
                 <br />
                 <span className="text-[#012E72]">PROTECTION AND TRUST</span>
               </h2>
 
-              <p className="mb-4 max-w-xl text-justify text-base font-normal leading-relaxed text-[#010407]/75 md:text-lg">
+              <p style={{ fontFamily: 'Times New Roman, serif' }} className="mb-4 max-w-xl text-justify text-base font-normal leading-relaxed text-[#010407]/75 md:text-lg">
                 Paladin Professional Insurance Solutions is a full-service independent insurance agency committed to delivering premium protection across personal, commercial, and specialty lines.
               </p>
-              <p className="max-w-xl text-justify text-base font-normal leading-relaxed text-[#010407]/75 md:text-lg">
+              <p style={{ fontFamily: 'Times New Roman, serif' }} className="max-w-xl text-justify text-base font-normal leading-relaxed text-[#010407]/75 md:text-lg">
                 We understand that every client is unique - which is why we take a consultative, hands-on approach to crafting coverage that truly fits your life and your business.
               </p>
             </div>
@@ -72,10 +72,10 @@ export default function About() {
       <section id="mission-promise" className="-mt-px bg-[#F7F4EF] py-16 px-6">
         <div className="max-w-6xl mx-auto">
           <div className="text-center mb-10">
-            <p className="inline-flex items-center px-4 py-1 rounded-full bg-white text-[#002DB5] text-xs font-semibold tracking-wide uppercase mb-3 border border-[#d8cbb8] shadow-sm">
+            <p style={{ fontFamily: 'Constantia, serif' }} className="inline-flex items-center px-4 py-1 rounded-full bg-white text-[#002DB5] text-xs font-semibold tracking-wide uppercase mb-3 border border-[#d8cbb8] shadow-sm">
               PURPOSE & DIRECTION
             </p>
-            <h2 className="text-3xl md:text-4xl font-extrabold text-[#012E72]">
+            <h2 style={{ fontFamily: 'Cinzel, serif' }} className="text-3xl md:text-4xl font-bold text-[#012E72] uppercase">
               OUR MISSION &amp; OUR PROMISE
             </h2>
           </div>
@@ -86,9 +86,9 @@ export default function About() {
                 <div className="w-10 h-10 rounded-2xl bg-[#F7F4EF] border border-[#d8cbb8] flex items-center justify-center">
                   <Target className="w-5 h-5 text-[#002DB5]" />
                 </div>
-                <h3 className="text-xl md:text-2xl font-bold text-[#012E72]">OUR MISSION</h3>
+                <h3 style={{ fontFamily: 'Constantia, serif' }} className="text-xl md:text-2xl font-semibold text-[#012E72]">OUR MISSION</h3>
               </div>
-              <p className="text-[#010407]/75 text-sm md:text-base leading-relaxed text-justify">
+              <p style={{ fontFamily: 'Times New Roman, serif' }} className="text-[#010407]/75 text-sm md:text-base leading-relaxed text-justify">
                 Our mission is to provide you with the quality service and care that you deserve. We
                 understand the unique challenges of owning and operating a business. This is why we
                 are dedicated to providing you with hassle-free insurance service that best suits your
@@ -101,13 +101,13 @@ export default function About() {
                 <div className="w-10 h-10 rounded-2xl bg-[#F7F4EF] border border-[#d8cbb8] flex items-center justify-center">
                   <ShieldCheck className="w-5 h-5 text-[#002DB5]" />
                 </div>
-                <h3 className="text-xl md:text-2xl font-bold text-[#012E72]">OUR PROMISE</h3>
+                <h3 style={{ fontFamily: 'Constantia, serif' }} className="text-xl md:text-2xl font-semibold text-[#012E72]">OUR PROMISE</h3>
               </div>
-              <p className="text-[#010407]/75 text-sm md:text-base leading-relaxed text-justify mb-4">
+              <p style={{ fontFamily: 'Times New Roman, serif' }} className="text-[#010407]/75 text-sm md:text-base leading-relaxed text-justify mb-4">
                 With agents that have over 20 years of experience in the insurance industry, we take
                 pride in being able to service you. We promise to:
               </p>
-              <ul className="text-[#010407]/75 text-sm md:text-base leading-relaxed space-y-2 pl-5 list-disc text-left">
+              <ul style={{ fontFamily: 'Times New Roman, serif' }} className="text-[#010407]/75 text-sm md:text-base leading-relaxed space-y-2 pl-5 list-disc text-left">
                 <li>Find you the correct coverage at an unbeatable price</li>
                 <li>Provide one-on-one guidance through every step of the process</li>
                 <li>Treat every client as we would our own family</li>
@@ -128,11 +128,11 @@ export default function About() {
 
         <div className="relative z-10 mx-auto max-w-7xl">
           <div className="mb-12 text-center">
-            <p className="mb-4 inline-flex items-center rounded-full border border-[#c8d3e6] bg-white px-4 py-1.5 text-xs font-semibold uppercase tracking-wide text-[#002DB5] shadow-sm">
+            <p style={{ fontFamily: 'Constantia, serif' }} className="mb-4 inline-flex items-center rounded-full border border-[#c8d3e6] bg-white px-4 py-1.5 text-xs font-semibold uppercase tracking-wide text-[#002DB5] shadow-sm">
               Leadership Team
             </p>
-            <h2 className="mb-3 text-3xl font-extrabold text-[#012E72] md:text-4xl">MEET THE TEAM</h2>
-            <p className="mx-auto max-w-2xl text-base font-medium text-[#010407]/65 md:text-lg">
+            <h2 style={{ fontFamily: 'Cinzel, serif' }} className="mb-3 text-3xl font-bold text-[#012E72] md:text-4xl uppercase">MEET THE TEAM</h2>
+            <p style={{ fontFamily: 'Constantia, serif' }} className="mx-auto max-w-2xl text-base font-medium text-[#010407]/65 md:text-lg">
               Dedicated professionals committed to securing what matters most to you.
             </p>
           </div>
@@ -156,9 +156,9 @@ export default function About() {
                 </div>
 
                 <div className="p-6">
-                  <h3 className="mb-1 text-xl font-bold text-[#012E72]">{member.name}</h3>
-                  <p className="mb-3 text-sm font-semibold uppercase tracking-wide text-[#002DB5]">{member.role}</p>
-                  <p className="text-justify text-sm font-medium leading-relaxed text-[#010407]/70">{member.bio}</p>
+                  <h3 style={{ fontFamily: 'Constantia, serif' }} className="mb-1 text-xl font-semibold text-[#012E72]">{member.name}</h3>
+                  <p style={{ fontFamily: 'Constantia, serif' }} className="mb-3 text-sm font-semibold uppercase tracking-wide text-[#002DB5]">{member.role}</p>
+                  <p style={{ fontFamily: 'Times New Roman, serif' }} className="text-justify text-sm font-medium leading-relaxed text-[#010407]/70">{member.bio}</p>
                 </div>
               </article>
             ))}
@@ -175,17 +175,17 @@ export default function About() {
       <section className="py-16 md:py-20 px-6 bg-[#012E72] text-center text-white relative overflow-hidden">
         <div className="absolute inset-0 bg-[url('https://images.unsplash.com/photo-1557683316-973673baf926?auto=format&fit=crop&w=2000&q=80')] opacity-10 mix-blend-overlay object-cover"></div>
         <div className="relative z-10 max-w-3xl md:max-w-4xl mx-auto">
-          <h2 className="text-3xl md:text-4xl font-extrabold mb-4 leading-tight tracking-tight">
+          <h2 style={{ fontFamily: 'Cinzel, serif' }} className="text-3xl md:text-4xl font-bold mb-4 leading-tight tracking-tight uppercase">
             Ready to Experience the Paladin Difference?
           </h2>
-          <p className="text-base md:text-lg text-[#F7F4EF] mb-8 leading-relaxed font-medium">
+          <p style={{ fontFamily: 'Constantia, serif' }} className="text-base md:text-lg text-[#F7F4EF] mb-8 leading-relaxed font-medium">
             Let our experienced team formulate a protection strategy uniquely tailored for your specific needs.
           </p>
           <div className="flex flex-col sm:flex-row justify-center gap-4">
-            <Link to="/service" className="bg-white text-[#012E72] px-8 py-3.5 rounded-full font-bold text-sm md:text-base hover:bg-[#F7F4EF] transition-colors shadow-xl">
+            <Link to="/service" style={{ fontFamily: 'Constantia, serif' }} className="bg-white text-[#012E72] px-8 py-3.5 rounded-full font-bold text-sm md:text-base hover:bg-[#F7F4EF] transition-colors shadow-xl">
               Learn More About Our Services
             </Link>
-            <Link to="/quote" className="bg-transparent border border-white text-white px-8 py-3.5 rounded-full font-bold text-sm md:text-base hover:bg-white/10 transition-colors">
+            <Link to="/quote" style={{ fontFamily: 'Constantia, serif' }} className="bg-transparent border border-white text-white px-8 py-3.5 rounded-full font-bold text-sm md:text-base hover:bg-white/10 transition-colors">
               Contact Us For a Quote
             </Link>
           </div>

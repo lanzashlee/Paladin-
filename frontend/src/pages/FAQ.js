@@ -184,10 +184,10 @@ export default function FAQ() {
             <p className="inline-flex items-center px-4 py-1 rounded-full bg-white text-[#012E72] text-xs font-semibold tracking-wide uppercase mb-3 border border-[#002DB5]/15 shadow-sm">
               Help Center
             </p>
-            <h1 className="text-3xl md:text-4xl font-extrabold text-[#012E72] mb-3">
+            <h1 style={{ fontFamily: 'Cinzel, serif' }} className="text-3xl md:text-4xl font-bold text-[#012E72] mb-3 uppercase tracking-wider">
               FREQUENTLY ASKED QUESTIONS
             </h1>
-            <p className="text-base md:text-lg text-[#010407]/80 max-w-3xl mx-auto leading-relaxed">
+            <p style={{ fontFamily: 'Constantia, serif' }} className="text-base md:text-lg text-[#010407]/80 max-w-3xl mx-auto leading-relaxed">
               Got questions? We’ve got answers. Here’s a list of common questions our clients ask
               before working with us.
             </p>
@@ -217,7 +217,7 @@ export default function FAQ() {
           <div className="max-w-4xl mx-auto space-y-12">
             {filteredSections.map((section, sectionIndex) => (
               <div key={section.title} id={faqSectionAnchors[section.title]}>
-                <h2 className="text-xs font-bold tracking-[0.2em] text-[#002DB5] mb-4 uppercase">
+                <h2 style={{ fontFamily: 'Cinzel, serif' }} className="text-xs font-bold tracking-[0.2em] text-[#002DB5] mb-4 uppercase">
                   {section.title}
                 </h2>
                 <div className="space-y-5">
@@ -228,14 +228,14 @@ export default function FAQ() {
                       open={sectionIndex === 0 && itemIndex === 0 && !query}
                     >
                       <summary className="flex items-center justify-between cursor-pointer list-none">
-                        <h3 className="text-sm md:text-base font-semibold text-[#012E72] pr-4">
+                        <h3 style={{ fontFamily: 'Constantia, serif' }} className="text-sm md:text-base font-semibold text-[#012E72] pr-4">
                           {item.question}
                         </h3>
                         <span className="ml-4 flex h-7 w-7 items-center justify-center rounded-full border border-[#002DB5]/25 text-[#002DB5] text-xs group-open:rotate-45 transition-transform bg-white">
                           +
                         </span>
                       </summary>
-                      <div className="mt-2 text-xs md:text-sm text-[#010407]/80 leading-relaxed text-justify">
+                      <div style={{ fontFamily: 'Times New Roman, serif' }} className="mt-2 text-xs md:text-sm text-[#010407]/80 leading-relaxed text-justify">
                         {item.answer}
                       </div>
                     </details>
@@ -255,8 +255,8 @@ export default function FAQ() {
         {/* CTA Section */}
         <section className="py-14 md:py-16 px-6 bg-[#012E72] text-white">
           <div className="max-w-3xl mx-auto text-center space-y-5">
-            <h2 className="text-2xl md:text-3xl font-extrabold">Still have questions?</h2>
-            <p className="text-base md:text-lg text-[#F7F4EF] max-w-2xl mx-auto leading-relaxed">
+            <h2 style={{ fontFamily: 'Cinzel, serif' }} className="text-2xl md:text-3xl font-bold uppercase">Still have questions?</h2>
+            <p style={{ fontFamily: 'Constantia, serif' }} className="text-base md:text-lg text-[#F7F4EF] max-w-2xl mx-auto leading-relaxed">
               If you didn’t find the answer you were looking for, we’re here to help.
             </p>
 

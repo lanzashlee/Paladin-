@@ -250,13 +250,13 @@ function Contact() {
       <main id="get-in-touch" className="pt-16 pb-0 px-8 max-w-7xl mx-auto w-full text-[#010407]">
         {/* Page Header */}
         <div className="text-center mb-16">
-          <p className="inline-flex items-center px-4 py-1 rounded-full bg-[#F7F4EF] text-[#012E72] text-xs font-semibold tracking-widest uppercase mb-4 border border-[#e7dccb] shadow-sm">
+          <p style={{ fontFamily: 'Constantia, serif' }} className="inline-flex items-center px-4 py-1 rounded-full bg-[#F7F4EF] text-[#012E72] text-xs font-semibold tracking-widest uppercase mb-4 border border-[#e7dccb] shadow-sm">
             Get In Touch
           </p>
-          <h1 className="text-4xl md:text-5xl font-extrabold text-[#012E72] tracking-tight mb-6">
+          <h1 style={{ fontFamily: 'Cinzel, serif' }} className="text-4xl md:text-5xl font-bold text-[#012E72] tracking-wider mb-6 uppercase">
             CONTACT US
           </h1>
-          <p className="text-lg text-[#010407]/80 max-w-2xl mx-auto leading-relaxed">
+          <p style={{ fontFamily: 'Constantia, serif' }} className="text-lg text-[#010407]/80 max-w-2xl mx-auto leading-relaxed">
             Have questions about a policy, need a quote, or want to say hello? 
             Fill out the form below or reach out to us directly.
           </p>
@@ -274,12 +274,12 @@ function Contact() {
 
           {/* Right: Contact Form */}
           <div className="flex-1 bg-white rounded-3xl p-8 border border-[#e7dccb] shadow-xl shadow-[#012E72]/5">
-            <h2 className="text-2xl font-bold text-[#012E72] mb-6">Send us a Message</h2>
+            <h2 style={{ fontFamily: 'Constantia, serif' }} className="text-2xl font-semibold text-[#012E72] mb-6">Send us a Message</h2>
 
             <form className="flex flex-col gap-4" onSubmit={handleSubmit} noValidate>
               <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
                 <div className="flex flex-col gap-2">
-                  <label htmlFor="name" className="text-sm font-semibold text-[#010407]/80">
+                  <label htmlFor="name" style={{ fontFamily: 'Times New Roman, serif' }} className="text-sm font-semibold text-[#010407]/80">
                     Full Name <span className="text-[#002DB5]">*</span>
                   </label>
                   <input 
@@ -294,11 +294,11 @@ function Contact() {
                         : 'border-[#d8cbb8] focus:ring-[#002DB5]/40 focus:border-[#002DB5]'
                     }`}
                   />
-                  {errors.name && <p className="text-sm text-red-500">{errors.name}</p>}
+                  {errors.name && <p style={{ fontFamily: 'Times New Roman, serif' }} className="text-sm text-red-500">{errors.name}</p>}
                 </div>
 
                 <div className="flex flex-col gap-2">
-                  <label htmlFor="email" className="text-sm font-semibold text-[#010407]/80">
+                  <label htmlFor="email" style={{ fontFamily: 'Times New Roman, serif' }} className="text-sm font-semibold text-[#010407]/80">
                     Email Address <span className="text-[#002DB5]">*</span>
                   </label>
                   <input 
@@ -315,12 +315,12 @@ function Contact() {
                         : 'border-[#d8cbb8] focus:ring-[#002DB5]/40 focus:border-[#002DB5]'
                     }`}
                   />
-                  {errors.email && <p className="text-sm text-red-500">{errors.email}</p>}
+                  {errors.email && <p style={{ fontFamily: 'Times New Roman, serif' }} className="text-sm text-red-500">{errors.email}</p>}
                 </div>
               </div>
 
               <div className="flex flex-col gap-2">
-                <label htmlFor="subject" className="text-sm font-semibold text-[#010407]/80">
+                <label htmlFor="subject" style={{ fontFamily: 'Times New Roman, serif' }} className="text-sm font-semibold text-[#010407]/80">
                   Subject <span className="text-[#002DB5]">*</span>
                 </label>
                 <input
@@ -335,12 +335,12 @@ function Contact() {
                       : 'border-[#d8cbb8] focus:ring-[#002DB5]/40 focus:border-[#002DB5]'
                   }`}
                 />
-                <p className="text-xs text-[#010407]/55">Enter a short subject so we can route your message to the right team.</p>
-                {errors.subject && <p className="text-sm text-red-500">{errors.subject}</p>}
+                <p style={{ fontFamily: 'Times New Roman, serif' }} className="text-xs text-[#010407]/55">Enter a short subject so we can route your message to the right team.</p>
+                {errors.subject && <p style={{ fontFamily: 'Times New Roman, serif' }} className="text-sm text-red-500">{errors.subject}</p>}
               </div>
 
               <div className="flex flex-col gap-2">
-                <label htmlFor="message" className="text-sm font-semibold text-[#010407]/80">
+                <label htmlFor="message" style={{ fontFamily: 'Times New Roman, serif' }} className="text-sm font-semibold text-[#010407]/80">
                   Message <span className="text-[#002DB5]">*</span>
                 </label>
                 <textarea 
@@ -355,18 +355,18 @@ function Contact() {
                       : 'border-[#d8cbb8] focus:ring-[#002DB5]/40 focus:border-[#002DB5]'
                   }`}
                 ></textarea>
-                <div className="text-xs text-[#010407]/50 text-right">{formData.message.length} characters</div>
-                {errors.message && <p className="text-sm text-red-500">{errors.message}</p>}
+                <div style={{ fontFamily: 'Times New Roman, serif' }} className="text-xs text-[#010407]/50 text-right">{formData.message.length} characters</div>
+                {errors.message && <p style={{ fontFamily: 'Times New Roman, serif' }} className="text-sm text-red-500">{errors.message}</p>}
               </div>
 
               {isSubmitted && (
-                <div className="rounded-xl border border-emerald-200 bg-emerald-50 px-4 py-3 text-sm text-emerald-700 font-medium">
+                <div style={{ fontFamily: 'Times New Roman, serif' }} className="rounded-xl border border-emerald-200 bg-emerald-50 px-4 py-3 text-sm text-emerald-700 font-medium">
                   Message sent successfully. Our team will get back to you soon.
                 </div>
               )}
 
               {submitError && (
-                <div className="rounded-xl border border-red-200 bg-red-50 px-4 py-3 text-sm text-red-700 font-medium">
+                <div style={{ fontFamily: 'Times New Roman, serif' }} className="rounded-xl border border-red-200 bg-red-50 px-4 py-3 text-sm text-red-700 font-medium">
                   {submitError}
                 </div>
               )}
@@ -374,6 +374,7 @@ function Contact() {
               <button 
                 type="submit" 
                 disabled={isSubmitting}
+                style={{ fontFamily: 'Constantia, serif' }}
                 className="mt-2 inline-flex items-center justify-center gap-2 bg-[#012E72] text-white px-8 py-4 rounded-xl font-bold shadow-lg shadow-[#012E72]/20 hover:bg-[#002DB5] transition-all hover:-translate-y-0.5 disabled:opacity-60 disabled:cursor-not-allowed disabled:hover:translate-y-0"
               >
                 {isSubmitting ? 'Sending Message...' : 'Send Message'}
@@ -390,13 +391,13 @@ function Contact() {
 
           <div className="relative z-10 mx-auto max-w-7xl">
             <div className="mx-auto max-w-3xl text-center">
-              <p className="inline-flex items-center rounded-full border border-[#d8cbb8] bg-[#F7F4EF] px-6 py-1.5 text-xs font-semibold uppercase tracking-[0.2em] text-[#002DB5] shadow-sm">
+              <p style={{ fontFamily: 'Constantia, serif' }} className="inline-flex items-center rounded-full border border-[#d8cbb8] bg-[#F7F4EF] px-6 py-1.5 text-xs font-semibold uppercase tracking-[0.2em] text-[#002DB5] shadow-sm">
                 Quick Actions
               </p>
-              <h2 className="mt-5 text-4xl md:text-5xl font-extrabold text-[#012E72] tracking-tight">
+              <h2 style={{ fontFamily: 'Cinzel, serif' }} className="mt-5 text-4xl md:text-5xl font-bold text-[#012E72] tracking-wider uppercase">
                 HOW CAN WE HELP YOU TODAY?
               </h2>
-              <p className="mt-6 text-lg text-[#010407]/80 leading-relaxed">
+              <p style={{ fontFamily: 'Times New Roman, serif' }} className="mt-6 text-lg text-[#010407]/80 leading-relaxed">
                 Complete the applicable form below and submit it to our office via email, fax, or in person. Our team will review your request and respond within 1-2 business days. Fields marked with an asterisk (*) are required.
               </p>
             </div>
@@ -411,14 +412,14 @@ function Contact() {
                     <div className="inline-flex h-8 w-8 shrink-0 items-center justify-center rounded-[4px] border border-[#e4ded2] bg-[#f5efe7] text-xs font-semibold text-[#012E72] shadow-sm">
                       {String(index + 1).padStart(2, '0')}
                     </div>
-                    <span className="text-xs font-semibold uppercase tracking-[0.2em] text-[#012E72]/45">{card.cta}</span>
+                    <span style={{ fontFamily: 'Times New Roman, serif' }} className="text-xs font-semibold uppercase tracking-[0.2em] text-[#012E72]/45">{card.cta}</span>
                   </div>
 
                   <div className="mt-3">
-                    <h3 className="text-lg leading-tight font-bold text-[#012E72]">
+                    <h3 style={{ fontFamily: 'Constantia, serif' }} className="text-lg leading-tight font-semibold text-[#012E72]">
                       {card.title}
                     </h3>
-                    <p className="mt-3 text-sm leading-relaxed text-justify text-[#272727]" style={{ textAlignLast: 'left' }}>
+                    <p style={{ fontFamily: 'Times New Roman, serif', textAlignLast: 'left' }} className="mt-3 text-sm leading-relaxed text-justify text-[#272727]">
                       {card.desc}
                     </p>
                   </div>
@@ -426,6 +427,7 @@ function Contact() {
                   <button
                     type="button"
                     onClick={() => setActiveRequest(card.id)}
+                    style={{ fontFamily: 'Constantia, serif' }}
                     className="mt-8 inline-flex w-full items-center justify-center rounded-full bg-[#012E72] px-5 py-2.5 text-sm font-semibold text-white shadow-[0_8px_16px_rgba(1,46,114,0.18)] transition-colors hover:bg-[#002DB5]"
                   >
                     Request →
