@@ -147,7 +147,7 @@ function Service() {
           <div className="relative z-10 max-w-5xl mx-auto px-5 sm:px-6 lg:px-8">
             <div className="rounded-3xl bg-[#f8fbff] px-8 py-9 sm:px-10 sm:py-10 text-center">
               <h2 className="text-2xl sm:text-[2rem] font-extrabold text-[#012E72] tracking-tight" style={{ fontFamily: FONT_DISPLAY }}>
-                Not sure what insurance to take?
+                NOT SURE WHAT INSURANCE TO TAKE?
               </h2>
               <p className="mt-2.5 text-sm sm:text-base text-[#010407]/70 leading-relaxed max-w-2xl mx-auto" style={{ fontFamily: FONT_BODY }}>
                 Talk with our team for personalized guidance and get the right coverage based on your needs and budget.
