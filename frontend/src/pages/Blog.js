@@ -7,6 +7,10 @@ import TestimonialsPreview from '../components/TestimonialsPreview';
 import { blogPosts, toSlug } from '../data/blogContent';
 import laptopImage from '../assets/Laptop.png';
 
+const FONT_DISPLAY = 'Cinzel, serif';
+const FONT_SUBHEADING = 'Constantia, "Times New Roman", serif';
+const FONT_BODY = '"Times New Roman", Times, serif';
+
 function LaptopIllustration() {
   return (
     <div className="relative h-[246px] w-[404px] max-w-full md:h-[276px] md:w-[456px]">
@@ -35,9 +39,9 @@ function BlogCard({ post }) {
         <ArrowUpRight className="h-3.5 w-3.5" />
       </div>
       <div className="absolute inset-x-0 bottom-0 p-3 text-white">
-        <p className="text-[10px] font-medium uppercase tracking-[0.14em] text-white/72">{post.category}</p>
-        <h3 className="mt-1 line-clamp-2 text-sm font-semibold leading-snug">{post.title}</h3>
-        <p className="mt-1 line-clamp-3 text-[9px] leading-snug text-white/78">{post.excerpt}</p>
+        <p className="text-[10px] font-medium uppercase tracking-[0.14em] text-white/72" style={{ fontFamily: FONT_BODY }}>{post.category}</p>
+        <h3 className="mt-1 line-clamp-2 text-sm font-semibold leading-snug" style={{ fontFamily: FONT_SUBHEADING, fontStyle: 'italic' }}>{post.title}</h3>
+        <p className="mt-1 line-clamp-3 text-[9px] leading-snug text-white/78" style={{ fontFamily: FONT_BODY }}>{post.excerpt}</p>
       </div>
     </Link>
   );
@@ -145,10 +149,10 @@ function Blog() {
           <div className="relative overflow-visible rounded-[28px] bg-[#0b3e8d] px-6 py-6 shadow-[0_16px_32px_rgba(1,46,114,0.24)] md:px-9 md:py-5">
             <div className="grid items-center gap-4 lg:grid-cols-[1.08fr,0.92fr] lg:gap-6">
               <div className="text-white">
-                <h1 className="mt-1 max-w-[300px] text-[18px] font-semibold uppercase leading-[1.08] sm:max-w-xl sm:text-[24px] md:text-[32px]">
+                <h1 className="mt-1 max-w-[300px] text-[18px] font-semibold uppercase leading-[1.08] sm:max-w-xl sm:text-[24px] md:text-[32px]" style={{ fontFamily: FONT_DISPLAY }}>
                   Explore Our Latest Insights On Insurance And Risk Protection.
                 </h1>
-                <p className="mt-3 max-w-[300px] text-[11px] leading-relaxed text-white/72 sm:max-w-xl sm:text-[12px] md:text-[14px]">
+                <p className="mt-3 max-w-[300px] text-[11px] leading-relaxed text-white/72 sm:max-w-xl sm:text-[12px] md:text-[14px]" style={{ fontFamily: FONT_BODY }}>
                   Browse practical guidance on insurance strategy, business protection, and risk management.
                 </p>
 
@@ -157,6 +161,7 @@ function Blog() {
                     value={selectedCategory}
                     onChange={(event) => setSelectedCategory(event.target.value)}
                     className="h-9 w-full rounded-full bg-[#f5f9ff] px-3 text-[11px] font-medium text-[#0b3e8d] outline-none ring-1 ring-[#d6def2] sm:min-w-0 sm:flex-1 md:w-[122px] md:flex-none"
+                    style={{ fontFamily: FONT_BODY }}
                     aria-label="Quick category filter"
                   >
                     {categoryOptions.map((category) => (
@@ -169,6 +174,7 @@ function Blog() {
                     value={selectedTag}
                     onChange={(event) => setSelectedTag(event.target.value)}
                     className="h-9 w-full rounded-full bg-[#f5f9ff] px-3 text-[11px] font-medium text-[#0b3e8d] outline-none ring-1 ring-[#d6def2] sm:min-w-0 sm:flex-1 md:w-[108px] md:flex-none"
+                    style={{ fontFamily: FONT_BODY }}
                     aria-label="Quick tag filter"
                   >
                     {tagOptions.map((tag) => (
@@ -181,6 +187,7 @@ function Blog() {
                     value={sortOption}
                     onChange={(event) => setSortOption(event.target.value)}
                     className="h-9 w-full rounded-full bg-[#f5f9ff] px-3 text-[11px] font-medium text-[#0b3e8d] outline-none ring-1 ring-[#d6def2] sm:min-w-0 sm:flex-1 md:w-[92px] md:flex-none"
+                    style={{ fontFamily: FONT_BODY }}
                     aria-label="Quick sort filter"
                   >
                     <option value="newest">Newest</option>
@@ -197,6 +204,7 @@ function Blog() {
                       sortOption === 'newest'
                     }
                     className="inline-flex h-9 w-full items-center justify-center rounded-full bg-[#0b3e8d] px-3.5 text-[11px] font-semibold text-white transition-colors hover:bg-[#092f6a] disabled:cursor-not-allowed disabled:opacity-45 sm:w-auto"
+                    style={{ fontFamily: FONT_BODY }}
                   >
                     Reset
                   </button>
@@ -238,7 +246,7 @@ function Blog() {
           </section>
 
           <section className="mt-10 rounded-[24px] bg-white px-5 py-7 shadow-[0_12px_30px_rgba(1,46,114,0.1)] ring-1 ring-[#d6e3ff] md:px-7 md:py-9">
-            <h3 className="text-3xl font-extrabold tracking-tight text-[#012E72] md:text-4xl">BLOG POSTS & ARTICLES</h3>
+            <h3 className="text-3xl font-extrabold tracking-tight text-[#012E72] md:text-4xl" style={{ fontFamily: FONT_DISPLAY }}>BLOG POSTS & ARTICLES</h3>
 
             <div className="mt-7 grid items-stretch gap-6 sm:grid-cols-2 md:gap-7 lg:grid-cols-2">
               {paginatedPosts.length ? (
@@ -257,22 +265,23 @@ function Blog() {
                       <div className="absolute inset-0 bg-gradient-to-t from-[#012E72]/25 to-transparent" />
                     </div>
                     <div className="flex h-[calc(100%-180px)] min-h-[255px] flex-col p-5">
-                      <div className="flex items-center gap-2 text-[12px] text-[#010407]/60">
+                      <div className="flex items-center gap-2 text-[12px] text-[#010407]/60" style={{ fontFamily: FONT_BODY }}>
                         <span>{post.date}</span>
-                        <span className="inline-flex rounded-full border border-[#b8cbf3] bg-[#ecf3ff] px-2.5 py-0.5 text-[11px] font-semibold uppercase tracking-wide text-[#002DB5]">
+                        <span className="inline-flex rounded-full border border-[#b8cbf3] bg-[#ecf3ff] px-2.5 py-0.5 text-[11px] font-semibold uppercase tracking-wide text-[#002DB5]" style={{ fontFamily: FONT_BODY }}>
                           {post.category}
                         </span>
                       </div>
-                      <h3 className="mt-2.5 text-2xl font-bold leading-tight text-[#012E72] transition-colors group-hover:text-[#002DB5]">
+                      <h3 className="mt-2.5 text-2xl font-bold leading-tight text-[#012E72] transition-colors group-hover:text-[#002DB5]" style={{ fontFamily: FONT_SUBHEADING, fontStyle: 'italic' }}>
                         {post.title}
                       </h3>
-                      <p className="mt-3 text-base font-medium leading-relaxed text-[#010407]/75">{post.excerpt}</p>
+                      <p className="mt-3 text-base font-medium leading-relaxed text-[#010407]/75" style={{ fontFamily: FONT_BODY }}>{post.excerpt}</p>
 
                       <div className="mt-4 flex flex-wrap gap-2">
                         {post.tags.map((tag) => (
                           <span
                             key={`${post.title}-${tag}`}
                             className="rounded-full bg-gradient-to-r from-[#e8eefc] to-[#dfe8ff] px-2.5 py-1 text-[11px] font-semibold uppercase tracking-wide text-[#012E72]"
+                            style={{ fontFamily: FONT_BODY }}
                           >
                             {tag}
                           </span>
@@ -280,12 +289,12 @@ function Blog() {
                       </div>
 
                       <div className="mt-auto flex items-center gap-3 pt-5">
-                        <span className="flex h-9 w-9 items-center justify-center rounded-full bg-[#012E72] text-xs font-bold text-white">
+                        <span className="flex h-9 w-9 items-center justify-center rounded-full bg-[#012E72] text-xs font-bold text-white" style={{ fontFamily: FONT_DISPLAY }}>
                           {initialFromName(post.author)}
                         </span>
                         <div className="leading-tight">
-                          <p className="text-sm font-semibold text-[#012E72]">{post.author}</p>
-                          <p className="mt-1 text-xs text-[#010407]/65">{post.role}</p>
+                          <p className="text-sm font-semibold text-[#012E72]" style={{ fontFamily: FONT_SUBHEADING, fontStyle: 'italic' }}>{post.author}</p>
+                          <p className="mt-1 text-xs text-[#010407]/65" style={{ fontFamily: FONT_BODY }}>{post.role}</p>
                         </div>
                       </div>
                     </div>
@@ -293,8 +302,8 @@ function Blog() {
                 ))
               ) : (
                 <div className="rounded-[18px] border border-dashed border-[#d8cbb8] bg-[#F7F4EF] px-6 py-10 text-center text-[#012E72] sm:col-span-2 lg:col-span-3">
-                  <p className="text-lg font-bold">No posts match your current filters.</p>
-                  <p className="mt-2 text-sm text-[#010407]/70">Try a different category, tag, or sorting option.</p>
+                  <p className="text-lg font-bold" style={{ fontFamily: FONT_DISPLAY }}>No posts match your current filters.</p>
+                  <p className="mt-2 text-sm text-[#010407]/70" style={{ fontFamily: FONT_BODY }}>Try a different category, tag, or sorting option.</p>
                 </div>
               )}
             </div>
@@ -305,6 +314,7 @@ function Blog() {
                 onClick={() => goToPage(currentPage - 1)}
                 disabled={currentPage === 1 || !paginatedPosts.length}
                 className="h-10 w-10 rounded-full bg-white text-[#012E72] ring-1 ring-[#d8cbb8] transition-colors hover:bg-[#F7F4EF] disabled:cursor-not-allowed disabled:opacity-40"
+                style={{ fontFamily: FONT_BODY }}
                 aria-label="Previous page"
               >
                 {'<'}
@@ -324,6 +334,7 @@ function Blog() {
                         ? 'bg-[#002DB5] text-white shadow-[0_6px_14px_rgba(0,45,181,0.35)]'
                         : 'bg-white ring-1 ring-[#d8cbb8] text-[#012E72] hover:bg-[#F7F4EF]'
                     }`}
+                    style={{ fontFamily: FONT_BODY }}
                     aria-current={isActive ? 'page' : undefined}
                     aria-label={`Go to page ${page}`}
                   >
@@ -337,6 +348,7 @@ function Blog() {
                 onClick={() => goToPage(currentPage + 1)}
                 disabled={currentPage === totalPages || !paginatedPosts.length}
                 className="h-10 w-10 rounded-full bg-white text-[#012E72] ring-1 ring-[#d8cbb8] transition-colors hover:bg-[#F7F4EF] disabled:cursor-not-allowed disabled:opacity-40"
+                style={{ fontFamily: FONT_BODY }}
                 aria-label="Next page"
               >
                 {'>'}

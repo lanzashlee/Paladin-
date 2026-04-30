@@ -1,6 +1,9 @@
 import React from 'react';
 import { MapPin, Phone, Printer, Mail } from 'lucide-react';
 
+const FONT_DISPLAY = 'Cinzel, serif';
+const FONT_BODY = '"Times New Roman", Times, serif';
+
 function ContactInfo({ className = '' }) {
   const rowCardClass =
     'flex items-stretch rounded-xl overflow-hidden bg-white min-h-[54px] border border-[#7ca0d6] shadow-[0_2px_6px_rgba(3,27,76,0.1)] transition-all duration-200 hover:-translate-y-[1px] hover:bg-[#f6f9ff] hover:shadow-[0_5px_12px_rgba(3,27,76,0.14)]';
@@ -21,31 +24,33 @@ function ContactInfo({ className = '' }) {
         <div className="rounded-[1.35rem] border border-[#b9cdec] bg-white p-5 md:p-7 shadow-[0_14px_30px_rgba(6,35,86,0.12)]">
           <div className="grid grid-cols-1 lg:grid-cols-[0.46fr_0.54fr] gap-8 md:gap-10 items-start justify-items-center">
           <div className="pt-1 w-full max-w-[360px] flex flex-col items-center text-center">
-            <h2 className="text-[#0a3d90] font-extrabold tracking-tight text-4xl leading-tight">
+            <h2 className="text-[#0a3d90] font-extrabold tracking-tight text-4xl leading-tight" style={{ fontFamily: FONT_DISPLAY }}>
               CONTACT & LOCATION
             </h2>
-            <p className="mt-4 text-[#234f90] text-[14px] md:text-[15px] leading-[1.45] max-w-[320px] mx-auto">
+            <p className="mt-4 text-[#234f90] text-[14px] md:text-[15px] leading-[1.45] max-w-[320px] mx-auto" style={{ fontFamily: FONT_BODY }}>
               We'd love to hear from you. Reach out to us through any of the channels below - our
               licensed agents are ready to assist.
             </p>
 
             <div className="mt-9 w-full max-w-[340px] rounded-[14px] bg-[linear-gradient(165deg,#0a3f95_0%,#072f73_100%)] text-white px-6 py-5 shadow-[0_5px_12px_rgba(4,31,85,0.2)] border border-[#3f69ad]">
-              <h3 className="text-center uppercase text-[20px] font-extrabold tracking-[0.02em] text-white">
+              <h3 className="text-center uppercase text-[20px] font-extrabold tracking-[0.02em] text-white" style={{ fontFamily: FONT_DISPLAY }}>
                 Quick Payments
               </h3>
-              <p className="mt-1.5 text-center text-[13px] leading-[1.35] text-[#edf4ff]">
+              <p className="mt-1.5 text-center text-[13px] leading-[1.35] text-[#edf4ff]" style={{ fontFamily: FONT_BODY }}>
                 Securely manage your policies and bills right from our portal.
               </p>
               <div className="mt-4 flex flex-col items-center gap-3">
                 <a
                   href="#"
                   className="w-[190px] text-center rounded-full bg-white text-[#0b4ba8] py-2.5 text-[14px] font-bold border border-white hover:bg-[#0b4ba8] hover:text-white transition-colors"
+                  style={{ fontFamily: FONT_BODY }}
                 >
                   e-Pay Now
                 </a>
                 <a
                   href="#"
                   className="w-[190px] text-center rounded-full bg-white text-[#0b4ba8] py-2.5 text-[14px] font-bold border border-white hover:bg-[#0b4ba8] hover:text-white transition-colors"
+                  style={{ fontFamily: FONT_BODY }}
                 >
                   Online Bill Pay
                 </a>
@@ -58,7 +63,7 @@ function ContactInfo({ className = '' }) {
               <div className={locationIconClass}>
                 <MapPin className="w-5 h-5" />
               </div>
-              <a href="https://maps.google.com" target="_blank" rel="noreferrer" className={locationTextClass}>
+              <a href="https://maps.google.com" target="_blank" rel="noreferrer" className={locationTextClass} style={{ fontFamily: FONT_BODY }}>
                 3787 Transport ST Suite A7 Box #5 Ventura,
                 <br />
                 CA 93003
@@ -69,7 +74,7 @@ function ContactInfo({ className = '' }) {
               <div className={rowIconClass}>
                 <Phone className="w-5 h-5" />
               </div>
-              <a href="tel:8056926900" className={rowTextClass}>
+              <a href="tel:8056926900" className={rowTextClass} style={{ fontFamily: FONT_BODY }}>
                 805-692-6900
               </a>
             </div>
@@ -78,14 +83,14 @@ function ContactInfo({ className = '' }) {
               <div className={rowIconClass}>
                 <Printer className="w-5 h-5" />
               </div>
-              <p className={rowTextClass}>805-830-1680</p>
+              <p className={rowTextClass} style={{ fontFamily: FONT_BODY }}>805-830-1680</p>
             </div>
 
             <div className={rowCardClass}>
               <div className={rowIconClass}>
                 <Mail className="w-5 h-5" />
               </div>
-              <a href="mailto:admin@paladinbusinessservices.net" className={`${rowTextClass} break-all`}>
+              <a href="mailto:admin@paladinbusinessservices.net" className={`${rowTextClass} break-all`} style={{ fontFamily: FONT_BODY }}>
                 admin@paladinbusinessservices.net
               </a>
             </div>
@@ -98,7 +103,7 @@ function ContactInfo({ className = '' }) {
                   </svg>
                 </span>
               </div>
-              <a href="https://www.facebook.com/profile.php?id=61573336433957" target="_blank" rel="noopener noreferrer" className={rowTextClass}>
+              <a href="https://www.facebook.com/profile.php?id=61573336433957" target="_blank" rel="noopener noreferrer" className={rowTextClass} style={{ fontFamily: FONT_BODY }}>
                 Paladin Professional Insurance Solutions
               </a>
             </div>
@@ -111,7 +116,7 @@ function ContactInfo({ className = '' }) {
                   </svg>
                 </span>
               </div>
-              <a href="https://www.instagram.com/paladin_professional_insurance/" target="_blank" rel="noopener noreferrer" className={`${rowTextClass} break-all`}>
+              <a href="https://www.instagram.com/paladin_professional_insurance/" target="_blank" rel="noopener noreferrer" className={`${rowTextClass} break-all`} style={{ fontFamily: FONT_BODY }}>
                 @paladin_professional_insurance
               </a>
             </div>
@@ -124,7 +129,7 @@ function ContactInfo({ className = '' }) {
                   </svg>
                 </span>
               </div>
-              <a href="https://www.linkedin.com/company/paladin-professional-insurance-solutions/about/" target="_blank" rel="noopener noreferrer" className={rowTextClass}>
+              <a href="https://www.linkedin.com/company/paladin-professional-insurance-solutions/about/" target="_blank" rel="noopener noreferrer" className={rowTextClass} style={{ fontFamily: FONT_BODY }}>
                 Paladin Professional Insurance Solutions
               </a>
             </div>

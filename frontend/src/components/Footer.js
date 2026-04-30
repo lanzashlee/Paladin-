@@ -3,6 +3,9 @@ import { Link } from 'react-router-dom';
 import LegalModal from './LegalModal';
 import { legalContent } from '../data/legalContent';
 
+const FONT_DISPLAY = 'Cinzel, serif';
+const FONT_BODY = '"Times New Roman", Times, serif';
+
 function Footer() {
   const [activeLegalKey, setActiveLegalKey] = useState(null);
   const today = new Date().getDay(); // 0 = Sunday
@@ -38,8 +41,8 @@ function Footer() {
         className="flex items-center justify-between rounded-lg bg-white border border-[#e7dccb] px-3 py-2"
         aria-label={`${item.label} hours`}
       >
-        <span className={textClass}>{item.label}</span>
-        <span className={textClass}>{item.value}</span>
+        <span className={textClass} style={{ fontFamily: FONT_BODY }}>{item.label}</span>
+        <span className={textClass} style={{ fontFamily: FONT_BODY }}>{item.value}</span>
       </div>
     );
   };
@@ -49,29 +52,29 @@ function Footer() {
       <div className="max-w-7xl mx-auto px-8 w-full flex flex-col gap-8">
         <div className="grid gap-6 md:grid-cols-[1.3fr,1fr] items-start">
           <div className="space-y-4">
-            <p className="font-semibold text-[#012E72]">Contact Details</p>
+            <p className="font-semibold text-[#012E72]" style={{ fontFamily: FONT_DISPLAY }}>Contact Details</p>
             <div className="grid gap-4 sm:grid-cols-2 text-sm text-[#010407]/80">
               <div className="space-y-1">
-                <p className="font-semibold text-[#012E72]">Address</p>
-                <Link to="/contact#find-us" className="text-[#010407]/75 hover:text-[#002DB5] transition-colors block">
+                <p className="font-semibold text-[#012E72]" style={{ fontFamily: FONT_DISPLAY }}>Address</p>
+                <Link to="/contact#find-us" className="text-[#010407]/75 hover:text-[#002DB5] transition-colors block" style={{ fontFamily: FONT_BODY }}>
                   3787 Transport ST Suite A7 Box #5, Ventura, CA 93003
                 </Link>
               </div>
               <div className="space-y-1">
-                <p className="font-semibold text-[#012E72]">Phone</p>
-                <Link to="/contact#contact-location" className="text-[#010407]/75 hover:text-[#002DB5] transition-colors block">
+                <p className="font-semibold text-[#012E72]" style={{ fontFamily: FONT_DISPLAY }}>Phone</p>
+                <Link to="/contact#contact-location" className="text-[#010407]/75 hover:text-[#002DB5] transition-colors block" style={{ fontFamily: FONT_BODY }}>
                   805-692-6900
                 </Link>
               </div>
               <div className="space-y-1">
-                <p className="font-semibold text-[#012E72]">Fax</p>
-                <Link to="/contact#contact-location" className="text-[#010407]/75 hover:text-[#002DB5] transition-colors block">
+                <p className="font-semibold text-[#012E72]" style={{ fontFamily: FONT_DISPLAY }}>Fax</p>
+                <Link to="/contact#contact-location" className="text-[#010407]/75 hover:text-[#002DB5] transition-colors block" style={{ fontFamily: FONT_BODY }}>
                   805-830-1680
                 </Link>
               </div>
               <div className="space-y-1">
-                <p className="font-semibold text-[#012E72]">Email</p>
-                <Link to="/contact#contact-location" className="text-[#010407]/75 hover:text-[#002DB5] transition-colors block">
+                <p className="font-semibold text-[#012E72]" style={{ fontFamily: FONT_DISPLAY }}>Email</p>
+                <Link to="/contact#contact-location" className="text-[#010407]/75 hover:text-[#002DB5] transition-colors block" style={{ fontFamily: FONT_BODY }}>
                   admin@paladinbusinessservices.net
                 </Link>
               </div>
@@ -113,7 +116,7 @@ function Footer() {
             </div>
           </div>
           <div className="space-y-4 text-sm text-[#010407]/80 text-left">
-            <p className="font-semibold text-[#012E72]">Office Hours</p>
+            <p className="font-semibold text-[#012E72]" style={{ fontFamily: FONT_DISPLAY }}>Office Hours</p>
             <div className="grid grid-cols-2 gap-3">
               <div className="space-y-2">
                 {hoursColumnLeft.map(renderHourRow)}
@@ -125,12 +128,12 @@ function Footer() {
           </div>
         </div>
         <div className="space-y-1 text-sm text-[#010407]/70 mt-4 md:mt-2">
-          <p>Licensed in CA, AZ, ID, IL, IN, NV, NC, OH and TX</p>
-          <p>Paladin Professional Insurance Solutions | Protecting What Matters, With Care That Shows</p>
+          <p style={{ fontFamily: FONT_BODY }}>Licensed in CA, AZ, ID, IL, IN, NV, NC, OH and TX</p>
+          <p style={{ fontFamily: FONT_BODY }}>Paladin Professional Insurance Solutions | Protecting What Matters, With Care That Shows</p>
         </div>
         <div className="h-px w-full bg-[#d8cbb8]" />
         <div className="max-w-7xl w-full flex flex-col md:flex-row items-center justify-between gap-6">
-          <p className="text-sm">
+          <p className="text-sm" style={{ fontFamily: FONT_BODY }}>
             &copy; {new Date().getFullYear()} Paladin Professional Insurance Solutions. All Rights Reserved.
           </p>
           <div className="flex items-center gap-8">
@@ -139,6 +142,7 @@ function Footer() {
                 type="button"
                 onClick={() => openLegalModal('privacy')}
                 className="hover:text-[#002DB5] transition-colors"
+                style={{ fontFamily: FONT_BODY }}
               >
                 Privacy Policy
               </button>
@@ -146,6 +150,7 @@ function Footer() {
                 type="button"
                 onClick={() => openLegalModal('terms')}
                 className="hover:text-[#002DB5] transition-colors"
+                style={{ fontFamily: FONT_BODY }}
               >
                 Terms of Service
               </button>

@@ -4,6 +4,9 @@ import TeamMemberAndy from '../assets/SIR ANDY.png';
 import TeamMemberDenise from '../assets/MS DENISE.png';
 import TeamMemberDonna from '../assets/DONNA.png';
 
+const FONT_DISPLAY = 'Cinzel, serif';
+const FONT_BODY = '"Times New Roman", Times, serif';
+
 const teamImageCards = {
   andy: {
     alt: 'Sir Andy portrait',
@@ -27,14 +30,14 @@ function Team() {
 
       <div className="relative z-10 mx-auto grid w-full max-w-7xl grid-cols-1 items-center gap-10 px-6 md:grid-cols-[1fr_1.15fr] md:gap-14">
         <div className="max-w-xl">
-          <span className="inline-flex items-center rounded-full border border-[#b8c7dc] bg-white px-4 py-2 text-xs font-semibold uppercase tracking-wide text-[#012E72] shadow-[0_6px_14px_rgba(1,46,114,0.15)]">
+          <span className="inline-flex items-center rounded-full border border-[#b8c7dc] bg-white px-4 py-2 text-xs font-semibold uppercase tracking-wide text-[#012E72] shadow-[0_6px_14px_rgba(1,46,114,0.15)]" style={{ fontFamily: FONT_BODY }}>
             People behind Paladin
           </span>
-          <h2 className="mt-6 text-3xl font-extrabold tracking-tight text-[#012E72] md:text-4xl">
+          <h2 className="mt-6 text-3xl font-extrabold tracking-tight text-[#012E72] md:text-4xl" style={{ fontFamily: FONT_DISPLAY }}>
             MEET THE TEAM
           </h2>
 
-          <p className="mt-4 max-w-md text-base font-medium leading-relaxed text-[#010407]/75 md:text-lg">
+          <p className="mt-4 max-w-md text-base font-medium leading-relaxed text-[#010407]/75 md:text-lg" style={{ fontFamily: FONT_BODY }}>
             Dedicated professionals committed to securing what matters most to you.
           </p>
         </div>

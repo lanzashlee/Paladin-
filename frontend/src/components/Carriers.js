@@ -1,6 +1,10 @@
 import React, { useEffect, useMemo, useState } from 'react';
 import { Link } from 'react-router-dom';
 
+const FONT_DISPLAY = 'Cinzel, serif';
+const FONT_SUBHEADING = 'Constantia, "Times New Roman", serif';
+const FONT_BODY = '"Times New Roman", Times, serif';
+
 const partnerLogoContext = require.context('../assets/partners', false, /\.(png|jpe?g|webp|svg)$/i);
 
 const featuredPartnerOrder = [
@@ -168,13 +172,13 @@ function Carriers({ showViewPartnersButton = false, featuredOnly = false } = {})
 		<section id="partners-carriers" className="py-24 px-6 bg-white border-t border-[#e7dccb]">
 			<div className="max-w-7xl mx-auto">
 				<div className="text-center mb-12 md:mb-16">
-					<p className="inline-flex items-center px-4 py-1 rounded-full bg-white text-[#002DB5] text-xs font-semibold tracking-wide uppercase mb-4 border border-[#d8cbb8] shadow-sm">
+					<p className="inline-flex items-center px-4 py-1 rounded-full bg-white text-[#002DB5] text-xs font-semibold tracking-wide uppercase mb-4 border border-[#d8cbb8] shadow-sm" style={{ fontFamily: FONT_BODY }}>
 						Partnerships
 					</p>
-					<h2 className="text-3xl md:text-4xl font-extrabold text-[#012E72] mb-4">
+					<h2 className="text-3xl md:text-4xl font-extrabold text-[#012E72] mb-4" style={{ fontFamily: FONT_DISPLAY }}>
 						OUR TRUSTED PARTNER CARRIERS
 					</h2>
-					<p className="text-lg md:text-xl text-[#010407]/75 max-w-3xl mx-auto leading-relaxed text-center">
+					<p className="text-lg md:text-xl text-[#010407]/75 max-w-3xl mx-auto leading-relaxed text-center" style={{ fontFamily: FONT_BODY }}>
 						At Paladin Business Services, we collaborate with a network of trusted partners and
 						carriers to offer the highest-quality solutions tailored to your business needs. Our
 						partnerships with industry leaders enable us to deliver unmatched services and support
@@ -258,10 +262,11 @@ function Carriers({ showViewPartnersButton = false, featuredOnly = false } = {})
 										? 'border-[#e7dccb] text-[#010407]/35 cursor-not-allowed'
 										: 'border-[#d8cbb8] text-[#012E72] hover:bg-white'
 								}`}
+								style={{ fontFamily: FONT_BODY }}
 							>
 								Previous
 							</button>
-							<span className="text-xs text-[#010407]/60">
+							<span className="text-xs text-[#010407]/60" style={{ fontFamily: FONT_BODY }}>
 								Page {page} of {totalPages}
 							</span>
 							<button
@@ -273,6 +278,7 @@ function Carriers({ showViewPartnersButton = false, featuredOnly = false } = {})
 										? 'border-[#e7dccb] text-[#010407]/35 cursor-not-allowed'
 										: 'border-[#d8cbb8] text-[#012E72] hover:bg-white'
 								}`}
+								style={{ fontFamily: FONT_BODY }}
 							>
 								Next
 							</button>
@@ -303,6 +309,7 @@ function Carriers({ showViewPartnersButton = false, featuredOnly = false } = {})
 						<Link
 							to="/about#partners-carriers"
 							className="inline-flex items-center justify-center px-6 py-3 rounded-full bg-[#012E72] text-white font-semibold text-sm md:text-base shadow-lg shadow-[#012E72]/20 hover:bg-[#002DB5] transition-colors"
+							style={{ fontFamily: FONT_BODY }}
 						>
 							View All Carriers and Partners
 						</Link>

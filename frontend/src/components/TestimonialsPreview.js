@@ -2,6 +2,10 @@ import React from 'react';
 import { Link } from 'react-router-dom';
 import { Quote, Star } from 'lucide-react';
 
+const FONT_DISPLAY = 'Cinzel, serif';
+const FONT_SUBHEADING = 'Constantia, "Times New Roman", serif';
+const FONT_BODY = '"Times New Roman", Times, serif';
+
 const previewTestimonials = [
   {
     name: 'Jelitza Gutierrez',
@@ -68,15 +72,15 @@ function TestimonialsPreview() {
             <div className="inline-flex items-center mb-5 sm:mb-7 w-fit">
               <div className="inline-flex items-center gap-2 rounded-full border border-[#d8cbb8] bg-[#F7F4EF] px-4 py-1.5 text-[#003a99] shadow-sm">
                 <Quote className="h-4 w-4" />
-                <span className="text-xs font-semibold uppercase tracking-[0.2em]">Testimonials</span>
+                <span className="text-xs font-semibold uppercase tracking-[0.2em]" style={{ fontFamily: FONT_BODY }}>Testimonials</span>
               </div>
             </div>
 
-            <h2 className="mb-4 max-w-[520px] text-3xl font-extrabold leading-tight tracking-tight text-white sm:mb-6 md:text-4xl">
+            <h2 className="mb-4 max-w-[520px] text-3xl font-extrabold leading-tight tracking-tight text-white sm:mb-6 md:text-4xl" style={{ fontFamily: FONT_DISPLAY }}>
               SEE WHAT ALL THE TALK IS ABOUT!
             </h2>
 
-            <p className="mb-7 max-w-[460px] text-base leading-relaxed text-white/85 sm:mb-10 md:text-lg">
+            <p className="mb-7 max-w-[460px] text-base leading-relaxed text-white/85 sm:mb-10 md:text-lg" style={{ fontFamily: FONT_BODY }}>
               Trusted by businesses and families who value responsive service,
               practical guidance, and dependable protection.
             </p>
@@ -84,6 +88,7 @@ function TestimonialsPreview() {
             <Link
               to="/testimonials"
               className="inline-flex w-fit items-center justify-center rounded-full border border-[#d8dbe3] bg-transparent px-6 py-2.5 text-sm font-semibold text-white transition-colors duration-300 hover:bg-white hover:text-[#003a99]"
+              style={{ fontFamily: FONT_BODY }}
             >
               View more
             </Link>
@@ -109,7 +114,7 @@ function TestimonialsPreview() {
                     </div>
                   </div>
 
-                  <p className="mb-2 sm:mb-3 text-sm leading-relaxed text-[#010407]/85">
+                  <p className="mb-2 sm:mb-3 text-sm leading-relaxed text-[#010407]/85" style={{ fontFamily: FONT_BODY }}>
                     &ldquo;{item.quote.substring(0, 85)}...&rdquo;
                   </p>
 
@@ -117,15 +122,16 @@ function TestimonialsPreview() {
                     <div className="flex items-center gap-2 flex-1 min-w-0">
                       <div
                         className={`h-7 sm:h-8 w-7 sm:w-8 rounded-full bg-gradient-to-br ${getAvatarStyle(item.name)} text-white text-[9px] sm:text-[10px] font-extrabold flex items-center justify-center flex-shrink-0`}
+                        style={{ fontFamily: FONT_DISPLAY }}
                         aria-hidden="true"
                       >
                         {getInitials(item.name)}
                       </div>
                       <div className="min-w-0">
-                        <p className="truncate text-sm font-bold leading-tight text-[#003a99]">{item.name}</p>
+                        <p className="truncate text-sm font-bold leading-tight text-[#003a99]" style={{ fontFamily: FONT_SUBHEADING, fontStyle: 'italic' }}>{item.name}</p>
                       </div>
                     </div>
-                    <p className="ml-1 whitespace-nowrap text-[10px] text-[#7a7a7a] flex-shrink-0">{item.result || 'Client Review'}</p>
+                    <p className="ml-1 whitespace-nowrap text-[10px] text-[#7a7a7a] flex-shrink-0" style={{ fontFamily: FONT_BODY }}>{item.result || 'Client Review'}</p>
                   </div>
                 </article>
               ))}
@@ -156,7 +162,7 @@ function TestimonialsPreview() {
                     </div>
                   </div>
 
-                  <p className="mb-2.5 text-sm leading-relaxed text-[#010407]/85">
+                  <p className="mb-2.5 text-sm leading-relaxed text-[#010407]/85" style={{ fontFamily: FONT_BODY }}>
                     &ldquo;{item.quote.substring(0, 200)}...&rdquo;
                   </p>
 
@@ -164,15 +170,16 @@ function TestimonialsPreview() {
                     <div className="flex items-center gap-2 flex-1">
                       <div
                         className={`h-7 w-7 rounded-full bg-gradient-to-br ${getAvatarStyle(item.name)} text-white text-[9px] font-extrabold flex items-center justify-center flex-shrink-0`}
+                        style={{ fontFamily: FONT_DISPLAY }}
                         aria-hidden="true"
                       >
                         {getInitials(item.name)}
                       </div>
                       <div className="min-w-0">
-                        <p className="truncate text-sm font-bold leading-tight text-[#003a99]">{item.name}</p>
+                        <p className="truncate text-sm font-bold leading-tight text-[#003a99]" style={{ fontFamily: FONT_SUBHEADING, fontStyle: 'italic' }}>{item.name}</p>
                       </div>
                     </div>
-                    <p className="ml-2 whitespace-nowrap text-[10px] text-[#7a7a7a] flex-shrink-0">{item.result || 'Client Review'}</p>
+                    <p className="ml-2 whitespace-nowrap text-[10px] text-[#7a7a7a] flex-shrink-0" style={{ fontFamily: FONT_BODY }}>{item.result || 'Client Review'}</p>
                   </div>
                 </article>
               ))}

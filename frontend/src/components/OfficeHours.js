@@ -1,5 +1,8 @@
 import React from 'react';
 
+const FONT_DISPLAY = 'Cinzel, serif';
+const FONT_BODY = '"Times New Roman", Times, serif';
+
 const hours = [
   { day: 'Sunday',    open: '06:00 AM', close: '12:00 AM', closed: false },
   { day: 'Monday',    open: '06:00 AM', close: '12:00 AM', closed: false },
@@ -19,13 +22,13 @@ function OfficeHours() {
       <div className="max-w-3xl mx-auto">
         {/* Header */}
         <div className="text-center mb-12">
-          <p className="inline-flex items-center px-4 py-1 rounded-full bg-white/10 text-[#F7F4EF] text-xs font-semibold tracking-widest uppercase mb-4 border border-white/30 shadow-sm">
+          <p className="inline-flex items-center px-4 py-1 rounded-full bg-white/10 text-[#F7F4EF] text-xs font-semibold tracking-widest uppercase mb-4 border border-white/30 shadow-sm" style={{ fontFamily: FONT_BODY }}>
             When We're Here
           </p>
-          <h2 className="text-4xl font-extrabold text-white tracking-tight mb-4">
+          <h2 className="text-4xl font-extrabold text-white tracking-tight mb-4" style={{ fontFamily: FONT_DISPLAY }}>
             OFFICE HOURS
           </h2>
-          <p className="text-[#F7F4EF] text-lg leading-relaxed">
+          <p className="text-[#F7F4EF] text-lg leading-relaxed" style={{ fontFamily: FONT_BODY }}>
             Our team is available seven days a week from 6:00 AM to 12:00 AM to assist you with all
             your insurance needs.
           </p>
@@ -35,8 +38,8 @@ function OfficeHours() {
         <div className="rounded-3xl overflow-hidden shadow-xl shadow-[#010407]/20 border border-[#d8e2ff] bg-white/95 backdrop-blur">
           {/* Table header */}
           <div className="grid grid-cols-[1fr_auto] bg-[#001F5A] text-white text-sm font-bold px-8 py-4">
-            <span>Day</span>
-            <span>Hours</span>
+            <span style={{ fontFamily: FONT_BODY }}>Day</span>
+            <span style={{ fontFamily: FONT_BODY }}>Hours</span>
           </div>
 
           {/* Rows */}
@@ -49,7 +52,7 @@ function OfficeHours() {
                   ${isToday ? 'bg-[#EAF0FF]' : 'hover:bg-[#F3F7FF]'}`}
               >
                 <div className="flex items-center gap-3">
-                  <span className={`text-sm font-semibold ${isToday ? 'text-[#002DB5]' : 'text-[#012E72]/80'}`}>
+                  <span className={`text-sm font-semibold ${isToday ? 'text-[#002DB5]' : 'text-[#012E72]/80'}`} style={{ fontFamily: FONT_BODY }}>
                     {row.day}
                   </span>
                 </div>
@@ -62,6 +65,7 @@ function OfficeHours() {
                       ? 'text-[#012E72] font-semibold'
                       : 'text-[#012E72]/70'
                   }`}
+                  style={{ fontFamily: FONT_BODY }}
                 >
                   {row.closed ? 'Closed' : `${row.open} – ${row.close}`}
                 </span>
@@ -70,11 +74,12 @@ function OfficeHours() {
           })}
         </div>
 
-        <p className="mt-6 text-center text-sm text-white/80">
+        <p className="mt-6 text-center text-sm text-white/80" style={{ fontFamily: FONT_BODY }}>
           Need assistance? Email us at{' '}
           <a
             href="mailto:support@paladinbusinessservices.net"
             className="text-[#F7F4EF] hover:text-white hover:underline font-medium"
+            style={{ fontFamily: FONT_BODY }}
           >
             support@paladinbusinessservices.net
           </a>
