@@ -496,6 +496,162 @@ const SAMPLE_QUESTION_RESPONSES = [
     reply:
       'Yes, the carrier directory includes information on all types of coverage, from standard homeowners to more specialized commercial policies.',
   },
+  // POPULAR QUESTIONS
+  {
+    patterns: [/what.*paladin/i, /who.*paladin/i, /about.*company/i],
+    reply:
+      'Paladin Professional Insurance Solutions is a full-service independent insurance agency located in Ventura, California. We specialize in evaluating and placing personal and commercial lines across multiple insurance carriers, serving individuals, small businesses, and large commercial enterprises throughout California, Arizona, Idaho, Illinois, Indiana, Nevada, North Carolina, Ohio, and Texas.',
+  },
+  {
+    patterns: [/independent.*agency/i, /benefit.*working.*independent/i, /why.*choose.*independent/i],
+    reply:
+      'Independent agencies like Paladin represent dozens of insurance carriers rather than a single company. This gives us the ability to evaluate your specific risk profile against multiple underwriting guidelines and competitive rates, ensuring you receive a customized insurance portfolio that matches your budget and coverage objectives.',
+  },
+  {
+    patterns: [/what.*products.*sell/i, /product.*lines/i, /insurance.*categories/i],
+    reply:
+      'Our product portfolio spans homeowners, condo, renters, commercial auto and trucks, general liability, workers compensation, property and casualty, umbrella and excess liability, flood insurance, earthquake coverage, cyber liability, specialty and niche coverages, and industry-specific programs for contractors, restaurants, healthcare, and other specialized businesses.',
+  },
+  {
+    patterns: [/licensed.*states/i, /where.*operate/i, /service.*area/i],
+    reply:
+      'Paladin holds active insurance licenses in nine states: California, Arizona, Idaho, Illinois, Indiana, Nevada, North Carolina, Ohio, and Texas. We maintain partnerships with carriers licensed in additional states, expanding our capacity to serve multi-state operations and national account needs.',
+  },
+  {
+    patterns: [/carrier.*relationships/i, /work.*with.*insurers/i, /carrier.*partnerships/i],
+    reply:
+      'We maintain active appointments with over thirty regional and national insurance carriers. Our established relationships give us priority access to underwriting, expedited quote turnaround, preferred commission structures, and the ability to advocate for better rates and coverage terms on your behalf with carrier underwriting teams.',
+  },
+  // CONSULTATION QUESTIONS
+  {
+    patterns: [/what.*consultation.*request/i, /how.*consultation.*work/i, /define.*consultation/i],
+    reply:
+      'A consultation request initiates a structured intake conversation with one of our licensed agents. We use this session to understand your business operations, loss history, coverage gaps, risk tolerance, and budget constraints. Based on your input, we develop customized insurance recommendations aligned with your specific exposures and financial objectives.',
+  },
+  {
+    patterns: [/how.*long.*consultation/i, /duration.*consultation.*meeting/i],
+    reply:
+      'Initial consultations typically run thirty to forty-five minutes. This allows time for the agent to thoroughly understand your situation, ask clarifying questions about your operations and history, and outline potential solution paths. Complex commercial accounts may require follow-up consultations to address all coverage areas.',
+  },
+  {
+    patterns: [/what.*information.*needed.*consultation/i, /prepare.*consultation/i, /bring.*consultation/i],
+    reply:
+      'Before your consultation, gather your current insurance policies, recent loss history, business tax returns or financial statements if applicable, details about your operations, and a list of any specific concerns or coverage gaps you\'ve identified. Having this information available helps the agent make more informed recommendations quickly.',
+  },
+  {
+    patterns: [/when.*receive.*proposal/i, /after.*consultation.*next/i, /timeline.*recommendations/i],
+    reply:
+      'After your consultation concludes, the agent compiles notes and generates personalized quote proposals from appropriate carriers within two to three business days. You\'ll receive these proposals via email with a summary of coverage recommendations, premium comparisons, and explanation of how each proposal addresses your identified needs.',
+  },
+  {
+    patterns: [/cost.*charge.*consultation/i, /fee.*consultation.*service/i],
+    reply:
+      'Paladin consultations are provided at no cost. Our business model depends on commissions from insurance carriers, not client fees. Whether you move forward with coverage or not, there\'s no charge for the time our agents spend evaluating your insurance needs and providing professional guidance.',
+  },
+  // DOCUMENTS QUESTIONS
+  {
+    patterns: [/what.*certificate.*insurance/i, /explain.*coi/i, /coi.*definition/i],
+    reply:
+      'A Certificate of Insurance is a one-page summary document issued by the insurance carrier listing active policies, coverage types, coverage limits, policy deductibles, policy expiration dates, and named insureds. The certificate serves as proof of coverage for contractual requirements, vendor relationships, loan applications, lease agreements, and regulatory compliance documentation.',
+  },
+  {
+    patterns: [/what.*declarations.*page/i, /declare.*page.*definition/i],
+    reply:
+      'A declarations page is the primary policy document that contains all key policy information: the named insured, policy effective and expiration dates, coverage types, coverage limits, deductibles, premium amounts, endorsements attached, exclusions applied, and billing instructions. It serves as the policy summary and reference document for your coverage understanding.',
+  },
+  {
+    patterns: [/additional.*insured.*endorsement/i, /what.*additional.*insured/i],
+    reply:
+      'An Additional Insured endorsement extends liability coverage protection to another party, like a general contractor requiring subcontractors to carry the GC as an additional insured, or a landlord requiring tenants to carry the landlord as an additional insured. This modifies your policy to include another party\'s interests under your liability protections.',
+  },
+  {
+    patterns: [/waiver.*subrogation/i, /what.*waiver.*subrogation/i],
+    reply:
+      'A Waiver of Subrogation endorsement prevents your insurance carrier from pursuing recovery against other responsible parties after paying your claim. This is commonly required in construction contracts where one party waives their right to sue another party, or in commercial leases where the landlord requires tenants to waive subrogation rights.',
+  },
+  {
+    patterns: [/primary.*non.*contributory.*p.*nc/i, /what.*p.*nc.*endorsement/i],
+    reply:
+      'A Primary and Non-Contributory endorsement makes your insurance policy the first payer in a loss situation, with no contribution from other insurance available to the other party. This is often required by contract owners or vendors to ensure Paladin\'s coverage applies first in any covered incident.',
+  },
+  // POLICY CHANGE QUESTIONS
+  {
+    patterns: [/what.*policy.*change/i, /define.*policy.*modification/i],
+    reply:
+      'A policy change is any modification to an active insurance policy after inception. This includes adding or removing drivers or vehicles, adjusting coverage limits, changing deductibles, updating named insureds or loss payees, modifying endorsements, or changing billing addresses. Changes can take effect immediately or on a specified future date.',
+  },
+  {
+    patterns: [/add.*remove.*driver/i, /driver.*change.*policy/i],
+    reply:
+      'Adding a driver requires providing their full legal name, date of birth, driver license number, license status, and driving history including accidents, violations, and claims. Removing a driver is simpler but requires confirmation that the driver will have no access to any vehicles on the policy. Driver changes typically affect your auto policy premium within one to two business days.',
+  },
+  {
+    patterns: [/deductible.*impact.*premium/i, /change.*deductible.*cost/i],
+    reply:
+      'Increasing your deductible from 500 to 1000 or higher reduces your annual premium because you accept more financial responsibility in a claim. Decreasing your deductible increases your premium but provides better claim payoff. A 500 dollar deductible increase might lower your premium by five to fifteen percent depending on the coverage and carrier.',
+  },
+  {
+    patterns: [/coverage.*limit.*adjustment/i, /increase.*liability.*limits/i],
+    reply:
+      'Coverage limits can be adjusted at any time during the policy period. Increasing your limits, such as general liability from one million to two million, increases your premium to reflect the carrier\'s expanded exposure. Conversely, reducing limits lowers your premium but reduces your financial protection in a serious claim.',
+  },
+  {
+    patterns: [/policy.*change.*effective.*date/i, /when.*effective.*change/i],
+    reply:
+      'Policy changes can be requested as immediate, effective on the next business day, on a future date you specify, or on your policy anniversary. Different carrier systems and change types have different processing requirements. Complex changes like driver additions with underwriting needs may require two to three business days before the change becomes effective with full coverage.',
+  },
+  // UPDATE INFO QUESTIONS
+  {
+    patterns: [/update.*contact.*information/i, /modify.*account.*details/i],
+    reply:
+      'Account contact information updates include changes to your email, phone number, mailing address, and legal name. You can submit these updates through the update contact info form on our website. We use this information to maintain accurate policy records, deliver correspondence, and ensure you receive all policy documents and notices.',
+  },
+  {
+    patterns: [/legal.*name.*change/i, /married.*name.*change/i, /divorce.*update.*name/i],
+    reply:
+      'Legal name changes require documentation such as a marriage certificate, divorce decree, or legal name change order. You\'ll need to provide your new legal name and copy of the supporting document. Carriers require this for underwriting records and policy accuracy, ensuring your renewals and future quotes reference the correct legal identity.',
+  },
+  {
+    patterns: [/change.*address.*policy/i, /relocated.*property.*address/i],
+    reply:
+      'Address changes can affect your insurance eligibility, rates, and coverage. Property address changes may trigger re-underwriting since coverage depends on location-specific risk factors. Mailing address changes only update where you receive correspondence. Include both the old and new addresses, and specify whether this is permanent or temporary.',
+  },
+  {
+    patterns: [/apply.*change.*all.*policies/i, /single.*policy.*update/i],
+    reply:
+      'When updating contact information, you can elect to apply changes to all your active policies with Paladin, or to a single specific policy. This is useful if you have multiple policies and need to update, for example, your cell phone on your personal auto policy only, while keeping a business email on your commercial policies.',
+  },
+  {
+    patterns: [/verification.*documentation.*update/i, /confirm.*identity.*update/i],
+    reply:
+      'For sensitive updates like legal name changes, some request types may require identity verification such as a copy of your driver license, passport, or supporting legal documents. This protects your account from unauthorized changes and ensures carriers receive verified information for their underwriting files.',
+  },
+  // CLAIMS QUESTIONS
+  {
+    patterns: [/how.*report.*claim/i, /file.*claim.*process/i, /report.*incident/i],
+    reply:
+      'To report a claim, submit the claim report form on our website with the date, time, location, and description of the incident, or contact our office at 805-692-6900. Provide your policy number, detailed description of what happened, photos or video if applicable, any police report filed, witness information, and details of any property damage or injuries involved.',
+  },
+  {
+    patterns: [/what.*information.*needed.*claim/i, /claim.*details.*required/i],
+    reply:
+      'The claim report form requires your full name, email, phone, policy number, incident date and time with specific timeline, incident location with address, comprehensive description of the damage or injury, responsible party information if third-party claim, any police or fire report number and issuing agency, valuation of damaged property or medical treatment information, photos or video evidence, and contact information for any witnesses present.',
+  },
+  {
+    patterns: [/timeline.*claim.*settlement/i, /how.*long.*claims.*process/i],
+    reply:
+      'After reporting, Paladin contacts you within twenty-four hours to confirm receipt and assign a claim handler. The carrier begins investigation within two to five business days. Simple claims may settle in two to four weeks, while complex or disputed claims can take sixty to ninety days or longer depending on investigation complexity, medical treatment completion, or repair estimates needed.',
+  },
+  {
+    patterns: [/police.*report.*claim.*requirement/i, /accident.*report.*claim/i],
+    reply:
+      'For accidents, theft, or criminal incidents, filing a police report is often required or helps support your claim. Request a police report number at the time of filing and include this reference along with the police case number in your claim submission. The report creates an official incident record that helps the carrier verify the loss and process your claim more quickly.',
+  },
+  {
+    patterns: [/claim.*denied/i, /claim.*appeal.*process/i, /dispute.*claim.*denial/i],
+    reply:
+      'If your claim is denied or the settlement offer is disputed, contact Paladin immediately at 805-692-6900. We review the carrier\'s denial reason, obtain the full claims file, and determine whether grounds exist for appeal based on what the policy covers. We advocate on your behalf with the carrier and explain your coverage options, limitations, and alternative solutions.',
+  },
 ];
 
 const INTENT_RULES = [

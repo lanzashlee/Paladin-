@@ -210,6 +210,7 @@ function VoiceChatWidget() {
   const [textInput, setTextInput] = useState('');
   const [messages, setMessages] = useState([INITIAL_ASSISTANT_MESSAGE]);
   const [questionCategory, setQuestionCategory] = useState('popular');
+  const [selectedCategory, setSelectedCategory] = useState(null);
   const [followUpQuestions, setFollowUpQuestions] = useState([]);
   const [suggestedActions, setSuggestedActions] = useState([]);
 
@@ -1091,21 +1092,21 @@ function VoiceChatWidget() {
   };
 
   return (
-    <div className="fixed inset-x-2 bottom-2 z-50 flex flex-col items-end sm:inset-x-auto sm:bottom-5 sm:right-5 lg:bottom-6 lg:right-6">
+    <div className="fixed inset-0 pointer-events-none z-50 flex flex-col items-end justify-end p-4">
       {isOpen && (
-        <section className="mb-2 flex h-[min(88dvh,780px)] w-full max-w-[calc(100vw-1rem)] min-h-0 flex-col overflow-hidden rounded-[1.4rem] border border-[#d7e5ff] bg-gradient-to-b from-[#f8fbff] to-white shadow-[0_20px_45px_-25px_rgba(2,37,91,0.45)] sm:mb-3 sm:h-[min(84dvh,780px)] sm:w-[390px] sm:max-w-[92vw] sm:rounded-[1.75rem] lg:w-[430px] xl:w-[460px]">
-          <header className="relative shrink-0 overflow-hidden border-b border-[#d7e5ff] bg-[#072e73] px-3 py-3 text-white sm:px-4">
+        <section className="mb-4 pointer-events-auto relative flex h-[600px] w-[360px] min-h-0 flex-col overflow-visible rounded-2xl border border-[#d7e5ff] bg-gradient-to-b from-[#f8fbff] to-white shadow-[0_20px_45px_-25px_rgba(2,37,91,0.45)]">
+          <header className="relative shrink-0 overflow-hidden border-b border-[#d7e5ff] bg-[#072e73] px-4 py-4 text-white">
             <div className="pointer-events-none absolute -right-8 -top-10 h-24 w-24 rounded-full bg-[#00c2a8]/35 blur-xl" />
             <div className="pointer-events-none absolute -left-8 -bottom-10 h-20 w-20 rounded-full bg-[#2f7ff0]/30 blur-xl" />
-            <div className="relative flex items-start justify-between gap-2 sm:gap-3">
+            <div className="relative flex items-start justify-between gap-3">
               <div className="min-w-0 flex-1">
-                <h2 className="text-sm font-semibold tracking-wide">Paladin Voice AI</h2>
-                <p className="mt-1 inline-flex max-w-full items-center truncate rounded-full bg-white/15 px-2 py-0.5 text-[10px] font-medium text-white/95">
+                <h2 className="text-base font-semibold tracking-wide">Paladin Voice AI</h2>
+                <p className="mt-2 inline-flex max-w-full items-center truncate rounded-full bg-white/15 px-3 py-1 text-xs font-medium text-white/95">
                   {status}
                 </p>
                 {ENABLE_AGORA && (
-                  <p className="mt-1.5 text-[10px] font-medium uppercase tracking-wide text-white/80">
-                    {isAgoraConnected ? 'Live Voice Channel: Connected' : isAgoraConnecting ? 'Live Voice Channel: Connecting' : 'Live Voice Channel: Idle'}
+                  <p className="mt-2 text-xs font-medium uppercase tracking-wide text-white/80">
+                    {isAgoraConnected ? '🔊 Live Voice: Connected' : isAgoraConnecting ? '⏳ Live Voice: Connecting' : '⊘ Live Voice: Idle'}
                   </p>
                 )}
               </div>
@@ -1117,44 +1118,75 @@ function VoiceChatWidget() {
                     disconnectAgoraVoice();
                   }
                 }}
-                className="shrink-0 rounded-full border border-white/25 bg-white/10 px-2 py-1 text-xs font-semibold text-white transition-colors hover:bg-white/20"
+                className="shrink-0 rounded-lg border border-white/25 bg-white/10 px-3 py-1 text-xs font-semibold text-white transition-colors hover:bg-white/20"
               >
-                Close
+                ✕
               </button>
             </div>
           </header>
 
-          <div className="min-h-[260px] flex-[1.35] space-y-2 overflow-y-auto bg-gradient-to-b from-[#f2f7ff] via-[#f8fbff] to-[#ffffff] px-2.5 py-2.5 text-sm overscroll-contain sm:min-h-[300px] sm:px-3 sm:py-3">
+          {selectedCategory && (
+            <div className="absolute top-16 left-3 right-3 z-10 rounded-lg border border-[#cfe0ff] bg-gradient-to-b from-white to-[#f9fcff] p-3 shadow-lg opacity-100 transition-opacity duration-300">
+              <div className="flex items-center justify-between mb-2">
+                <p className="text-xs font-semibold uppercase tracking-wide text-[#08337e]">{QUESTION_CATEGORY_LABELS[selectedCategory] || selectedCategory}</p>
+                <button
+                  type="button"
+                  onClick={() => setSelectedCategory(null)}
+                  className="text-xs font-bold text-[#08337e] hover:text-[#0a4ab3]"
+                >
+                  ✕
+                </button>
+              </div>
+              <div className="space-y-1 max-h-[220px] overflow-y-auto">
+                {sampleQuestions.map((question) => (
+                  <button
+                    key={question}
+                    type="button"
+                    onClick={() => {
+                      handleSampleQuestion(question);
+                      setSelectedCategory(null);
+                    }}
+                    disabled={isLoading}
+                    className="w-full text-left rounded-md border border-[#cfe0ff] bg-white px-2 py-1.5 text-xs font-medium text-[#08337e] transition-colors hover:border-[#0a4ab3] hover:bg-[#f0f6ff] disabled:opacity-50"
+                  >
+                    {question}
+                  </button>
+                ))}
+              </div>
+            </div>
+          )}
+
+          <div className="min-h-[220px] flex-[1.35] space-y-2 overflow-y-auto bg-gradient-to-b from-[#f2f7ff] via-[#f8fbff] to-[#ffffff] px-3 py-3 text-sm overscroll-contain">
             {messages.map((msg, index) => (
               <div
                 key={`${msg.role}-${index}`}
                 className={`group flex items-end gap-2 ${msg.role === 'user' ? 'flex-row-reverse' : ''}`}
               >
                 <div
-                  className={`mb-1 inline-flex h-6 w-6 shrink-0 items-center justify-center rounded-full text-[10px] font-bold ${
+                  className={`mb-1 inline-flex h-6 w-6 shrink-0 items-center justify-center rounded-full text-xs font-bold ${
                     msg.role === 'assistant'
                       ? 'bg-[#0a4ab3] text-white'
                       : 'border border-[#bfd5ff] bg-white text-[#08337e]'
                   }`}
                 >
-                  {msg.role === 'assistant' ? 'AI' : 'You'}
+                  {msg.role === 'assistant' ? 'AI' : 'U'}
                 </div>
                 <div
-                  className={`max-w-[82%] break-words rounded-2xl px-3 py-2.5 shadow-sm sm:max-w-[74%] ${
+                  className={`max-w-[75%] break-words rounded-2xl px-3 py-2 shadow-sm ${
                     msg.role === 'assistant'
                       ? 'border border-[#dce8ff] bg-white text-[#0b1f3f]'
                       : 'bg-gradient-to-br from-[#0a4ab3] to-[#072e73] text-white'
                   }`}
                 >
-                  <p className="leading-relaxed">{msg.text}</p>
-                  <div className={`mt-1.5 text-[10px] ${msg.role === 'assistant' ? 'text-[#6e7e98]' : 'text-white/75'}`}>
+                  <p className="text-xs leading-relaxed">{msg.text}</p>
+                  <div className={`mt-1 text-[9px] ${msg.role === 'assistant' ? 'text-[#6e7e98]' : 'text-white/75'}`}>
                     {formatTimestamp(msg.timestamp)}
                   </div>
                 </div>
                 <button
                   type="button"
                   onClick={() => handleDeleteMessage(index)}
-                  className="mb-1 hidden rounded-full border border-[#d7e5ff] bg-white px-1.5 py-0.5 text-[10px] font-semibold text-[#6e7e98] transition-colors hover:border-[#0a4ab3] hover:text-[#0a4ab3] md:group-hover:inline-flex"
+                  className="mb-1 hidden rounded-md border border-[#d7e5ff] bg-white px-1.5 py-0.5 text-[9px] font-semibold text-[#6e7e98] transition-colors hover:border-[#0a4ab3] hover:text-[#0a4ab3] md:group-hover:inline-flex"
                   aria-label="Delete message"
                 >
                   Del
@@ -1164,7 +1196,7 @@ function VoiceChatWidget() {
             
             {isLoading && (
               <div className="flex gap-2">
-                <div className="rounded-2xl border border-[#dce8ff] bg-white px-3 py-2 text-[#010407] shadow-sm">
+                <div className="rounded-2xl border border-[#dce8ff] bg-white px-3 py-2 shadow-sm">
                   <div className="flex gap-1">
                     <span className="inline-block h-2 w-2 animate-bounce rounded-full bg-[#0a4ab3]"></span>
                     <span className="inline-block h-2 w-2 animate-bounce rounded-full bg-[#0a4ab3]/70 [animation-delay:120ms]"></span>
@@ -1177,79 +1209,84 @@ function VoiceChatWidget() {
             <div ref={messagesEndRef} />
           </div>
 
-          <div className="shrink-0 space-y-2 border-t border-[#d7e5ff] bg-white/95 px-2.5 py-2.5 sm:px-3 sm:py-3">
-            <div className="grid grid-cols-2 gap-2 sm:grid-cols-4">
+          <div className="shrink-0 space-y-2 border-t border-[#d7e5ff] bg-white/95 px-3 py-3">
+            <div className="grid grid-cols-4 gap-1.5">
               <button
                 type="button"
                 onClick={handleMicToggle}
                 disabled={!canUseMic}
-                className={`rounded-xl px-2 py-2 text-[11px] font-semibold text-white transition-all sm:text-xs ${
+                title={isListening ? 'Stop recording' : micEnabled ? 'Microphone is active' : 'Activate microphone'}
+                className={`rounded-lg px-2 py-2 text-xs font-semibold text-white transition-all ${
                   isListening
-                    ? 'bg-[#0f766e]'
+                    ? 'bg-[#059669]'
                     : micEnabled
                     ? 'bg-[#0a4ab3]'
-                    : 'bg-[#072e73]'
-                } disabled:cursor-not-allowed disabled:opacity-50`}
+                    : 'bg-[#6b7280]'
+                } disabled:cursor-not-allowed disabled:opacity-50 hover:shadow-md`}
               >
                 {isListening ? 'Listening' : micEnabled ? 'Mic On' : 'Mic Off'}
               </button>
               <button
                 type="button"
                 onClick={() => setIsVoiceMuted((value) => !value)}
-                className={`rounded-xl px-2 py-2 text-[11px] font-semibold transition-all sm:text-xs ${
+                title={isVoiceMuted ? 'Audio is muted' : 'Audio is enabled'}
+                className={`rounded-lg px-2 py-2 text-xs font-semibold transition-all ${
                   isVoiceMuted
-                    ? 'bg-[#dbe8ff] text-[#08337e]'
-                    : 'bg-[#08337e] text-white'
-                }`}
+                    ? 'bg-[#dc2626] text-white'
+                    : 'bg-[#0a4ab3] text-white'
+                } hover:shadow-md`}
               >
-                {isVoiceMuted ? 'Muted' : 'Voice'}
+                {isVoiceMuted ? 'Muted' : 'Audio On'}
               </button>
               <button
                 type="button"
                 onClick={handleCopyLatestReply}
                 disabled={lastAssistantMessageIndex === -1}
-                className="rounded-xl border border-[#bfd5ff] bg-white px-2 py-2 text-[11px] font-semibold text-[#08337e] transition-colors hover:border-[#0a4ab3] hover:text-[#0a4ab3] disabled:cursor-not-allowed disabled:opacity-50 sm:text-xs"
+                title="Copy the latest response"
+                className="rounded-lg border border-[#bfd5ff] bg-white px-2 py-2 text-xs font-semibold text-[#08337e] transition-colors hover:border-[#0a4ab3] hover:text-[#0a4ab3] hover:shadow-md disabled:cursor-not-allowed disabled:opacity-50"
               >
                 {copiedReply ? 'Copied' : 'Copy'}
               </button>
               <button
                 type="button"
                 onClick={handleClearChat}
-                className="rounded-xl bg-[#b91c1c] px-2 py-2 text-[11px] font-semibold text-white transition-colors hover:bg-[#991b1b] sm:text-xs"
+                title="Clear conversation history"
+                className="rounded-lg bg-[#dc2626] px-2 py-2 text-xs font-semibold text-white transition-colors hover:bg-[#b91c1c] hover:shadow-md"
               >
                 Clear
               </button>
             </div>
 
-            
-
-            <form onSubmit={handleTextSubmit} className="flex flex-col gap-2 sm:flex-row">
+            <form onSubmit={handleTextSubmit} className="flex flex-row gap-1.5">
               <input
                 type="text"
                 value={textInput}
                 onChange={(event) => setTextInput(event.target.value)}
                 placeholder="Ask something..."
-                className="flex-1 rounded-xl border border-[#bfd5ff] bg-[#fdfefe] px-3 py-2 text-sm text-[#0b1f3f] outline-none transition-shadow focus:border-[#0a4ab3] focus:ring-2 focus:ring-[#0a4ab3]/25"
+                className="flex-1 rounded-lg border border-[#bfd5ff] bg-[#fdfefe] px-3 py-2 text-xs text-[#0b1f3f] outline-none transition-shadow focus:border-[#0a4ab3] focus:ring-2 focus:ring-[#0a4ab3]/25"
               />
               <button
                 type="submit"
                 disabled={!textInput.trim() || isLoading}
-                className="rounded-xl bg-gradient-to-br from-[#0a4ab3] to-[#072e73] px-3 py-2 text-sm font-semibold text-white transition-transform hover:-translate-y-0.5 disabled:cursor-not-allowed disabled:opacity-50 sm:min-w-[88px]"
+                className="rounded-lg bg-gradient-to-br from-[#0a4ab3] to-[#072e73] px-4 py-2 text-xs font-semibold text-white transition-transform hover:-translate-y-0.5 disabled:cursor-not-allowed disabled:opacity-50 whitespace-nowrap"
               >
                 Send
               </button>
             </form>
 
-            <div className="max-h-[34vh] space-y-2 overflow-y-auto pr-1 sm:max-h-[250px]">
+            <div className="max-h-[140px] space-y-2 overflow-y-auto pr-1">
               <div className="space-y-2">
-                <div className="-mx-1 overflow-x-auto pb-1 sm:mx-0 sm:overflow-visible sm:pb-0">
-                  <div className="flex flex-nowrap gap-1.5 px-1 sm:flex-wrap sm:px-0">
+                <div className="overflow-x-auto pb-1">
+                  <div className="flex flex-nowrap gap-1">
                     {Object.keys(QUESTION_PACKS).map((categoryKey) => (
                       <button
                         key={categoryKey}
                         type="button"
-                        onClick={() => setQuestionCategory(categoryKey)}
-                        className={`rounded-full border px-2.5 py-1 text-[10px] font-semibold uppercase tracking-wide transition-colors ${
+                        onClick={() => {
+                          setQuestionCategory(categoryKey);
+                          setSelectedCategory(categoryKey);
+                        }}
+                        className={`rounded-full border px-2 py-1 text-xs font-semibold tracking-wide transition-colors whitespace-nowrap ${
                           questionCategory === categoryKey
                             ? 'border-[#0a4ab3] bg-[#0a4ab3] text-white'
                             : 'border-[#bfd5ff] bg-[#f3f8ff] text-[#08337e] hover:border-[#0a4ab3]'
@@ -1261,51 +1298,16 @@ function VoiceChatWidget() {
                   </div>
                 </div>
 
-                <div className="max-h-[120px] overflow-y-auto pr-1 sm:max-h-[90px]">
-                  <div className="flex flex-wrap gap-1.5">
-                    {sampleQuestions.map((question) => (
-                      <button
-                        key={question}
-                        type="button"
-                        onClick={() => handleSampleQuestion(question)}
-                        disabled={isLoading}
-                        className="rounded-lg border border-[#cfe0ff] bg-white px-2 py-1 text-[10px] font-medium text-[#08337e] transition-colors hover:border-[#0a4ab3] hover:bg-[#f0f6ff] disabled:opacity-50"
-                      >
-                        {question}
-                      </button>
-                    ))}
-                  </div>
-                </div>
-
-                {followUpQuestions.length > 0 && (
-                  <div className="rounded-xl border border-[#cfe0ff] bg-[#f3f8ff] p-2">
-                    <p className="mb-1 text-[10px] font-semibold uppercase tracking-wide text-[#08337e]">Helpful follow-ups</p>
-                    <div className="flex flex-wrap gap-1.5">
-                      {followUpQuestions.map((question) => (
-                        <button
-                          key={question}
-                          type="button"
-                          onClick={() => handleSampleQuestion(question)}
-                          disabled={isLoading}
-                          className="rounded-md border border-[#bfd5ff] bg-white px-2 py-1 text-[10px] font-medium text-[#08337e] transition-colors hover:border-[#0a4ab3] disabled:opacity-50"
-                        >
-                          {question}
-                        </button>
-                      ))}
-                    </div>
-                  </div>
-                )}
-
                 {suggestedActions.length > 0 && (
-                  <div className="rounded-xl border border-[#cfe0ff] bg-white p-2">
-                    <p className="mb-1 text-[10px] font-semibold uppercase tracking-wide text-[#08337e]">Take action</p>
-                    <div className="flex flex-wrap gap-1.5">
+                  <div className="rounded-lg border border-[#cfe0ff] bg-white p-2">
+                    <p className="mb-1 text-xs font-semibold uppercase tracking-wide text-[#08337e]">Next Steps</p>
+                    <div className="flex flex-wrap gap-1">
                       {suggestedActions.map((action) => (
                         <button
                           key={action.id || `${action.type}-${action.label}`}
                           type="button"
                           onClick={() => executeSuggestedAction(action)}
-                          className="rounded-md bg-gradient-to-br from-[#0a4ab3] to-[#072e73] px-2.5 py-1 text-[10px] font-semibold text-white transition-transform hover:-translate-y-0.5"
+                          className="rounded-md bg-gradient-to-br from-[#0a4ab3] to-[#072e73] px-2 py-1 text-xs font-semibold text-white transition-transform hover:-translate-y-0.5"
                         >
                           {action.label || ACTION_LABEL_BY_TYPE[action.type] || 'Action'}
                         </button>
@@ -1325,14 +1327,16 @@ function VoiceChatWidget() {
           setIsOpen((prev) => !prev);
           setUnreadCount(0);
         }}
-        className="group relative w-full overflow-hidden rounded-full border border-[#74a2ef] bg-gradient-to-br from-[#0a4ab3] to-[#072e73] px-4 py-3 text-sm font-semibold text-white shadow-lg shadow-[#072e73]/35 transition-all hover:-translate-y-0.5 active:translate-y-0 sm:w-auto sm:px-5"
+        className="pointer-events-auto group relative h-16 w-16 flex items-center justify-center overflow-hidden rounded-full border border-[#74a2ef] bg-gradient-to-br from-[#0a4ab3] to-[#072e73] font-semibold text-white shadow-lg shadow-[#072e73]/35 transition-all hover:-translate-y-0.5 active:translate-y-0"
+        title={isOpen ? 'Close assistant' : 'Open AI Assistant'}
       >
         <span className="pointer-events-none absolute inset-0 -translate-x-full bg-gradient-to-r from-transparent via-white/20 to-transparent transition-transform duration-700 group-hover:translate-x-full" />
-        <span className="relative flex items-center gap-2">
-          {isOpen ? 'Close' : 'Voice AI'}
+        <span className="relative flex flex-col items-center justify-center text-center leading-tight">
+          <span className="text-[10px]">AI</span>
+          <span className="text-[9px] font-medium">Assistant</span>
         </span>
         {!isOpen && unreadCount > 0 && (
-          <span className="absolute -right-2 -top-2 inline-flex min-h-6 min-w-6 items-center justify-center rounded-full bg-[#ff7f11] text-xs font-bold text-white">
+          <span className="absolute -right-2 -top-2 inline-flex min-h-6 min-w-6 items-center justify-center rounded-full bg-[#059669] text-xs font-bold text-white">
             {unreadCount > 9 ? '9+' : unreadCount}
           </span>
         )}
