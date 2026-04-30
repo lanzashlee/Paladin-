@@ -4,6 +4,10 @@ import { Quote, Star } from 'lucide-react';
 import Header from '../components/Header';
 import Footer from '../components/Footer';
 
+const FONT_DISPLAY = 'Cinzel, serif';
+const FONT_SUBHEADING = 'Constantia, "Times New Roman", serif';
+const FONT_BODY = '"Times New Roman", Times, serif';
+
 const testimonials = [
   {
     name: 'Jelitza Gutierrez',
@@ -167,12 +171,13 @@ function TestimonialCard({ item }) {
       </div>
 
       <div className="flex-1">
-        <p className="text-[#010407]/80 leading-relaxed text-sm md:text-base">&ldquo;{visibleQuote}&rdquo;</p>
+        <p className="text-[#010407]/80 leading-relaxed text-sm md:text-base" style={{ fontFamily: FONT_BODY }}>&ldquo;{visibleQuote}&rdquo;</p>
         {isLongQuote && (
           <button
             type="button"
             onClick={() => setIsExpanded((value) => !value)}
             className="mt-2 text-[11px] font-semibold text-[#002DB5] hover:text-[#012E72] underline underline-offset-2"
+            style={{ fontFamily: FONT_BODY }}
           >
             {isExpanded ? 'Show less' : 'More'}
           </button>
@@ -183,16 +188,17 @@ function TestimonialCard({ item }) {
         <div className="flex items-center gap-3">
           <div
             className={`h-10 w-10 rounded-full bg-gradient-to-br ${getAvatarStyle(item.name)} text-white text-sm font-extrabold flex items-center justify-center border border-white shadow-[0_4px_10px_rgba(1,46,114,0.2)]`}
+            style={{ fontFamily: FONT_DISPLAY }}
             aria-hidden="true"
           >
             {getInitials(item.name)}
           </div>
           <div>
-            <p className="font-bold text-[#012E72] text-base leading-tight">{item.name}</p>
-            {item.title ? <p className="text-sm text-[#010407]/70">{item.title}</p> : null}
+            <p className="font-bold text-[#012E72] text-base leading-tight" style={{ fontFamily: FONT_SUBHEADING, fontStyle: 'italic' }}>{item.name}</p>
+            {item.title ? <p className="text-sm text-[#010407]/70" style={{ fontFamily: FONT_BODY }}>{item.title}</p> : null}
           </div>
         </div>
-        <p className="mt-2 inline-flex rounded-full bg-[#F7F4EF] px-3 py-1 text-xs font-semibold text-[#002DB5] border border-[#d8cbb8]">
+        <p className="mt-2 inline-flex rounded-full bg-[#F7F4EF] px-3 py-1 text-xs font-semibold text-[#002DB5] border border-[#d8cbb8]" style={{ fontFamily: FONT_BODY }}>
           {item.result}
         </p>
       </div>
@@ -209,17 +215,17 @@ function Testimonials() {
         <section className="relative bg-[#012E72] py-20 md:py-24 px-6 overflow-hidden">
           <div className="absolute inset-0 bg-[radial-gradient(circle_at_20%_20%,rgba(255,255,255,0.22),transparent_45%),radial-gradient(circle_at_80%_70%,rgba(247,244,239,0.3),transparent_40%)]" />
           <div className="relative max-w-6xl mx-auto text-center text-white">
-            <p className="inline-flex items-center px-4 py-1.5 rounded-full border border-white/30 bg-white/10 text-xs font-semibold tracking-[0.18em] uppercase">
+            <p className="inline-flex items-center px-4 py-1.5 rounded-full border border-white/30 bg-white/10 text-xs font-semibold tracking-[0.18em] uppercase" style={{ fontFamily: FONT_BODY }}>
               Client Stories
             </p>
-            <h1 className="mt-6 text-4xl md:text-5xl font-black tracking-tight leading-tight">
+            <h1 className="mt-6 text-4xl md:text-5xl font-black tracking-tight leading-tight" style={{ fontFamily: FONT_DISPLAY }}>
               TESTIMONIALS FROM BUSINESSES WE PROTECT
             </h1>
-            <p className="mt-5 max-w-3xl mx-auto text-[#F7F4EF] text-base md:text-lg leading-relaxed">
+            <p className="mt-5 max-w-3xl mx-auto text-[#F7F4EF] text-base md:text-lg leading-relaxed" style={{ fontFamily: FONT_BODY }}>
               Every account is personal to us. Here is what Paladin clients say about the way we guide coverage decisions, communicate clearly, and stay dependable year-round.
             </p>
             <div className="mt-6 inline-flex items-center gap-3 rounded-full border border-white/30 bg-white/10 px-5 py-2.5">
-              <span className="text-2xl font-black leading-none">{overallRating}</span>
+              <span className="text-2xl font-black leading-none" style={{ fontFamily: FONT_DISPLAY }}>{overallRating}</span>
               <div className="flex items-center gap-1 text-[#F4B400]">
                 {[1, 2, 3, 4, 5].map((star) => (
                   <Star
@@ -228,7 +234,7 @@ function Testimonials() {
                   />
                 ))}
               </div>
-              <span className="text-sm font-semibold text-[#F7F4EF]">{totalReviews} reviews</span>
+              <span className="text-sm font-semibold text-[#F7F4EF]" style={{ fontFamily: FONT_BODY }}>{totalReviews} reviews</span>
             </div>
           </div>
         </section>
@@ -243,20 +249,22 @@ function Testimonials() {
 
         <section className="py-14 md:py-16 px-6 bg-[#012E72]">
           <div className="max-w-6xl mx-auto p-2 md:p-4 text-center">
-            <h2 className="text-2xl md:text-3xl font-extrabold text-white">Ready For A Better Insurance Experience?</h2>
-            <p className="mt-3 text-[#F7F4EF] max-w-3xl mx-auto">
+            <h2 className="text-2xl md:text-3xl font-extrabold text-white" style={{ fontFamily: FONT_DISPLAY }}>Ready For A Better Insurance Experience?</h2>
+            <p className="mt-3 text-[#F7F4EF] max-w-3xl mx-auto" style={{ fontFamily: FONT_BODY }}>
               We would love to learn about your goals and build a coverage strategy that fits your business, team, and long-term plans.
             </p>
             <div className="mt-7 flex flex-col sm:flex-row items-center justify-center gap-4">
               <Link
                 to="/quote"
                 className="inline-flex items-center justify-center rounded-full bg-white px-7 py-3 text-sm font-bold text-[#012E72] shadow-lg shadow-[#010407]/20 hover:bg-[#F7F4EF] transition-colors"
+                style={{ fontFamily: FONT_BODY }}
               >
                 Request A Quote
               </Link>
               <Link
                 to="/contact"
                 className="inline-flex items-center justify-center rounded-full border border-white px-7 py-3 text-sm font-bold text-white hover:bg-white/10 transition-colors"
+                style={{ fontFamily: FONT_BODY }}
               >
                 Contact Our Team
               </Link>

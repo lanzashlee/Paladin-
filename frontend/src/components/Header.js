@@ -3,6 +3,9 @@ import { Link, useLocation } from 'react-router-dom';
 import { ChevronDown, Menu, X } from 'lucide-react';
 import logo from '../assets/paladin.png';
 
+const FONT_DISPLAY = 'Cinzel, serif';
+const FONT_BODY = '"Times New Roman", Times, serif';
+
 function Header() {
   const location = useLocation();
   const { pathname } = location;
@@ -152,10 +155,10 @@ function Header() {
         <div className="flex min-w-0 items-center gap-3">
           <img src={logo} alt="Paladin Logo" className="h-14 md:h-16 w-auto object-contain" />
           <div className="flex min-w-0 flex-col leading-tight">
-            <span className="text-2xl font-black tracking-tight text-[#012E72] truncate">
+            <span className="text-2xl font-black tracking-tight text-[#012E72] truncate" style={{ fontFamily: FONT_DISPLAY }}>
               PALADIN
             </span>
-            <span className="text-sm font-semibold text-[#010407]/85 hidden sm:block truncate">
+            <span className="text-sm font-semibold text-[#010407]/85 hidden sm:block truncate" style={{ fontFamily: FONT_BODY }}>
               Professional Insurance Solutions
             </span>
           </div>
@@ -171,6 +174,7 @@ function Header() {
                   to={item.to}
                   onClick={() => handlePrimaryNavClick(item.to)}
                   className={getNavLinkClasses(item.to)}
+                  style={{ fontFamily: FONT_BODY }}
                 >
                   {item.label}
                 </Link>
@@ -189,6 +193,7 @@ function Header() {
                             to={`${item.to}${section.anchor}`}
                             onClick={() => handleSectionNavClick(item.to, section.anchor)}
                             className="rounded-lg px-3 py-2 text-[13px] font-medium text-[#010407]/80 hover:bg-[#F7F4EF] hover:text-[#002DB5] transition-colors"
+                            style={{ fontFamily: FONT_BODY }}
                           >
                             {section.label}
                           </Link>
@@ -203,7 +208,7 @@ function Header() {
         </nav>
 
         <div className="hidden xl:flex items-center gap-6 text-sm font-medium">
-          <Link to="/quote" className="bg-[#012E72] text-white px-6 py-2.5 rounded-full shadow-lg shadow-[#012E72]/20 hover:bg-[#002DB5] transition-all hover:-translate-y-0.5">
+          <Link to="/quote" className="bg-[#012E72] text-white px-6 py-2.5 rounded-full shadow-lg shadow-[#012E72]/20 hover:bg-[#002DB5] transition-all hover:-translate-y-0.5" style={{ fontFamily: FONT_BODY }}>
             Request a Quote
           </Link>
         </div>
@@ -235,7 +240,7 @@ function Header() {
             <div className="flex items-center justify-between border-b border-[#e7dccb] px-4 py-4">
               <div className="flex min-w-0 items-center gap-3">
                 <img src={logo} alt="Paladin Logo" className="h-14 w-auto object-contain" />
-                <span className="text-xl font-black tracking-tight text-[#012E72] truncate">PALADIN</span>
+                <span className="text-xl font-black tracking-tight text-[#012E72] truncate" style={{ fontFamily: FONT_DISPLAY }}>PALADIN</span>
               </div>
               <button
                 type="button"
@@ -269,6 +274,7 @@ function Header() {
                             'flex-1 px-4 py-3 text-sm font-semibold transition-colors',
                             isActive ? 'text-[#002DB5]' : 'text-[#010407]/85 hover:text-[#002DB5]'
                           ].join(' ')}
+                          style={{ fontFamily: FONT_BODY }}
                         >
                           {item.label}
                         </Link>
@@ -295,6 +301,7 @@ function Header() {
                                 to={`${item.to}${section.anchor}`}
                                 onClick={() => handleSectionNavClick(item.to, section.anchor)}
                                 className="rounded-xl border border-[#efe4d4] px-3 py-2 text-[13px] font-medium text-[#010407]/80 hover:border-[#012E72] hover:bg-[#F7F4EF] hover:text-[#002DB5] transition-colors"
+                                style={{ fontFamily: FONT_BODY }}
                               >
                                 {section.label}
                               </Link>
@@ -313,6 +320,7 @@ function Header() {
                     setOpenMobileSection(null);
                   }}
                   className="mt-3 flex items-center justify-center rounded-2xl bg-[#012E72] px-4 py-3 text-sm font-semibold text-white shadow-md shadow-[#012E72]/20"
+                  style={{ fontFamily: FONT_BODY }}
                 >
                   Request a Quote
                 </Link>

@@ -15,6 +15,9 @@ import Carriers from '../components/Carriers';
 import TestimonialsPreview from '../components/TestimonialsPreview';
 import QuickActionsSection from '../components/QuickActionsSection';
 
+const FONT_DISPLAY = 'Cinzel, serif';
+const FONT_BODY = '"Times New Roman", Times, serif';
+
 function Home() {
   return (
     <>
@@ -32,8 +35,8 @@ function Home() {
       <MapLocation />
       <section className="py-14 md:py-16 px-6 bg-[#012E72] text-white">
         <div className="max-w-3xl mx-auto text-center space-y-5">
-          <h2 className="text-2xl md:text-3xl font-extrabold">Still have questions?</h2>
-          <p className="text-base md:text-lg text-[#F7F4EF] max-w-2xl mx-auto leading-relaxed">
+          <h2 className="text-2xl md:text-3xl font-extrabold" style={{ fontFamily: FONT_DISPLAY }}>Still have questions?</h2>
+          <p className="text-base md:text-lg text-[#F7F4EF] max-w-2xl mx-auto leading-relaxed" style={{ fontFamily: FONT_BODY }}>
             If you didn&apos;t find the answer you were looking for, we&apos;re here to help.
           </p>
 
@@ -41,12 +44,14 @@ function Home() {
             <Link
               to="/quote"
               className="bg-white text-[#012E72] px-7 py-2.5 rounded-full font-bold text-xs md:text-sm shadow-md hover:bg-[#F7F4EF] transition-colors"
+              style={{ fontFamily: FONT_BODY }}
             >
               Request a Quote
             </Link>
             <Link
               to="/contact"
               className="border border-white text-white px-7 py-2.5 rounded-full font-bold text-xs md:text-sm hover:bg-white/10 transition-colors"
+              style={{ fontFamily: FONT_BODY }}
             >
               Contact Us Directly
             </Link>
