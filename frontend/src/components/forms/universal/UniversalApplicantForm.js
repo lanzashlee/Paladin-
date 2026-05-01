@@ -818,7 +818,7 @@ function UniversalApplicantForm({ form, onNext }) {
         </label>
         {errors.consentElectronicDelivery ? <span className="quote-request__validation-message">{errors.consentElectronicDelivery}</span> : null}
 
-        <label className="quote-request__field quote-request__field--full">
+        <label className="quote-request__field quote-request__field--full quote-request__field--signature">
           <span className="quote-request__field-label">Electronic Signature (Type Full Name) <span className="quote-request__required-mark">*</span></span>
           <input
             className={errors.electronicSignature ? 'quote-request__input--invalid' : ''}
@@ -831,7 +831,7 @@ function UniversalApplicantForm({ form, onNext }) {
           {errors.electronicSignature ? <span className="quote-request__validation-message">{errors.electronicSignature}</span> : null}
         </label>
 
-        <label className="quote-request__field quote-request__field--full">
+        <label className="quote-request__field quote-request__field--full quote-request__field--notes">
           <span className="quote-request__field-label">Additional Notes</span>
           <textarea
             name="applicantNotes"

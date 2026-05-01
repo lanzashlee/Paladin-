@@ -112,6 +112,14 @@ const PDF_BRAND = {
   sectionBg: '#F5F8FE',
 };
 
+const PDF_FONTS = {
+  body: 'Times-Roman',
+  bodyBold: 'Times-Bold',
+  bodyItalic: 'Times-Italic',
+  heading: 'Times-Bold',
+  subheading: 'Times-Bold',
+};
+
 const ensurePdfSpace = (doc, requiredHeight = 30) => {
   const maxY = doc.page.height - doc.page.margins.bottom;
   if (doc.y + requiredHeight <= maxY) {
@@ -121,7 +129,7 @@ const ensurePdfSpace = (doc, requiredHeight = 30) => {
 };
 
 const drawPdfHeader = (doc, title) => {
-  const logoAsset = isResendEnabled() ? null : getLogoAsset();
+  const logoAsset = getLogoAsset();
   const startX = doc.page.margins.left;
   const startY = doc.y;
 
@@ -134,11 +142,20 @@ const drawPdfHeader = (doc, title) => {
   }
 
   const textX = startX + 66;
-  doc.fillColor(PDF_BRAND.royal).fontSize(10).text('PALADIN PROFESSIONAL INSURANCE SOLUTIONS', textX, startY + 2, {
+  doc
+    .font(PDF_FONTS.subheading)
+    .fillColor(PDF_BRAND.royal)
+    .fontSize(10)
+    .text('PALADIN PROFESSIONAL INSURANCE SOLUTIONS', textX, startY + 2, {
     align: 'left',
   });
-  doc.fillColor(PDF_BRAND.navy).fontSize(21).text(title, textX, startY + 16, { align: 'left' });
   doc
+    .font(PDF_FONTS.heading)
+    .fillColor(PDF_BRAND.navy)
+    .fontSize(21)
+    .text(title, textX, startY + 16, { align: 'left' });
+  doc
+    .font(PDF_FONTS.bodyItalic)
     .fillColor(PDF_BRAND.muted)
     .fontSize(9)
     .text(`Generated ${new Date().toLocaleString('en-US')}`, textX, startY + 42, { align: 'left' });
@@ -184,7 +201,11 @@ const drawPdfSection = (doc, section) => {
     .lineWidth(0.8)
     .strokeColor(PDF_BRAND.border)
     .stroke();
-  doc.fillColor(PDF_BRAND.navy).fontSize(12).text(section.title, sectionX + 10, sectionHeaderY + 6, { width: sectionWidth - 20 });
+  doc
+    .font(PDF_FONTS.heading)
+    .fillColor(PDF_BRAND.navy)
+    .fontSize(12)
+    .text(section.title, sectionX + 10, sectionHeaderY + 6, { width: sectionWidth - 20 });
 
   doc.y = sectionHeaderY + sectionHeaderHeight + 8;
 
@@ -196,11 +217,11 @@ const drawPdfSection = (doc, section) => {
     const valueWidth = sectionWidth - labelWidth - 10;
     const rowStartY = doc.y;
 
-    doc.fillColor(PDF_BRAND.royal).fontSize(10).text(`${row.label}:`, sectionX, rowStartY, {
+    doc.font(PDF_FONTS.subheading).fillColor(PDF_BRAND.royal).fontSize(10).text(`${row.label}:`, sectionX, rowStartY, {
       width: labelWidth,
       align: 'left',
     });
-    doc.fillColor(PDF_BRAND.text).fontSize(10).text(row.value, valueX, rowStartY, {
+    doc.font(PDF_FONTS.body).fillColor(PDF_BRAND.text).fontSize(10).text(row.value, valueX, rowStartY, {
       width: valueWidth,
       align: 'left',
     });
@@ -233,8 +254,10 @@ const buildPdfBufferFromSections = ({ title, sections }) =>
     doc.on('error', reject);
     doc.on('pageAdded', () => {
       drawPdfPageFrame(doc);
+      doc.font(PDF_FONTS.body);
     });
 
+    doc.font(PDF_FONTS.body);
     drawPdfPageFrame(doc);
     drawPdfHeader(doc, title);
 
@@ -993,7 +1016,6 @@ const createResendTransporter = () => {
   return {
     sendMail: async ({ from, to, replyTo, subject, text, html, attachments = [] }) => {
       const resendAttachments = attachments
-        .filter((attachment) => !attachment?.cid)
         .map((attachment) => {
           const content = toBase64(attachment);
           if (!attachment?.filename || !content) {
@@ -1004,6 +1026,7 @@ const createResendTransporter = () => {
             filename: attachment.filename,
             content,
             contentType: attachment.contentType || undefined,
+            contentId: attachment.cid || undefined,
           };
         })
         .filter(Boolean);
@@ -1105,22 +1128,24 @@ const getLogoAttachment = (logoAsset) =>
           filename: logoAsset.filename,
           path: logoAsset.path,
           cid: 'paladin-logo',
+          contentType: 'image/png',
+          contentDisposition: 'inline',
         },
       ]
     : [];
 
 const renderEmailLayout = ({ title, intro, rowsHtml, detailsLabel, detailsHtml, logoHtml, submittedAt }) => `
-  <div style="margin:0;padding:24px;background:radial-gradient(circle at top,#eaf1ff 0%,#f3f6fb 42%,#edf2f8 100%);font-family:Arial,Helvetica,sans-serif;color:#1f2937;">
-    <table role="presentation" width="100%" cellspacing="0" cellpadding="0" style="max-width:700px;margin:0 auto;background:#ffffff;border:1px solid #dbe4f0;border-radius:18px;overflow:hidden;box-shadow:0 16px 40px -28px rgba(1,46,114,0.55);">
+  <div style="margin:0;padding:24px;background:radial-gradient(circle at top,#eaf1ff 0%,#f3f6fb 42%,#edf2f8 100%);font-family:'Times New Roman',Times,serif;color:#1f2937;">
+    <table role="presentation" width="100%" cellspacing="0" cellpadding="0" style="max-width:700px;margin:0 auto;background:#ffffff;border:1px solid #dbe4f0;border-radius:18px;overflow:hidden;box-shadow:0 16px 40px -28px rgba(1,46,114,0.55);font-family:'Times New Roman',Times,serif;">
       <tr>
         <td style="padding:20px 22px 18px;background:linear-gradient(135deg,#ffffff 0%,#f8fbff 100%);">
           <table role="presentation" width="100%" cellspacing="0" cellpadding="0" style="border-collapse:collapse;">
             <tr>
               <td style="width:100px;vertical-align:middle;">${logoHtml}</td>
               <td style="vertical-align:middle;padding-left:16px;">
-                <div style="font-size:12px;letter-spacing:1.3px;text-transform:uppercase;color:#0b3f8f;font-weight:700;line-height:1.1;">Paladin Professional Insurance Solutions</div>
-                <h1 style="margin:8px 0 0;font-size:24px;line-height:1.2;color:#012e72;">${title}</h1>
-                <div style="margin-top:8px;font-size:12px;line-height:1.4;color:#64748b;font-weight:600;">
+                <div style="font-size:12px;letter-spacing:1.3px;text-transform:uppercase;color:#0b3f8f;font-weight:700;line-height:1.1;font-family:Constantia,'Times New Roman',serif;">Paladin Professional Insurance Solutions</div>
+                <h1 style="margin:8px 0 0;font-size:24px;line-height:1.2;color:#012e72;font-family:Cinzel,'Times New Roman',serif;font-weight:700;">${title}</h1>
+                <div style="margin-top:8px;font-size:12px;line-height:1.4;color:#64748b;font-weight:600;font-family:'Times New Roman',Times,serif;">
                   Submitted ${submittedAt}
                 </div>
               </td>
@@ -1130,7 +1155,7 @@ const renderEmailLayout = ({ title, intro, rowsHtml, detailsLabel, detailsHtml, 
       </tr>
       <tr>
         <td style="padding:22px 24px 10px;">
-          <p style="margin:0 0 14px;font-size:14px;line-height:1.6;color:#4b5563;">${intro}</p>
+          <p style="margin:0 0 14px;font-size:14px;line-height:1.6;color:#4b5563;font-family:'Times New Roman',Times,serif;">${intro}</p>
           <div style="border:1px solid #e4ebf7;border-radius:12px;overflow:hidden;background:#fcfdff;">
             <table role="presentation" width="100%" cellspacing="0" cellpadding="0" style="border-collapse:collapse;">
               ${rowsHtml}
@@ -1141,8 +1166,8 @@ const renderEmailLayout = ({ title, intro, rowsHtml, detailsLabel, detailsHtml, 
       <tr>
         <td style="padding:10px 24px 24px;">
           ${detailsHtml ? `
-          <div style="font-size:12px;color:#667085;text-transform:uppercase;letter-spacing:0.8px;font-weight:700;margin-bottom:8px;">${detailsLabel}</div>
-          <div style="background:#f7faff;border:1px solid #dbe8ff;border-radius:12px;padding:14px 15px;font-size:14px;line-height:1.65;color:#1f2937;">
+          <div style="font-size:12px;color:#667085;text-transform:uppercase;letter-spacing:0.8px;font-weight:700;margin-bottom:8px;font-family:Constantia,'Times New Roman',serif;">${detailsLabel}</div>
+          <div style="background:#f7faff;border:1px solid #dbe8ff;border-radius:12px;padding:14px 15px;font-size:14px;line-height:1.65;color:#1f2937;font-family:'Times New Roman',Times,serif;">
             ${detailsHtml}
           </div>
           ` : ''}
@@ -1191,15 +1216,15 @@ const sendSimpleContactEmail = async ({ name, email, subject, message }) => {
     .map(
       (field) => `
                 <tr>
-                  <td style="padding:11px 14px;border-bottom:1px solid #e5e7eb;width:38%;font-size:12px;color:#6b7280;font-weight:700;vertical-align:top;text-transform:uppercase;letter-spacing:0.5px;">${escapeHtml(field.label)}</td>
-                  <td style="padding:11px 14px;border-bottom:1px solid #e5e7eb;font-size:14px;line-height:1.6;color:#111827;font-weight:600;">${field.htmlValue}</td>
+                  <td style="padding:11px 14px;border-bottom:1px solid #e5e7eb;width:38%;font-size:12px;color:#6b7280;font-weight:700;vertical-align:top;text-transform:uppercase;letter-spacing:0.5px;font-family:Constantia,'Times New Roman',serif;">${escapeHtml(field.label)}</td>
+                  <td style="padding:11px 14px;border-bottom:1px solid #e5e7eb;font-size:14px;line-height:1.6;color:#111827;font-weight:600;font-family:'Times New Roman',Times,serif;">${field.htmlValue}</td>
                 </tr>
       `
     )
     .join('');
 
   const messageHtml = escapeHtml(contactMessage).replace(/\n/g, '<br>');
-  const logoAsset = isResendEnabled() ? null : getLogoAsset();
+  const logoAsset = getLogoAsset();
   const logoHtml = getLogoHtml(logoAsset);
 
   await transporter.sendMail({
@@ -1314,14 +1339,14 @@ const sendServiceRequestEmail = async (contactData) => {
     .map(
       (field) => `
                 <tr>
-                  <td style="padding:11px 14px;border-bottom:1px solid #e5e7eb;width:38%;font-size:12px;color:#6b7280;font-weight:700;vertical-align:top;text-transform:uppercase;letter-spacing:0.5px;">${escapeHtml(field.label)}</td>
-                  <td style="padding:11px 14px;border-bottom:1px solid #e5e7eb;font-size:14px;line-height:1.6;color:#111827;font-weight:600;">${field.htmlValue}</td>
+                  <td style="padding:11px 14px;border-bottom:1px solid #e5e7eb;width:38%;font-size:12px;color:#6b7280;font-weight:700;vertical-align:top;text-transform:uppercase;letter-spacing:0.5px;font-family:Constantia,'Times New Roman',serif;">${escapeHtml(field.label)}</td>
+                  <td style="padding:11px 14px;border-bottom:1px solid #e5e7eb;font-size:14px;line-height:1.6;color:#111827;font-weight:600;font-family:'Times New Roman',Times,serif;">${field.htmlValue}</td>
                 </tr>
       `
     )
     .join('');
 
-  const logoAsset = isResendEnabled() ? null : getLogoAsset();
+  const logoAsset = getLogoAsset();
   const logoHtml = getLogoHtml(logoAsset);
 
   await transporter.sendMail({
@@ -1340,8 +1365,8 @@ const sendServiceRequestEmail = async (contactData) => {
         detailRowsHtml ||
         `
                 <tr>
-                  <td style="padding:11px 14px;border-bottom:1px solid #e5e7eb;width:38%;font-size:12px;color:#6b7280;font-weight:700;vertical-align:top;text-transform:uppercase;letter-spacing:0.5px;">Submission</td>
-                  <td style="padding:11px 14px;border-bottom:1px solid #e5e7eb;font-size:14px;line-height:1.6;color:#111827;font-weight:600;">No form fields were provided.</td>
+                  <td style="padding:11px 14px;border-bottom:1px solid #e5e7eb;width:38%;font-size:12px;color:#6b7280;font-weight:700;vertical-align:top;text-transform:uppercase;letter-spacing:0.5px;font-family:Constantia,'Times New Roman',serif;">Submission</td>
+                  <td style="padding:11px 14px;border-bottom:1px solid #e5e7eb;font-size:14px;line-height:1.6;color:#111827;font-weight:600;font-family:'Times New Roman',Times,serif;">No form fields were provided.</td>
                 </tr>
                 `,
       detailsLabel: 'Notes',
@@ -1408,8 +1433,8 @@ const sendQuoteRequestEmail = async (quoteData) => {
     .map(
       (field) => `
                 <tr>
-                  <td style="padding:11px 14px;border-bottom:1px solid #e5e7eb;width:38%;font-size:12px;color:#6b7280;font-weight:700;vertical-align:top;text-transform:uppercase;letter-spacing:0.5px;">${escapeHtml(field.label)}</td>
-                  <td style="padding:11px 14px;border-bottom:1px solid #e5e7eb;font-size:14px;line-height:1.6;color:#111827;font-weight:600;">${escapeHtml(field.value)}</td>
+                  <td style="padding:11px 14px;border-bottom:1px solid #e5e7eb;width:38%;font-size:12px;color:#6b7280;font-weight:700;vertical-align:top;text-transform:uppercase;letter-spacing:0.5px;font-family:Constantia,'Times New Roman',serif;">${escapeHtml(field.label)}</td>
+                  <td style="padding:11px 14px;border-bottom:1px solid #e5e7eb;font-size:14px;line-height:1.6;color:#111827;font-weight:600;font-family:'Times New Roman',Times,serif;">${escapeHtml(field.value)}</td>
                 </tr>
       `
     )
