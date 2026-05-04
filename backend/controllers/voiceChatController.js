@@ -8,7 +8,7 @@ const ELEVENLABS_DEFAULT_VOICE_ID = process.env.ELEVENLABS_VOICE_ID || 'EXAVITQu
 const ELEVENLABS_DEFAULT_MODEL_ID = process.env.ELEVENLABS_MODEL_ID || 'eleven_multilingual_v2';
 
 const SYSTEM_PROMPT =
-  'You are Paladin Professional Insurance Solutions voice assistant. Keep answers clear, concise, and friendly. Prioritize practical next steps based on Paladin workflows (consultation request, document request, policy change, update contact info, claim report, and call request). Ask one short clarifying question when details are missing. If asked for policy-specific legal advice, suggest contacting a licensed agent.';
+  'You are Paladin Professional Insurance Solutions voice assistant. Keep answers clear, concise, and friendly. Prioritize practical next steps based on Paladin workflows (consultation request, document request, policy change, update contact info, claim report, and call request). Ask one short clarifying question when details are missing. If asked for policy-specific legal advice, suggest contacting a licensed agent. For documents and COIs, answer the way a licensed agent would speak to a client on the phone: natural, respectful, and specific—usually two to four sentences unless they ask for a deep dive. Do not sound like a glossary or internal ops manual; do not repeat the same checklist when they ask a different document question.';
 
 const PALADIN_FACTS = `
 Company: Paladin Professional Insurance Solutions, an independent insurance agency based in Ventura, CA.
@@ -28,11 +28,57 @@ Core coverage: general liability, renters, umbrella, workers' compensation, floo
 const REQUEST_FORM_GUIDE = `
 Request form guidance:
 - Consultation request: full name, email, phone, coverage type, preferred contact method, timeline, and notes.
-- Document request: full name, email, document type, coverages to show, operations description, additional insured status, endorsements, certificate holder details, and deadline instructions.
+- Document request (general): full name, email, document type, named insured as it should read on the document, policy numbers if known, coverages and limits to show, operations description when general liability applies, certificate holder block (legal name and full address), any contract-required endorsements, and how soon you need it.
+- Document request — Certificate of Insurance (COI): specify each certificate holder’s legal name, full mailing address, and relationship to you (landlord, client, vendor, etc.). List every endorsement the contract requires (Additional Insured, Waiver of Subrogation, Primary and Non-Contributory, notice, etc.). Paste or summarize the exact insurance article from the contract when possible.
+- Document request — Declarations page: identify the policy line (home, auto, commercial package, etc.), policy number, and policy period you need summarized. Say whether the recipient is you, a lender, or a third party so the right dec page is pulled.
+- Document request — Endorsement copies: name the endorsement by form number or title if you know it (for example Additional Insured, Waiver of Subrogation). If you only have contract language, attach or quote the requirement so the team matches the correct endorsement.
+- Document request — Deadlines: include the date and time you must deliver the document, time zone, and preferred delivery method (email address or fax number). Note closings, job start dates, or vendor gates so requests can be triaged correctly.
 - Policy change: full name, email, policy type, effective date, requested change types, notes, and mortgagee / lienholder details when needed.
 - Update contact info: full name, email, requested update types, new contact or address details, what policies to apply changes to, notes, and policy number when a single policy is selected.
 - Claim report: full name, email, policy number, phone, incident date and time, claim type, incident location, other-party details, police report information, estimated loss, carrier contact status, carrier claim number, and additional notes.
 - Call request: full name, phone, optional email, policy number, preferred day, preferred time, alternate date / time, topic, other topic details, and notes.
+`;
+
+const DOCUMENT_OPENAI_RULES = `
+How to answer document questions (voice / client tone):
+- Sound like a Paladin team member helping a customer: conversational English, short paragraphs, concrete next steps.
+- Match one question at a time. A question about "which documents" should explain choices in plain language, not a colon-separated catalog of definitions.
+- If they only ask about certificate holder lines, talk about names, addresses, and where to send the COI—not the full endorsement lecture unless they asked for it.
+`;
+
+const CONSULTATION_OPENAI_RULES = `
+How to answer consultation questions (voice / client tone):
+- Keep each answer specific to the exact consultation question, in plain client-friendly language.
+- Prefer two to four concise sentences with concrete next steps instead of long generic intake lists.
+- If the user asks about timeline or follow-up, include realistic expectations and who contacts them.
+`;
+
+const POLICY_OPENAI_RULES = `
+How to answer policy change questions (voice / client tone):
+- Answer the exact question: intake fields vs drivers/vehicles vs mortgagee vs limits vs effective date vs cancellation vs how to submit.
+- Keep it client-facing: short, clear, and specific—avoid repeating the same full form checklist on every policy-change answer.
+- When timing matters, mention carrier processing and that some changes need underwriting approval.
+`;
+
+const UPDATE_INFO_OPENAI_RULES = `
+How to answer update-info questions (voice / client tone):
+- Keep each answer focused on the exact update question: required fields, which contact items can be changed, one-policy vs all-policies, policy number use, legal name changes, and other account updates.
+- Use concise client-friendly language with practical next steps instead of repeating one generic update checklist.
+- For legal name or sensitive changes, mention supporting documents and verification expectations.
+`;
+
+const CLAIMS_OPENAI_RULES = `
+How to answer claims questions (voice / client tone):
+- Answer the exact claim question directly: prep details, after-hours submission, follow-up timing, supported claim types, police-report/estimated-loss fields, and form eligibility by claim type.
+- Keep responses practical and specific (two to four concise sentences) instead of repeating one full claim checklist every time.
+- If urgency or legal sensitivity appears, advise immediate reporting and set realistic expectations for carrier/agent follow-up.
+`;
+
+const CALL_REQUEST_OPENAI_RULES = `
+How to answer call-request questions (voice / client tone):
+- Keep each callback answer specific to the exact question: required fields, best day/time selection, alternate slot use, topic wording, policy number need, and after-hours request behavior.
+- Use concise client-friendly language with practical next steps; do not repeat the same generic callback checklist for every question.
+- When timing is asked, mention business-hour follow-up expectations clearly.
 `;
 
 const UNIVERSAL_APPLICANT_GUIDE = `
@@ -79,12 +125,12 @@ const KNOWN_TOPICS = [
   {
     keywords: ['proof of insurance', 'certificate of insurance', 'certificate'],
     reply:
-      'You can request proof of insurance through the website. If it is urgent, call 805-692-6900 during business hours and an agent will help.',
+      'I would start with Document request on the site and choose Certificate of Insurance. The usual holdups are a legal name spelled wrong or missing pages from their contract—fixing those up front saves you a day of back-and-forth.',
   },
   {
     keywords: ['document request', 'coi', 'declarations page', 'endorsement copy', 'additional insured', 'waiver of subrogation', 'p&nc'],
     reply:
-      'The document request form asks for your name, email, the document type, the coverage to show, the certificate holder details, and any endorsement wording or deadline instructions. If you need a COI, include whether the request needs Additional Insured or special endorsement wording.',
+      'If they want actual policy pages instead of a one-page COI, we order declarations or endorsements from the carrier using your policy number and dates. Tell us what their email or PDF called it, and we will match the right pull.',
   },
   {
     keywords: ['policy change', 'change request', 'driver change', 'vehicle change', 'coverage limits', 'deductible', 'mortgagee', 'lienholder'],
@@ -548,31 +594,87 @@ const SAMPLE_QUESTION_RESPONSES = [
     reply:
       'Paladin consultations are provided at no cost. Our business model depends on commissions from insurance carriers, not client fees. Whether you move forward with coverage or not, there\'s no charge for the time our agents spend evaluating your insurance needs and providing professional guidance.',
   },
-  // DOCUMENTS QUESTIONS
+  // DOCUMENTS QUESTIONS (paraphrases—exact widget lines use DOCUMENT_WIDGET_REPLY_BY_KEY first)
+  {
+    patterns: [/how do i request.*(proof of insurance|coi|certificate)/i],
+    reply:
+      'I would use Document request on our site, choose Certificate of Insurance, and send one request per company that needs proof. If they change their requirements later, add a note on the same request thread if you can so we keep a single clear version.',
+  },
+  {
+    patterns: [/what do i need for a document request/i, /document request or coi/i],
+    reply:
+      'I would have your contact info handy, any policy number you know, the other party’s legal name as their paperwork shows it, and what project or loan it is for. A photo of their insurance page helps us match endorsements without playing telephone.',
+  },
+  {
+    patterns: [/which document types can i request/i, /document types can i request/i],
+    reply:
+      'We can pull what most people need: a COI for whoever is asking for proof, declaration pages straight from the carrier, endorsement pages by name, lender-style property evidence, auto ID cards, loss runs, or something else if you describe what they sent you.',
+  },
+  {
+    patterns: [/what should i include for additional insured/i, /additional insured or endorsement wording/i, /include.*endorsement wording/i],
+    reply:
+      'I would paste the exact contract language for each ask—additional insured, waiver, primary and non-contributory are separate items even when they sit in one paragraph. Number them if they are bundled so underwriting issues the right endorsement the first time.',
+  },
+  {
+    patterns: [/certificate holder details.*document request/i, /certificate holder details.*needed/i, /what certificate holder/i],
+    reply:
+      'They need the party’s full legal name, street address with suite, city, state, ZIP, and the email where they want the COI. Use an attention line only if their sample shows one, and please double-check the inbox—we will not guess it from the company name.',
+  },
+  {
+    patterns: [/declarations or endorsement copies/i, /request declarations.*endorsement/i, /can i request declarations/i],
+    reply:
+      'Yes. You would pick declarations page or endorsement copy in Document request instead of a COI. We pull PDFs from the carrier, so policy number and dates matter; a screenshot of the endorsement title helps if you are not sure of the form number.',
+  },
+  {
+    patterns: [/deadline information.*document request/i, /what deadline.*document request/i, /deadline.*include on a document/i],
+    reply:
+      'I would give a real date and time with your time zone, not just “ASAP.” If their office closes on Eastern while you are on Pacific, say that. If several people need files in a certain order, tell us who is first so uploads match their portal.',
+  },
+  {
+    patterns: [/how long.*(coi|certificate|document)/i, /turnaround.*(coi|certificate|document)/i, /same day.*(coi|certificate)/i, /rush.*(coi|certificate)/i],
+    reply:
+      'Most clean COI requests come back in about a business day or two once the policy data matches what you typed. Brand-new endorsements can take longer because underwriting has to add them first—saying “urgent” does not shorten that carrier step.',
+  },
+  {
+    patterns: [/difference.*(coi|certificate).*(dec|declarations)/i, /coi.*vs.*declarations/i, /declarations page.*certificate/i],
+    reply:
+      'Think of the COI as the quick “yes, they are insured at these limits” sheet. The declarations page is the fuller snapshot from the carrier with schedules and dollars. Banks often want the second even when the first looks fine.',
+  },
+  {
+    patterns: [/mortgagee.*(certificate|coi|document)/i, /loss payee.*(certificate|coi|document)/i, /lender.*(certificate|coi|proof)/i],
+    reply:
+      'For a bank I would use their mortgagee or loss-payee wording exactly as their sample shows—not the same wording you would use for a general contractor’s additional insured line. Send their sample if you have it; it prevents a rejection loop.',
+  },
   {
     patterns: [/what.*certificate.*insurance/i, /explain.*coi/i, /coi.*definition/i],
     reply:
-      'A Certificate of Insurance is a one-page summary document issued by the insurance carrier listing active policies, coverage types, coverage limits, policy deductibles, policy expiration dates, and named insureds. The certificate serves as proof of coverage for contractual requirements, vendor relationships, loan applications, lease agreements, and regulatory compliance documentation.',
+      'A COI is simply the carrier’s one-page proof for a third party: who is insured, for what dates, and at what limits. People attach it to leases, bids, and vendor packets when someone else needs to see coverage at a glance.',
   },
   {
     patterns: [/what.*declarations.*page/i, /declare.*page.*definition/i],
     reply:
-      'A declarations page is the primary policy document that contains all key policy information: the named insured, policy effective and expiration dates, coverage types, coverage limits, deductibles, premium amounts, endorsements attached, exclusions applied, and billing instructions. It serves as the policy summary and reference document for your coverage understanding.',
+      'The declarations page is the carrier’s summary of your actual policy for that term—named insured, dates, coverages, limits, deductibles, and premium. It is what lenders or lawyers often ask for when a COI alone is not enough detail.',
   },
   {
-    patterns: [/additional.*insured.*endorsement/i, /what.*additional.*insured/i],
+    patterns: [
+      /what is an additional insured/i,
+      /what is additional insured\b/i,
+      /what does additional insured mean/i,
+      /define additional insured/i,
+      /^explain additional insured\.?$/i,
+    ],
     reply:
-      'An Additional Insured endorsement extends liability coverage protection to another party, like a general contractor requiring subcontractors to carry the GC as an additional insured, or a landlord requiring tenants to carry the landlord as an additional insured. This modifies your policy to include another party\'s interests under your liability protections.',
+      'Additional insured means someone else—like your landlord or a general contractor—gets named on your liability coverage so their interest is protected under your policy when the contract requires it. It has to be set up as an endorsement, not just typed on a COI.',
   },
   {
     patterns: [/waiver.*subrogation/i, /what.*waiver.*subrogation/i],
     reply:
-      'A Waiver of Subrogation endorsement prevents your insurance carrier from pursuing recovery against other responsible parties after paying your claim. This is commonly required in construction contracts where one party waives their right to sue another party, or in commercial leases where the landlord requires tenants to waive subrogation rights.',
+      'Waiver of subrogation means, in plain terms, your carrier agrees not to go after another party you agreed not to sue—common in construction jobs and commercial leases. It is its own endorsement, separate from additional insured.',
   },
   {
     patterns: [/primary.*non.*contributory.*p.*nc/i, /what.*p.*nc.*endorsement/i],
     reply:
-      'A Primary and Non-Contributory endorsement makes your insurance policy the first payer in a loss situation, with no contribution from other insurance available to the other party. This is often required by contract owners or vendors to ensure Paladin\'s coverage applies first in any covered incident.',
+      'Primary and non-contributory is contract language where your policy is supposed to pay first and not ask the other party’s insurance to share the bill. We attach it only when the contract actually calls for it.',
   },
   // POLICY CHANGE QUESTIONS
   {
@@ -753,9 +855,9 @@ const INTENT_FOLLOW_UPS = {
     'Would you like a plain-language explanation of the SSN, loss history, and consent fields?'
   ],
   'document-request': [
-    'Which document do you need: COI, declarations page, endorsement copy, or other?',
-    'Do you need the request to show any special endorsements like Additional Insured, Waiver of Subrogation, or P&NC?',
-    'Do you want to open the document request form now?'
+    'Who is asking—landlord, general contractor, bank, or someone else—and did they send you a sample PDF?',
+    'Do they only want a one-page COI, or full policy pages from the carrier?',
+    'Would you like me to open the document request form for you?'
   ],
   'policy-change': [
     'What change do you need most: driver, vehicle, property, endorsement, coverage limits, or cancellation?',
@@ -839,6 +941,347 @@ const normalizeMessage = (message) =>
     .replace(/\s+/g, ' ')
     .trim();
 
+/** Normalizes user text so widget / spoken questions map to one canonical key. */
+const normalizeQuestionKey = (message) =>
+  String(message || '')
+    .toLowerCase()
+    .replace(/['’]/g, '')
+    .replace(/[^a-z0-9\s]/g, ' ')
+    .replace(/\s+/g, ' ')
+    .trim();
+
+/** Exact widget / spoken document questions—answered the way we would speak to a client: brief, specific, human. */
+const DOCUMENT_WIDGET_REPLY_BY_KEY = new Map([
+  [
+    'how do i request proof of insurance or a coi',
+    'I would go to our website, open Document request—not the general contact form—and choose Certificate of Insurance so it goes straight to certificate staff. Use one request per company that needs proof, and if they change their paperwork later, reply on the same email thread or note your earlier request number so we do not issue two conflicting COIs. We almost always send it back by email unless their sample shows a fax line.',
+  ],
+  [
+    'what do i need for a document request or coi',
+    'I would have your name and best email, any policy number you already know, and the other company’s legal name exactly as their contract or portal shows it—not a nickname. Add what job, loan, or permit it ties to. If you can snap their insurance requirements page, send that too; it cuts most of the follow-up calls. We can go line by line on certificate holder next if you need that.',
+  ],
+  [
+    'which document types can i request',
+    'We can usually pull whatever they are asking for: a COI when they just need proof for a landlord or GC, declaration pages when they want the fuller policy snapshot with numbers, endorsement pages when they cite a specific form, lender property packages when a bank is involved, auto ID cards for DMV-style asks, loss runs when someone needs claim history from the carrier, or “other” if none of those labels fit—just tell us in one sentence what they showed you.',
+  ],
+  [
+    'what should i include for additional insured or endorsement wording',
+    'I would copy the exact words from their contract for each separate ask—additional insured, waiver of subrogation, and primary and non-contributory are three different things even when they are in one paragraph. Paste the sentence that names who must be covered and in whose favor. If it is all run together, number each requirement 1, 2, 3 so we match the right endorsement the first time. Saying “standard wording” does not tell us which form to attach.',
+  ],
+  [
+    'what certificate holder details are needed on the document request form',
+    'Whoever is listed as certificate holder should be typed the way their letterhead reads: full legal name, street and suite, city, state, ZIP, and the one email address where they want the COI delivered. Add “attention” only if their sample COI shows it. If they gave you a vendor upload link, put that in the notes—we should not hide URLs inside the address block.',
+  ],
+  [
+    'can i request declarations or endorsement copies too',
+    'Yes. Same Document request flow—just pick declarations page or endorsement copy instead of a COI. Those come from the carrier as PDFs, so your policy number and term dates matter. If you are not sure of the endorsement name, a quick photo of the top of that page from your policy packet is enough for us to request the right one. If they need both a COI and a dec, tell us which one their portal wants uploaded first.',
+  ],
+  [
+    'what deadline information should i include on a document request',
+    'Tell us the real date and clock time you need it, with your time zone—for example Wednesday at four p.m. Pacific—not only “ASAP.” If their office runs on Eastern time for cutoffs, mention that so we do not miss their window. If several parties need files in a strict order, list who is first, second, and third. If the job starts before renewal, say that so we can line up expiration language with their contract.',
+  ],
+]);
+
+/** Phrases that should receive the same detailed reply as the canonical widget question. */
+const DOCUMENT_WIDGET_KEY_ALIASES = {
+  'how do i request a coi': 'how do i request proof of insurance or a coi',
+  'how do i request proof of insurance': 'how do i request proof of insurance or a coi',
+  'how to request proof of insurance or a coi': 'how do i request proof of insurance or a coi',
+  'what do i need for coi': 'what do i need for a document request or coi',
+  'what do i need for a document request': 'what do i need for a document request or coi',
+  'what documents can i request': 'which document types can i request',
+  'what types of documents can i request': 'which document types can i request',
+  'can i get declarations or endorsement copies': 'can i request declarations or endorsement copies too',
+  'can i request a declarations page': 'can i request declarations or endorsement copies too',
+  'what deadlines should i put on a document request': 'what deadline information should i include on a document request',
+};
+
+const matchDocumentWidgetExactReply = (message) => {
+  const key = normalizeQuestionKey(message);
+  if (DOCUMENT_WIDGET_REPLY_BY_KEY.has(key)) {
+    return DOCUMENT_WIDGET_REPLY_BY_KEY.get(key);
+  }
+  const aliasTarget = DOCUMENT_WIDGET_KEY_ALIASES[key];
+  if (aliasTarget && DOCUMENT_WIDGET_REPLY_BY_KEY.has(aliasTarget)) {
+    return DOCUMENT_WIDGET_REPLY_BY_KEY.get(aliasTarget);
+  }
+  return null;
+};
+
+/** Exact consultation widget questions with specific, non-repetitive client-facing replies. */
+const CONSULTATION_WIDGET_REPLY_BY_KEY = new Map([
+  [
+    'what information do i need for a consultation request',
+    'For the consultation form, I would prepare your basic contact details, the type of policy you are shopping for, and a short note about your current situation so the agent does not start blind. If you already have coverage, having your current declaration page nearby helps us compare limits and gaps faster. The more specific your notes, the less back-and-forth after submission.',
+  ],
+  [
+    'is the consultation request for personal or commercial coverage',
+    'It can be either. If your need is for home, auto, renters, or umbrella, select personal; if it is for business operations, employees, vehicles, contracts, or landlord requirements, select commercial. If you need both, mention both in notes so we assign the right agent from the start.',
+  ],
+  [
+    'what coverage type should i select on the consultation form',
+    'Choose the closest main coverage you want to fix first—for example general liability, workers comp, commercial auto, homeowners, or umbrella. If you are unsure, pick the nearest option and describe your risk in one sentence in notes, like "new contractor needing COI-ready coverage" or "reviewing current home and auto limits." We can refine the full package during the call.',
+  ],
+  [
+    'can i request a consultation and a callback',
+    'Yes, and that is actually a good combo when timing is tight. Submit the consultation so we get your full context, then add a callback request with your preferred day and time window so an agent can reach you directly. This helps us prepare before calling instead of doing a cold call with no intake details.',
+  ],
+  [
+    'what timeline should i include on the consultation request form',
+    'Include the real deadline that matters: renewal date, closing date, contract start, payroll date, or move-in date. If there is no hard date, tell us whether this is urgent this week or general planning this month. A clear timeline lets us prioritize and set the right expectations for quotes and follow-up.',
+  ],
+  [
+    'who will follow up after i submit a consultation request',
+    'A licensed Paladin agent follows up after reviewing your request details. Usually the first touch is by email or phone during business hours, then the same agent guides next steps and quote options. If your request is specialized, they may loop in the right market specialist, but you still get a primary contact.',
+  ],
+  [
+    'how do i request a consultation with an agent',
+    'Open the consultation request form on the website, enter your contact details, pick your main coverage need, and add a short summary of what you want help with. If you have a deadline, include it in the notes. Once submitted, a licensed agent will review and contact you for next steps.',
+  ],
+]);
+
+const CONSULTATION_WIDGET_KEY_ALIASES = {
+  'what info do i need for a consultation request': 'what information do i need for a consultation request',
+  'is consultation for personal or commercial': 'is the consultation request for personal or commercial coverage',
+  'what coverage should i select on consultation form': 'what coverage type should i select on the consultation form',
+  'can i request consultation and callback': 'can i request a consultation and a callback',
+  'what timeline should i put on consultation request': 'what timeline should i include on the consultation request form',
+  'who follows up after consultation request': 'who will follow up after i submit a consultation request',
+  'how do i request consultation with an agent': 'how do i request a consultation with an agent',
+};
+
+const matchConsultationWidgetExactReply = (message) => {
+  const key = normalizeQuestionKey(message);
+  if (CONSULTATION_WIDGET_REPLY_BY_KEY.has(key)) {
+    return CONSULTATION_WIDGET_REPLY_BY_KEY.get(key);
+  }
+  const aliasTarget = CONSULTATION_WIDGET_KEY_ALIASES[key];
+  if (aliasTarget && CONSULTATION_WIDGET_REPLY_BY_KEY.has(aliasTarget)) {
+    return CONSULTATION_WIDGET_REPLY_BY_KEY.get(aliasTarget);
+  }
+  return null;
+};
+
+/** Exact policy change widget questions—specific client-facing replies (Popular + Policy pack). */
+const POLICY_WIDGET_REPLY_BY_KEY = new Map([
+  [
+    'how do i make a policy change request',
+    'I would use the Policy change request form on our website, enter how to reach you, name the policy line you are changing, and describe the change in plain language. Add the date you want it to take effect if you have one, and attach or mention any paperwork the carrier will care about. If it is time-sensitive, note that in the form and you can also call 805-692-6900 during business hours.',
+  ],
+  [
+    'what information is needed for a policy change request',
+    'The form needs your contact info, which policy this is for—type and policy number if you have it—and a clear description of what you want changed. Include the effective date you want when it matters, and mortgagee or lienholder details only when the change touches a loan or collateral. One focused request per change keeps the carrier from bouncing it for missing context.',
+  ],
+  [
+    'how do i add or remove a driver or vehicle',
+    'For a driver add, I would list their full legal name, date of birth, license number, and a straight summary of tickets, accidents, or claims—carriers use that for rating. For a vehicle add, VIN, garaging address, and use of vehicle matter most. To remove a driver, confirm they will not drive any car on the policy; removing a vehicle means it should be off coverage entirely. Simple changes often process in a business day or two; bigger underwriting asks can take longer.',
+  ],
+  [
+    'when should i include mortgagee or lienholder information',
+    'Include mortgagee or lienholder details when a bank or finance company has an interest in the property or vehicle you are changing—think new loan, refinance, payoff, or when the lender requires an update to their loss-payee wording. You usually do not need that block for a routine driver change on an owned auto with no loan. If you have a lender letter or escrow instruction, mention it in notes.',
+  ],
+  [
+    'can i change coverage limits or deductibles on the form',
+    'Yes. Tell us the coverage you mean—liability, comp, collision, property limit, and so on—and what you want it changed to, plus when you want it effective. Limits and deductibles change premium and sometimes need carrier approval, so a clear before-and-after in your note speeds review. If you are not sure what limit fits, say what you are trying to protect and we can advise on the call.',
+  ],
+  [
+    'what effective date should i use for a policy change',
+    'Use the date the change should actually apply—today if it already happened, a future date if you are planning ahead, or your renewal if you are aligning to a term change. Some edits cannot be backdated, and a few need underwriting time before they are fully in force, so “as soon as possible” in the notes helps us sequence with the carrier. If a lender tied the change to a closing, put that date in writing.',
+  ],
+  [
+    'can i cancel a policy through the policy change request',
+    'You can start there by selecting cancellation or describing cancel in the notes with the date you want coverage to end. Many carriers still want a signed cancellation request or a quick confirmation call for compliance, so an agent may reach out to verify before it is final. If you are replacing coverage elsewhere, say the replacement effective date so you do not create a gap.',
+  ],
+]);
+
+const POLICY_WIDGET_KEY_ALIASES = {
+  'what info is needed for a policy change request': 'what information is needed for a policy change request',
+  'what information do i need for a policy change request': 'what information is needed for a policy change request',
+  'how to make a policy change request': 'how do i make a policy change request',
+  'how do i request a policy change': 'how do i make a policy change request',
+  'how do i add a driver or remove a driver': 'how do i add or remove a driver or vehicle',
+  'how do i add or remove a vehicle': 'how do i add or remove a driver or vehicle',
+  'when do i include mortgagee or lienholder information': 'when should i include mortgagee or lienholder information',
+  'can i change limits or deductibles on the policy change form': 'can i change coverage limits or deductibles on the form',
+  'what date should i use for a policy change': 'what effective date should i use for a policy change',
+  'can i cancel my policy on the policy change form': 'can i cancel a policy through the policy change request',
+};
+
+const matchPolicyWidgetExactReply = (message) => {
+  const key = normalizeQuestionKey(message);
+  if (POLICY_WIDGET_REPLY_BY_KEY.has(key)) {
+    return POLICY_WIDGET_REPLY_BY_KEY.get(key);
+  }
+  const aliasTarget = POLICY_WIDGET_KEY_ALIASES[key];
+  if (aliasTarget && POLICY_WIDGET_REPLY_BY_KEY.has(aliasTarget)) {
+    return POLICY_WIDGET_REPLY_BY_KEY.get(aliasTarget);
+  }
+  return null;
+};
+
+/** Exact update-info widget questions—specific client-facing replies (Popular + Update pack). */
+const UPDATE_WIDGET_REPLY_BY_KEY = new Map([
+  [
+    'how do i update my contact information',
+    'Use the Update contact info form on the website, select what changed, and enter the new details exactly as you want them on your records. If this applies to only one policy, include that policy number so we do not update everything by mistake. Once submitted, our team reviews and routes it for carrier record updates as needed.',
+  ],
+  [
+    'what do i need to update my contact info',
+    'You just need your current account identity details plus the new information you want on file. Tell us what changed—email, phone, address, legal name, or other—then confirm whether it should apply to one policy or all active policies. If it is one policy only, include the policy number.',
+  ],
+  [
+    'can i change my email phone or mailing address',
+    'Yes, those are exactly what this form is for. Enter the new email, phone, or mailing address in full and note whether the change is temporary or permanent if that matters. We update your servicing records so future notices and policy documents go to the right place.',
+  ],
+  [
+    'can i update one policy or all policies at once',
+    'You can do either. If you choose all policies, we apply the same update across your active account records; if you choose one, include the policy number so it stays limited to that policy only. That is especially useful when personal and business policies should keep different contact details.',
+  ],
+  [
+    'when should i include my policy number on an update request',
+    'Include the policy number whenever the update is only for one policy, when you have multiple active policies, or when the change could affect billing or lender notices. It helps us avoid applying the update to the wrong policy. If everything should change across the board, policy number is still helpful but not always required.',
+  ],
+  [
+    'can i use the form to update a legal name',
+    'Yes, but legal name changes usually need supporting documents like a marriage certificate, divorce decree, or court order. Submit the new legal name exactly as it should appear and mention what document you can provide. For security and carrier compliance, we may follow up to verify before finalizing.',
+  ],
+  [
+    'what details should i include for other account updates',
+    'For any “other” update, describe exactly what needs to change, why it is needed, and where it should apply (one policy or all). Add any effective date and policy number if relevant. A short, specific note like “update billing contact for commercial auto only” gets processed much faster than a broad request.',
+  ],
+]);
+
+const UPDATE_WIDGET_KEY_ALIASES = {
+  'what do i need to update contact info': 'what do i need to update my contact info',
+  'how do i update contact information': 'how do i update my contact information',
+  'can i change my email phone or address': 'can i change my email phone or mailing address',
+  'can i update one policy or all policies': 'can i update one policy or all policies at once',
+  'when do i include my policy number on an update request': 'when should i include my policy number on an update request',
+  'can i update legal name on the form': 'can i use the form to update a legal name',
+  'what should i include for other account updates': 'what details should i include for other account updates',
+};
+
+const matchUpdateWidgetExactReply = (message) => {
+  const key = normalizeQuestionKey(message);
+  if (UPDATE_WIDGET_REPLY_BY_KEY.has(key)) {
+    return UPDATE_WIDGET_REPLY_BY_KEY.get(key);
+  }
+  const aliasTarget = UPDATE_WIDGET_KEY_ALIASES[key];
+  if (aliasTarget && UPDATE_WIDGET_REPLY_BY_KEY.has(aliasTarget)) {
+    return UPDATE_WIDGET_REPLY_BY_KEY.get(aliasTarget);
+  }
+  return null;
+};
+
+/** Exact claims widget questions—specific client-facing replies (Popular + Claims pack). */
+const CLAIMS_WIDGET_REPLY_BY_KEY = new Map([
+  [
+    'how do i report a claim with paladin',
+    'Start with the claim report form on our website or call 805-692-6900 if you need live help during business hours. Share what happened, when and where it happened, and your policy number if available so we can route it correctly. Once submitted, a licensed agent reviews the intake and helps guide the carrier process.',
+  ],
+  [
+    'what details should i prepare before reporting a claim',
+    'Before filing, have your policy number, incident date and time, location, and a clear summary of what happened. If available, add photos, video, witness contact info, and any police or incident report number. For property or injury claims, include a rough estimate of damage or treatment details so triage is faster.',
+  ],
+  [
+    'can i submit a claim after business hours',
+    'Yes. You can submit the claim form any time, including after hours, so your incident is timestamped right away. If it is an emergency involving injuries, active danger, or major loss, contact emergency services first, then submit the claim and notify us. Our team follows up on the next business cycle for servicing and carrier coordination.',
+  ],
+  [
+    'how quickly will a licensed agent follow up on a claim',
+    'For most submissions, a licensed agent or claims support member follows up within one business day, often sooner during office hours. Complex losses may need carrier assignment steps before full direction is given, but we still acknowledge your report and set next expectations. If you have a hard deadline, note it in the claim details.',
+  ],
+  [
+    'what claim types can paladin help with',
+    'We help with common personal and commercial claim categories, including auto, property, liability, and workers compensation-related incidents, depending on your policy. If you are unsure which category fits, pick the closest one and describe the event in plain language. We can reclassify it during review to match carrier reporting requirements.',
+  ],
+  [
+    'what should i include for police report or estimated loss details',
+    'If police were involved, include the report number, agency name, and any responding officer details you have. For estimated loss, a good-faith range is fine at first—what looks damaged, likely repair or replacement scope, and whether business operations are interrupted. You can update amounts later as invoices or adjuster findings come in.',
+  ],
+  [
+    'can i report an auto property or liability claim through the form',
+    'Yes, that form is intended for auto, property, and liability incidents. Choose the closest claim type, submit the facts you have now, and attach supporting files if available. If multiple claim types are involved in one event, note that in your description so we open the right handling path.',
+  ],
+]);
+
+const CLAIMS_WIDGET_KEY_ALIASES = {
+  'how do i report a claim': 'how do i report a claim with paladin',
+  'what should i prepare before reporting a claim': 'what details should i prepare before reporting a claim',
+  'can i file a claim after business hours': 'can i submit a claim after business hours',
+  'how quickly will an agent follow up on a claim': 'how quickly will a licensed agent follow up on a claim',
+  'what claim types can you help with': 'what claim types can paladin help with',
+  'what should i include for police report details': 'what should i include for police report or estimated loss details',
+  'what should i include for estimated loss details': 'what should i include for police report or estimated loss details',
+  'can i report auto property or liability claim through the form': 'can i report an auto property or liability claim through the form',
+};
+
+const matchClaimsWidgetExactReply = (message) => {
+  const key = normalizeQuestionKey(message);
+  if (CLAIMS_WIDGET_REPLY_BY_KEY.has(key)) {
+    return CLAIMS_WIDGET_REPLY_BY_KEY.get(key);
+  }
+  const aliasTarget = CLAIMS_WIDGET_KEY_ALIASES[key];
+  if (aliasTarget && CLAIMS_WIDGET_REPLY_BY_KEY.has(aliasTarget)) {
+    return CLAIMS_WIDGET_REPLY_BY_KEY.get(aliasTarget);
+  }
+  return null;
+};
+
+/** Exact callback widget questions—specific client-facing replies (Popular + Call pack). */
+const CALL_WIDGET_REPLY_BY_KEY = new Map([
+  [
+    'how do i request a callback from an agent',
+    'Use the callback request form on the website, enter your best phone number, and add the topic so the agent can prepare before calling. Include your preferred day and time window plus an alternate slot if you have one. That gives us the best chance to reach you on the first attempt.',
+  ],
+  [
+    'what information do i need for a callback request',
+    'For a callback request, share your name, best phone number, and what you want to discuss. Add your preferred day and time, and include an alternate time if your schedule is tight. A policy number helps if the call is about an existing policy, but it is not required for general questions.',
+  ],
+  [
+    'what day and time should i choose for a callback',
+    'Pick the day/time you are most likely to answer live, ideally with a two- to three-hour window instead of a single minute. If your issue has a deadline, mention that in notes so we can prioritize. Choosing business-hour windows usually results in faster contact.',
+  ],
+  [
+    'can i add an alternate time if the first one is unavailable',
+    'Yes, and you should. Add a second day/time window so the agent has a fallback without restarting scheduling. This reduces missed calls and helps us keep your request moving the same day when possible.',
+  ],
+  [
+    'what topic should i include on the call request form',
+    'Use a short, specific topic like “policy change for new vehicle,” “COI needed for landlord,” or “quote review before renewal.” A clear topic helps route your request to the right licensed agent and shortens discovery time on the call. If there is a deadline, include it in the same note.',
+  ],
+  [
+    'do i need a policy number for a callback request',
+    'Not always. If you are asking about an existing policy, include the policy number so we can pull your file before the call. If the call is for a new quote or general guidance, you can submit without it and we can collect details during follow-up.',
+  ],
+  [
+    'can i request a callback after business hours',
+    'Yes, you can submit the callback form anytime, including after hours. Requests submitted after business hours are queued and followed up on the next business cycle. If the matter is urgent and within office hours, calling 805-692-6900 is still the fastest path.',
+  ],
+]);
+
+const CALL_WIDGET_KEY_ALIASES = {
+  'how do i request a callback': 'how do i request a callback from an agent',
+  'what do i need for a callback request': 'what information do i need for a callback request',
+  'what day and time should i pick for a callback': 'what day and time should i choose for a callback',
+  'can i add alternate time if first one is unavailable': 'can i add an alternate time if the first one is unavailable',
+  'what topic should i put on the call request form': 'what topic should i include on the call request form',
+  'do i need policy number for callback request': 'do i need a policy number for a callback request',
+  'can i request callback after business hours': 'can i request a callback after business hours',
+};
+
+const matchCallWidgetExactReply = (message) => {
+  const key = normalizeQuestionKey(message);
+  if (CALL_WIDGET_REPLY_BY_KEY.has(key)) {
+    return CALL_WIDGET_REPLY_BY_KEY.get(key);
+  }
+  const aliasTarget = CALL_WIDGET_KEY_ALIASES[key];
+  if (aliasTarget && CALL_WIDGET_REPLY_BY_KEY.has(aliasTarget)) {
+    return CALL_WIDGET_REPLY_BY_KEY.get(aliasTarget);
+  }
+  return null;
+};
+
 const detectIntent = (message) => {
   const normalized = normalizeMessage(message);
 
@@ -868,6 +1311,36 @@ const buildLocalReply = (message) => {
 
   if (/\b(thanks|thank you|appreciate it)\b/.test(normalized)) {
     return 'You are welcome. If you need anything else, ask me about claims, policy changes, or coverage options.';
+  }
+
+  const widgetConsultationReply = matchConsultationWidgetExactReply(message);
+  if (widgetConsultationReply) {
+    return widgetConsultationReply;
+  }
+
+  const widgetPolicyReply = matchPolicyWidgetExactReply(message);
+  if (widgetPolicyReply) {
+    return widgetPolicyReply;
+  }
+
+  const widgetUpdateReply = matchUpdateWidgetExactReply(message);
+  if (widgetUpdateReply) {
+    return widgetUpdateReply;
+  }
+
+  const widgetClaimsReply = matchClaimsWidgetExactReply(message);
+  if (widgetClaimsReply) {
+    return widgetClaimsReply;
+  }
+
+  const widgetCallReply = matchCallWidgetExactReply(message);
+  if (widgetCallReply) {
+    return widgetCallReply;
+  }
+
+  const widgetDocReply = matchDocumentWidgetExactReply(message);
+  if (widgetDocReply) {
+    return widgetDocReply;
   }
 
   const sampleMatch = SAMPLE_QUESTION_RESPONSES.find((item) =>
@@ -900,15 +1373,15 @@ const INTENT_LOCAL_RESPONSES = {
   'universal-applicant':
     'The universal applicant section collects client information used across several insurance products. This includes full legal name, date of birth, contact phone and email, mailing address, SSN last 4, employment history, prior coverage details, loss history, and consent to credit checks and e-delivery.',
   'document-request':
-    'You can request proof of insurance or other documents through the website. Include your name, email, the document type, certificate holder details, and any special wording or endorsements needed. If urgent, call 805-692-6900 and ask for certificate support.',
+    'Tell me whether you need proof for a third party, pages from your actual policy, or something a bank or DMV asked for—we route each a little differently. If you open Document request on the site and pick the type that matches their sample, we can move faster.',
   'policy-change':
-    'Policy changes can be requested through the website or by phone. Provide your name, email, policy type, the requested change, the effective date, and complete details so the carrier can review quickly. Changes may require underwriting approval.',
+    'Use the Policy change request form with your policy line, a plain-English description of the change, and the effective date you need. A licensed agent or service team member routes it to the carrier; some changes need extra underwriting time before they are final.',
   'update-contact':
-    'You can update email, phone, address, or legal name through the website form. Specify whether the change applies to all active policies or one specific policy. If updating one policy, include the policy number.',
+    'Use the Update contact info form for email, phone, mailing address, legal name, or other account changes. Tell us if it applies to one policy or all policies, and include the policy number when it is policy-specific.',
   consultation:
-    'You can request a personalized consultation through the website. Provide your name, email, phone, coverage type of interest, preferred contact method, timeline, and any special notes. An agent will review your request and reach out.',
+    'You can request a consultation on the website and share what coverage you need plus your target timeline. A licensed agent reviews your request and follows up with tailored next steps based on your situation, not a one-size-fits-all script.',
   'call-request':
-    'You can request a callback through the website call request form. Provide your name, phone number, preferred day and time, alternate times if needed, and the topic for discussion. This helps the agent prepare before calling.',
+    'Use the callback request form with your best phone number, preferred time window, and topic so the agent can prepare before calling. Add an alternate slot when possible to reduce missed-call delays.',
   'hours-contact':
     'Paladin office hours are Monday to Friday, 9:00 AM to 5:00 PM. You can call 805-692-6900, email support@paladinbusinessservices.net, or mail to 3787 Transport ST Suite A7 Box #5, Ventura, CA 93003. After hours, email and get a response the next business day.',
   'coverage-info':
@@ -1038,7 +1511,7 @@ exports.askVoiceAssistant = async (req, res) => {
       },
       body: JSON.stringify({
         model: DEFAULT_MODEL,
-        instructions: `${SYSTEM_PROMPT}\n\nUse the following Paladin facts when answering site-specific questions:\n${PALADIN_FACTS}\n\nUse the following request-form guidance when the user asks about a specific form:\n${REQUEST_FORM_GUIDE}\n\nUse the following universal applicant guidance for shared quote intake questions:\n${UNIVERSAL_APPLICANT_GUIDE}`,
+        instructions: `${SYSTEM_PROMPT}\n\nUse the following Paladin facts when answering site-specific questions:\n${PALADIN_FACTS}\n\nUse the following request-form guidance when the user asks about a specific form:\n${REQUEST_FORM_GUIDE}\n\n${DOCUMENT_OPENAI_RULES}\n\n${CONSULTATION_OPENAI_RULES}\n\n${POLICY_OPENAI_RULES}\n\n${UPDATE_INFO_OPENAI_RULES}\n\n${CLAIMS_OPENAI_RULES}\n\n${CALL_REQUEST_OPENAI_RULES}\n\nUse the following universal applicant guidance for shared quote intake questions:\n${UNIVERSAL_APPLICANT_GUIDE}`,
         input: [
           {
             role: 'system',
