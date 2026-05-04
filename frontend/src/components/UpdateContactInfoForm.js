@@ -542,8 +542,8 @@ across your active policies."
 
           {stepIndex === 4 && (
             <div className="space-y-4 rounded-2xl border border-[#e7dccb] bg-[#F7F4EF]/55 p-5">
-              <h4 className="text-base font-semibold text-[#012E72]">Review your request</h4>
-              <div className="grid gap-3 text-sm text-[#010407]/80 sm:grid-cols-2">
+              <h4 className="font-constantia text-base font-semibold text-[#012E72]">Review your request</h4>
+              <div className="font-serif grid gap-3 text-sm text-[#010407]/80 sm:grid-cols-2">
                 <p>
                   <span className="font-semibold">Name of insured:</span> {formData.fullName || '-'}
                 </p>
@@ -590,7 +590,7 @@ across your active policies."
         )}
 
         {submitError && (
-          <div className="rounded-2xl border border-red-300 bg-red-50 px-4 py-3 text-sm text-red-700">
+          <div className="rounded-2xl border border-red-300 bg-red-50 px-4 py-3 font-serif text-sm text-red-700">
             Error: {submitError}
           </div>
         )}

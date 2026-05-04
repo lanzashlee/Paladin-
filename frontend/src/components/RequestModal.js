@@ -44,10 +44,10 @@ function RequestModal({ badge, title, description, onClose, children }) {
               <p className="inline-flex items-center rounded-full border border-[#d8cbb8] bg-[#F7F4EF] px-4 py-1 text-[11px] font-semibold uppercase tracking-[0.28em] text-[#002DB5]">
                 {badge}
               </p>
-              <h3 id={titleId} className="mt-3 text-2xl font-bold text-[#012E72]">
+              <h3 id={titleId} className="mt-3 font-cinzel text-2xl font-bold uppercase text-[#012E72]">
                 {title}
               </h3>
-              <p className="mt-2 max-w-2xl text-sm leading-relaxed text-[#010407]/75">
+              <p className="mt-2 max-w-2xl font-constantia text-sm leading-relaxed text-[#010407]/75">
                 {description}
               </p>
             </div>

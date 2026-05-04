@@ -7,6 +7,9 @@ module.exports = {
     extend: {
       fontFamily: {
         sans: ["Inter", "Plus Jakarta Sans", "ui-sans-serif", "system-ui", "sans-serif"],
+        cinzel: ["Cinzel", "serif"],
+        constantia: ["Constantia", "Georgia", "serif"],
+        serif: ["Times New Roman", "Times", "serif"],
       },
       colors: {
         brand: {
