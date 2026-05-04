@@ -669,7 +669,7 @@ function ClaimReportForm({ onClose }) {
                 />
               </FieldGroup>
 
-              <div className="rounded-2xl border border-amber-300 bg-amber-50 px-4 py-3 text-sm text-amber-900">
+              <div className="rounded-2xl border border-amber-300 bg-amber-50 px-4 py-3 font-serif text-sm text-amber-900">
                 <strong>Note:</strong> We will review your submission and contact you within 1 business day. If you have not heard from us and the matter is urgent, please call (805) 692-6900.
               </div>
             </div>
@@ -677,8 +677,8 @@ function ClaimReportForm({ onClose }) {
 
           {stepIndex === 4 && (
             <div className="space-y-4 rounded-2xl border border-[#e7dccb] bg-[#F7F4EF]/55 p-5">
-              <h4 className="text-base font-semibold text-[#012E72]">Review your request</h4>
-              <div className="grid gap-3 text-sm text-[#010407]/80 sm:grid-cols-2">
+              <h4 className="font-constantia text-base font-semibold text-[#012E72]">Review your request</h4>
+              <div className="font-serif grid gap-3 text-sm text-[#010407]/80 sm:grid-cols-2">
                 <p>
                   <span className="font-semibold">Name of insured:</span> {formData.fullName || '-'}
                 </p>
@@ -758,13 +758,13 @@ function ClaimReportForm({ onClose }) {
         </RequestFormWizard>
 
         {saved && (
-          <div className="rounded-2xl border border-green-300 bg-green-50 px-4 py-3 text-sm text-green-700">
+          <div className="rounded-2xl border border-green-300 bg-green-50 px-4 py-3 font-serif text-sm text-green-700">
             Your claim report has been submitted successfully! We will follow up soon.
           </div>
         )}
 
         {submitError && (
-          <div className="rounded-2xl border border-red-300 bg-red-50 px-4 py-3 text-sm text-red-700">
+          <div className="rounded-2xl border border-red-300 bg-red-50 px-4 py-3 font-serif text-sm text-red-700">
             Error: {submitError}
           </div>
         )}

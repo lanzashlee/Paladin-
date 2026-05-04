@@ -43,8 +43,8 @@ function QuickActionsSection() {
       <div className="relative z-10 mx-auto w-full max-w-7xl px-6">
         <div>
           <p className="text-xs font-semibold uppercase tracking-[0.2em] text-[#012E72]/70">Quick Actions</p>
-          <h3 className="mt-2 text-2xl font-extrabold tracking-tight text-[#012E72] sm:text-3xl">How Can We Help You Today?</h3>
-          <p className="mt-3 max-w-3xl text-sm leading-relaxed text-[#010407]/75 sm:text-base">
+          <h3 className="mt-2 font-cinzel text-2xl font-extrabold uppercase tracking-tight text-[#012E72] sm:text-3xl">How Can We Help You Today?</h3>
+          <p className="mt-3 max-w-3xl font-serif text-sm leading-relaxed text-[#010407]/75 sm:text-base">
             Choose the request type you need below, then use one button to open the full Quick Actions section on Contact.
           </p>
         </div>
@@ -56,8 +56,8 @@ function QuickActionsSection() {
               className="rounded-2xl border border-[#e1d8ca] bg-white px-5 py-5 shadow-[0_10px_20px_rgba(0,0,0,0.10)]"
             >
               <p className="text-[11px] font-semibold uppercase tracking-[0.2em] text-[#012E72]/55">{String(index + 1).padStart(2, '0')}</p>
-              <h4 className="mt-2 font-serif text-lg font-semibold leading-snug text-[#111827]">{card.title}</h4>
-              <p className="mt-2 text-sm leading-relaxed text-[#010407]/75">{card.desc}</p>
+              <h4 className="mt-2 font-constantia text-lg font-semibold leading-snug text-[#111827]">{card.title}</h4>
+              <p className="mt-2 font-serif text-sm leading-relaxed text-[#010407]/75">{card.desc}</p>
             </article>
           ))}
         </div>
