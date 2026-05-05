@@ -81,6 +81,13 @@ How to answer call-request questions (voice / client tone):
 - When timing is asked, mention business-hour follow-up expectations clearly.
 `;
 
+const COVERAGE_OPENAI_RULES = `
+How to answer coverage questions (voice / client tone):
+- Answer the exact coverage question asked (line of business, personal vs commercial, bundle strategy, required vs optional coverages, or next step to compare options).
+- Keep responses concise and practical, usually two to four sentences, with plain client-friendly wording.
+- When helpful, suggest a consultation request to compare carriers and limits for the client's specific risk.
+`;
+
 const UNIVERSAL_APPLICANT_GUIDE = `
 Universal applicant information:
 - Full legal name: first, middle, and last name; must match government-issued ID and policy documents exactly.
@@ -1282,6 +1289,269 @@ const matchCallWidgetExactReply = (message) => {
   return null;
 };
 
+/** Exact coverage widget questions—specific client-facing replies. */
+const COVERAGE_WIDGET_REPLY_BY_KEY = new Map([
+  [
+    'do you offer workers compensation and commercial auto',
+    'Yes. We handle both workers compensation and commercial auto, and we can review them together so payroll, driver, and vehicle exposures are aligned in one strategy. If you are bidding jobs, we can also help prepare COI-ready coverage language based on contract requirements.',
+  ],
+  [
+    'can paladin bundle multiple business coverages',
+    'Yes, we can structure a bundle review across lines like general liability, commercial auto, workers compensation, property, umbrella, and cyber when eligible. Bundling can simplify renewals and sometimes improve pricing, but final terms depend on carrier appetite and underwriting. We usually start with your most urgent requirement, then layer the rest.',
+  ],
+  [
+    'how can paladin help compare multiple carriers',
+    'As an independent agency, we can shop multiple carriers and compare premiums, limits, deductibles, exclusions, and endorsement options side by side. The goal is not just lowest price, but the best fit for your risk and contract obligations. A consultation request gives us the details needed to build a meaningful comparison.',
+  ],
+  [
+    'what is the difference between umbrella and general liability',
+    'General liability is your primary policy for common third-party injury and property-damage claims tied to operations. Umbrella sits above underlying liability policies and adds extra limit once base policy limits are exhausted. In short: general liability handles first-dollar covered layers, umbrella extends protection for larger losses.',
+  ],
+  [
+    'what coverage types does paladin offer',
+    'We can help with both personal and business lines, including home, renters, auto, umbrella, general liability, workers compensation, commercial auto, flood, earthquake, cyber, and other specialty programs. The best fit depends on your assets, contracts, and risk exposure. If you want, I can help you narrow this to one starting line first.',
+  ],
+  [
+    'should i choose personal or commercial coverage',
+    'Choose personal when the risk is tied to your household, personal vehicles, or personal liability. Choose commercial when the risk comes from business operations, employees, client contracts, or business-owned property and vehicles. If both apply, we can build a combined plan and phase priorities by deadline.',
+  ],
+  [
+    'do i need one policy or a bundle of coverages',
+    'That depends on your risk profile. Many clients start with one urgent policy, then bundle related coverages to close gaps and often improve pricing or carrier fit. A quick consultation helps identify which line should be first and which add-ons are worth adding now versus later.',
+  ],
+  [
+    'is workers compensation required for my business',
+    'In many cases, yes, once you have employees, but requirements vary by state, payroll setup, and worker classification. Even when not strictly required, some contracts and job sites still require proof before work can begin. Share your state and business type, and we can point you to the right next step.',
+  ],
+  [
+    'what is umbrella insurance and when do i need it',
+    'Umbrella adds extra liability protection above your underlying home, auto, or business liability limits. It is most useful when you have meaningful assets to protect, higher exposure activities, or contracts that expect stronger limits. Think of it as a safety layer for severe claims that exceed base policy limits.',
+  ],
+  [
+    'is flood or earthquake included in a standard policy',
+    'Usually not. Flood and earthquake are often separate policies or endorsements depending on property type and carrier structure. If your location has floodplain or seismic exposure, reviewing these separately is important so you do not assume a gap is already covered.',
+  ],
+  [
+    'do small businesses need cyber liability coverage',
+    'Often yes, because small businesses still face phishing, ransomware, payment fraud, and data exposure risks. Cyber coverage can help with response costs, recovery, legal obligations, and business interruption tied to an incident. It is usually more affordable to set up before a loss than after controls are questioned.',
+  ],
+]);
+
+const COVERAGE_WIDGET_KEY_ALIASES = {
+  'what coverages does paladin offer': 'what coverage types does paladin offer',
+  'what insurance types does paladin offer': 'what coverage types does paladin offer',
+  'personal or commercial coverage': 'should i choose personal or commercial coverage',
+  'should i choose personal or business coverage': 'should i choose personal or commercial coverage',
+  'should i get one policy or bundle': 'do i need one policy or a bundle of coverages',
+  'do i need bundled coverage': 'do i need one policy or a bundle of coverages',
+  'is workers comp required for my business': 'is workers compensation required for my business',
+  'when do i need umbrella insurance': 'what is umbrella insurance and when do i need it',
+  'is flood included in standard policy': 'is flood or earthquake included in a standard policy',
+  'is earthquake included in standard policy': 'is flood or earthquake included in a standard policy',
+  'do i need cyber liability for a small business': 'do small businesses need cyber liability coverage',
+};
+
+const matchCoverageWidgetExactReply = (message) => {
+  const key = normalizeQuestionKey(message);
+  if (COVERAGE_WIDGET_REPLY_BY_KEY.has(key)) {
+    return COVERAGE_WIDGET_REPLY_BY_KEY.get(key);
+  }
+  const aliasTarget = COVERAGE_WIDGET_KEY_ALIASES[key];
+  if (aliasTarget && COVERAGE_WIDGET_REPLY_BY_KEY.has(aliasTarget)) {
+    return COVERAGE_WIDGET_REPLY_BY_KEY.get(aliasTarget);
+  }
+  return null;
+};
+
+/** Exact HO3 widget questions—specific client-facing replies. */
+const HO3_WIDGET_REPLY_BY_KEY = new Map([
+  [
+    'what property address do i need to enter for homeowners insurance',
+    'Enter the physical street address of the home being insured, including unit number if applicable. Use your mailing address only if it is the same property, otherwise keep those separate to avoid carrier mismatch. This address drives rating, inspections, and hazard validation.',
+  ],
+  [
+    'how does the county affect my homeowners insurance',
+    'County affects underwriting because wildfire zones, brush exposure, fire protection class, and some regional catastrophe models vary by location. It can influence eligibility, pricing, and which carriers are willing to quote. That is why we ask for exact county instead of only city name.',
+  ],
+  [
+    'what happens if i dont know the year my property was built',
+    'If the exact year is unknown, give your best verified estimate and note that it is approximate so we can start quoting. Carriers may still require confirmation from county records or appraisal documents before binding. The build year impacts replacement cost assumptions and some eligibility rules.',
+  ],
+  [
+    'do i need to provide the number of stories for my house',
+    'Yes, number of stories is required because it affects replacement cost modeling, roof and water-loss exposure, and sometimes underwriting appetite. A one-story versus multi-story home can rate differently even with the same square footage. Enter the actual above-ground stories for best accuracy.',
+  ],
+  [
+    'is a pool covered under my homeowners insurance',
+    'A pool can be covered, but it usually changes liability risk and may require specific safety controls like fencing or self-latching gates. Some carriers may add conditions, exclusions, or higher premiums depending on pool type and features. Listing it up front avoids surprises at underwriting or claim time.',
+  ],
+]);
+
+const HO3_WIDGET_KEY_ALIASES = {
+  'what property address should i enter for homeowners insurance': 'what property address do i need to enter for homeowners insurance',
+  'how does county affect homeowners insurance': 'how does the county affect my homeowners insurance',
+  'what if i dont know the year my property was built': 'what happens if i dont know the year my property was built',
+  'do i need to provide number of stories for my house': 'do i need to provide the number of stories for my house',
+  'is pool covered under homeowners insurance': 'is a pool covered under my homeowners insurance',
+};
+
+const matchHo3WidgetExactReply = (message) => {
+  const key = normalizeQuestionKey(message);
+  if (HO3_WIDGET_REPLY_BY_KEY.has(key)) {
+    return HO3_WIDGET_REPLY_BY_KEY.get(key);
+  }
+  const aliasTarget = HO3_WIDGET_KEY_ALIASES[key];
+  if (aliasTarget && HO3_WIDGET_REPLY_BY_KEY.has(aliasTarget)) {
+    return HO3_WIDGET_REPLY_BY_KEY.get(aliasTarget);
+  }
+  return null;
+};
+
+/** Exact HO6 widget questions—specific client-facing replies. */
+const HO6_WIDGET_REPLY_BY_KEY = new Map([
+  [
+    'what is the difference between a condo unit and a house when it comes to insurance',
+    'Condo insurance (HO6) usually covers your interior unit improvements, personal property, and personal liability, while the HOA master policy typically covers shared structure areas and common elements. Homeowners insurance for a house covers the full dwelling structure plus personal property and liability. The key is where building responsibility starts and ends between you and the HOA.',
+  ],
+  [
+    'why do you ask for the construction type of the building',
+    'Construction type helps carriers estimate fire, water, and catastrophic loss exposure for the building as a whole. It affects eligibility, pricing, and sometimes available deductibles or endorsements. Even though you insure your unit, your risk is still tied to the building\'s construction profile.',
+  ],
+  [
+    'how does the number of stories affect condo insurance',
+    'Story count can influence risk modeling for water damage, fire access, evacuation complexity, and claim severity in multi-unit structures. Higher-rise and low-rise buildings can rate differently depending on carrier guidelines. That is why we ask for building stories even for unit-level coverage.',
+  ],
+  [
+    'do i need to provide a description of any renovations or upgrades to my condo',
+    'Yes, renovations are important because upgraded flooring, cabinetry, kitchens, baths, and built-ins can increase your interior replacement value. If upgrades are not listed, coverage may be set too low for a loss. A short description helps us align dwelling/interior limits more accurately.',
+  ],
+  [
+    'is liability coverage included in condo insurance',
+    'Yes, HO6 policies typically include personal liability coverage for injuries or property damage you may be legally responsible for. The included limit may not always be enough, so higher liability limits or umbrella can be added when needed. We can recommend a limit based on your exposure profile.',
+  ],
+]);
+
+const HO6_WIDGET_KEY_ALIASES = {
+  'difference between condo and house insurance': 'what is the difference between a condo unit and a house when it comes to insurance',
+  'why ask for construction type of building': 'why do you ask for the construction type of the building',
+  'how do building stories affect condo insurance': 'how does the number of stories affect condo insurance',
+  'do i need to describe condo renovations or upgrades': 'do i need to provide a description of any renovations or upgrades to my condo',
+  'is liability included in condo insurance': 'is liability coverage included in condo insurance',
+};
+
+const matchHo6WidgetExactReply = (message) => {
+  const key = normalizeQuestionKey(message);
+  if (HO6_WIDGET_REPLY_BY_KEY.has(key)) {
+    return HO6_WIDGET_REPLY_BY_KEY.get(key);
+  }
+  const aliasTarget = HO6_WIDGET_KEY_ALIASES[key];
+  if (aliasTarget && HO6_WIDGET_REPLY_BY_KEY.has(aliasTarget)) {
+    return HO6_WIDGET_REPLY_BY_KEY.get(aliasTarget);
+  }
+  return null;
+};
+
+/** Exact HO4 widget questions—specific client-facing replies. */
+const HO4_WIDGET_REPLY_BY_KEY = new Map([
+  [
+    'what is renters insurance and what does it cover',
+    'Renters insurance usually covers your personal belongings, personal liability, and additional living expenses if a covered loss makes your unit temporarily unlivable. It does not insure the building itself—that part is your landlord\'s policy. Think of HO4 as protection for your stuff, your liability, and your temporary relocation costs.',
+  ],
+  [
+    'how do i determine how much renters insurance i need',
+    'Start by estimating replacement cost for your belongings, not yard-sale value—clothes, electronics, furniture, kitchen items, and high-value pieces. Then choose a personal property limit that realistically rebuilds your contents after a total loss. We can also review sub-limits for items like jewelry or collectibles and add scheduled coverage if needed.',
+  ],
+  [
+    'what does liability coverage in renters insurance cover',
+    'Liability coverage helps if you are legally responsible for injury to someone else or damage to someone else\'s property, and it can also include legal defense costs for covered claims. Common examples are a guest injury in your unit or accidental water damage to a neighbor\'s unit. It does not replace your own personal property coverage.',
+  ],
+  [
+    'how does the type of rental unit affect my insurance',
+    'Unit type can affect rating and underwriting because apartment, condo rental, single-family rental, and multi-unit buildings carry different risk profiles. Factors like shared walls, floor level, building age, and security features can influence premium and carrier options. Accurate unit details help avoid quote-to-bind changes.',
+  ],
+  [
+    'do i need renters insurance if my landlord has insurance',
+    'Yes, in most cases. Your landlord\'s policy usually protects the building structure and their liability, not your personal belongings or your personal liability exposure. Renters insurance fills that gap and is often required by lease agreements.',
+  ],
+]);
+
+const HO4_WIDGET_KEY_ALIASES = {
+  'what is renters insurance and what is covered': 'what is renters insurance and what does it cover',
+  'how much renters insurance do i need': 'how do i determine how much renters insurance i need',
+  'what does renters liability coverage cover': 'what does liability coverage in renters insurance cover',
+  'how does rental unit type affect insurance': 'how does the type of rental unit affect my insurance',
+  'do i need renters insurance if landlord has insurance': 'do i need renters insurance if my landlord has insurance',
+};
+
+const matchHo4WidgetExactReply = (message) => {
+  const key = normalizeQuestionKey(message);
+  if (HO4_WIDGET_REPLY_BY_KEY.has(key)) {
+    return HO4_WIDGET_REPLY_BY_KEY.get(key);
+  }
+  const aliasTarget = HO4_WIDGET_KEY_ALIASES[key];
+  if (aliasTarget && HO4_WIDGET_REPLY_BY_KEY.has(aliasTarget)) {
+    return HO4_WIDGET_REPLY_BY_KEY.get(aliasTarget);
+  }
+  return null;
+};
+
+/** Exact commercial auto widget questions—specific client-facing replies. */
+const COMMERCIAL_AUTO_WIDGET_REPLY_BY_KEY = new Map([
+  [
+    'what is commercial auto insurance and who needs it',
+    'Commercial auto insurance covers vehicles used for business operations, including liability, physical damage options, and business-use exposures that personal auto policies often exclude. It is typically needed for company-owned vehicles and can also apply to certain employee or owner business-use scenarios. If the vehicle supports business income, commercial coverage is usually the safer path.',
+  ],
+  [
+    'how do you determine the premium for commercial auto insurance',
+    'Premium is based on driver profiles, vehicle type and value, garaging location, radius of use, industry operations, claim history, and selected limits/deductibles. Higher-risk routes, heavier vehicles, and broader coverage choices generally raise cost. Clean driving history and accurate business-use details help produce better quotes.',
+  ],
+  [
+    'is there a difference in coverage for personal vs commercial auto insurance',
+    'Yes. Personal auto is designed for private household use, while commercial auto is designed for business activity and often provides broader business liability options and higher limits. Business use under a personal policy can create claim disputes, so matching policy type to actual use is important.',
+  ],
+  [
+    'why do i need to list all drivers for my commercial vehicles',
+    'Carriers require all regular or potential business drivers so they can properly evaluate risk and price the policy. Undisclosed drivers can lead to underwriting issues, premium changes, or claim complications later. Listing everyone up front helps keep coverage accurate and enforceable.',
+  ],
+  [
+    'do i need to provide information on past accidents for commercial auto insurance',
+    'Yes, prior accidents and violations are key rating factors for commercial auto and can affect eligibility, premium, and carrier selection. Include clear loss details so the quote is realistic from the start. Accurate history reduces last-minute underwriting surprises before binding.',
+  ],
+]);
+
+const COMMERCIAL_AUTO_WIDGET_KEY_ALIASES = {
+  'what is commercial auto insurance who needs it': 'what is commercial auto insurance and who needs it',
+  'how is commercial auto premium determined': 'how do you determine the premium for commercial auto insurance',
+  'difference between personal and commercial auto insurance': 'is there a difference in coverage for personal vs commercial auto insurance',
+  'why list all drivers for commercial vehicles': 'why do i need to list all drivers for my commercial vehicles',
+  'do i need to provide past accidents for commercial auto insurance': 'do i need to provide information on past accidents for commercial auto insurance',
+};
+
+const matchCommercialAutoWidgetExactReply = (message) => {
+  const key = normalizeQuestionKey(message);
+  if (COMMERCIAL_AUTO_WIDGET_REPLY_BY_KEY.has(key)) {
+    return COMMERCIAL_AUTO_WIDGET_REPLY_BY_KEY.get(key);
+  }
+  const aliasTarget = COMMERCIAL_AUTO_WIDGET_KEY_ALIASES[key];
+  if (aliasTarget && COMMERCIAL_AUTO_WIDGET_REPLY_BY_KEY.has(aliasTarget)) {
+    return COMMERCIAL_AUTO_WIDGET_REPLY_BY_KEY.get(aliasTarget);
+  }
+  return null;
+};
+
+const matchAnyWidgetExactReply = (message) =>
+  matchConsultationWidgetExactReply(message) ||
+  matchPolicyWidgetExactReply(message) ||
+  matchUpdateWidgetExactReply(message) ||
+  matchClaimsWidgetExactReply(message) ||
+  matchCallWidgetExactReply(message) ||
+  matchDocumentWidgetExactReply(message) ||
+  matchCoverageWidgetExactReply(message) ||
+  matchHo3WidgetExactReply(message) ||
+  matchHo6WidgetExactReply(message) ||
+  matchHo4WidgetExactReply(message) ||
+  matchCommercialAutoWidgetExactReply(message);
+
 const detectIntent = (message) => {
   const normalized = normalizeMessage(message);
 
@@ -1341,6 +1611,11 @@ const buildLocalReply = (message) => {
   const widgetDocReply = matchDocumentWidgetExactReply(message);
   if (widgetDocReply) {
     return widgetDocReply;
+  }
+
+  const widgetCoverageReply = matchCoverageWidgetExactReply(message);
+  if (widgetCoverageReply) {
+    return widgetCoverageReply;
   }
 
   const sampleMatch = SAMPLE_QUESTION_RESPONSES.find((item) =>
@@ -1488,6 +1763,17 @@ exports.askVoiceAssistant = async (req, res) => {
   const detectedIntent = detectIntent(userMessage);
   const followUpQuestions = getFollowUpQuestions(detectedIntent);
   const suggestedActions = getSuggestedActions(detectedIntent);
+  const exactWidgetReply = matchAnyWidgetExactReply(userMessage);
+
+  if (exactWidgetReply) {
+    return res.status(200).json({
+      reply: exactWidgetReply,
+      source: 'knowledge-base',
+      detectedIntent,
+      followUpQuestions,
+      suggestedActions,
+    });
+  }
 
   if (!process.env.OPENAI_API_KEY) {
     return res.status(200).json({
@@ -1511,7 +1797,7 @@ exports.askVoiceAssistant = async (req, res) => {
       },
       body: JSON.stringify({
         model: DEFAULT_MODEL,
-        instructions: `${SYSTEM_PROMPT}\n\nUse the following Paladin facts when answering site-specific questions:\n${PALADIN_FACTS}\n\nUse the following request-form guidance when the user asks about a specific form:\n${REQUEST_FORM_GUIDE}\n\n${DOCUMENT_OPENAI_RULES}\n\n${CONSULTATION_OPENAI_RULES}\n\n${POLICY_OPENAI_RULES}\n\n${UPDATE_INFO_OPENAI_RULES}\n\n${CLAIMS_OPENAI_RULES}\n\n${CALL_REQUEST_OPENAI_RULES}\n\nUse the following universal applicant guidance for shared quote intake questions:\n${UNIVERSAL_APPLICANT_GUIDE}`,
+        instructions: `${SYSTEM_PROMPT}\n\nUse the following Paladin facts when answering site-specific questions:\n${PALADIN_FACTS}\n\nUse the following request-form guidance when the user asks about a specific form:\n${REQUEST_FORM_GUIDE}\n\n${DOCUMENT_OPENAI_RULES}\n\n${CONSULTATION_OPENAI_RULES}\n\n${POLICY_OPENAI_RULES}\n\n${UPDATE_INFO_OPENAI_RULES}\n\n${CLAIMS_OPENAI_RULES}\n\n${CALL_REQUEST_OPENAI_RULES}\n\n${COVERAGE_OPENAI_RULES}\n\nUse the following universal applicant guidance for shared quote intake questions:\n${UNIVERSAL_APPLICANT_GUIDE}`,
         input: [
           {
             role: 'system',

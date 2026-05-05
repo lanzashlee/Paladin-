@@ -224,6 +224,7 @@ function VoiceChatWidget() {
   const preferredVoiceRef = useRef(null);
   const activeAudioRef = useRef(null);
   const activeAudioObjectUrlRef = useRef(null);
+  const activeAudioResolveRef = useRef(null);
   const previousMessageCountRef = useRef(messages.length);
   const copyResetTimerRef = useRef(null);
   const messagesEndRef = useRef(null);
@@ -232,6 +233,7 @@ function VoiceChatWidget() {
   const isLoadingRef = useRef(false);
   const isSpeakingRef = useRef(false);
   const micEnabledRef = useRef(false);
+  const isVoiceMutedRef = useRef(false);
   
   const agoraSdkRef = useRef(null);
   const agoraClientRef = useRef(null);
@@ -446,6 +448,55 @@ function VoiceChatWidget() {
   useEffect(() => {
     micEnabledRef.current = micEnabled;
   }, [micEnabled]);
+
+  useEffect(() => {
+    isVoiceMutedRef.current = isVoiceMuted;
+  }, [isVoiceMuted]);
+
+  const stopAllPlayback = () => {
+    if (activeAudioRef.current) {
+      activeAudioRef.current.onended = null;
+      activeAudioRef.current.onerror = null;
+      activeAudioRef.current.pause();
+      activeAudioRef.current.currentTime = 0;
+      activeAudioRef.current = null;
+    }
+
+    if (activeAudioObjectUrlRef.current) {
+      URL.revokeObjectURL(activeAudioObjectUrlRef.current);
+      activeAudioObjectUrlRef.current = null;
+    }
+
+    if (typeof window !== 'undefined' && 'speechSynthesis' in window) {
+      window.speechSynthesis.cancel();
+    }
+
+    if (activeAudioResolveRef.current) {
+      activeAudioResolveRef.current();
+      activeAudioResolveRef.current = null;
+    }
+  };
+
+  const handleVoiceMuteToggle = () => {
+    setIsVoiceMuted((value) => {
+      const next = !value;
+      isVoiceMutedRef.current = next;
+      if (next) {
+        stopAllPlayback();
+        setIsSpeaking(false);
+      }
+      return next;
+    });
+  };
+
+  const shouldMuteAudio = () => isVoiceMutedRef.current;
+
+  useEffect(() => {
+    if (!isVoiceMuted) {
+      return;
+    }
+    setStatus((prev) => (prev === 'Speaking response...' ? 'Audio muted for next reply.' : prev));
+  }, [isVoiceMuted]);
 
   
 
@@ -693,6 +744,11 @@ function VoiceChatWidget() {
       return Promise.resolve();
     }
 
+    if (shouldMuteAudio()) {
+      window.speechSynthesis.cancel();
+      return Promise.resolve();
+    }
+
     return new Promise((resolve) => {
       window.speechSynthesis.cancel();
       const utterance = new SpeechSynthesisUtterance(text);
@@ -709,6 +765,10 @@ function VoiceChatWidget() {
   };
 
   const speakWithElevenLabs = async (text) => {
+    if (shouldMuteAudio()) {
+      return;
+    }
+
     const response = await fetch(`${API_BASE_URL}/api/voice-chat/synthesize`, {
       method: 'POST',
       headers: {
@@ -743,6 +803,11 @@ function VoiceChatWidget() {
     const audioBlob = await response.blob();
     const objectUrl = URL.createObjectURL(audioBlob);
 
+    if (shouldMuteAudio()) {
+      URL.revokeObjectURL(objectUrl);
+      return;
+    }
+
     if (activeAudioRef.current) {
       activeAudioRef.current.pause();
       activeAudioRef.current = null;
@@ -755,8 +820,10 @@ function VoiceChatWidget() {
 
     await new Promise((resolve, reject) => {
       const audio = new Audio(objectUrl);
+      audio.muted = shouldMuteAudio();
       activeAudioRef.current = audio;
       activeAudioObjectUrlRef.current = objectUrl;
+      activeAudioResolveRef.current = resolve;
 
       audio.onended = () => {
         if (activeAudioObjectUrlRef.current) {
@@ -764,6 +831,7 @@ function VoiceChatWidget() {
           activeAudioObjectUrlRef.current = null;
         }
         activeAudioRef.current = null;
+        activeAudioResolveRef.current = null;
         resolve();
       };
 
@@ -773,25 +841,39 @@ function VoiceChatWidget() {
           activeAudioObjectUrlRef.current = null;
         }
         activeAudioRef.current = null;
+        activeAudioResolveRef.current = null;
         reject(new Error('Audio playback failed.'));
       };
 
       audio
         .play()
-        .then(() => undefined)
+        .then(() => {
+          if (shouldMuteAudio() && activeAudioRef.current) {
+            activeAudioRef.current.pause();
+            activeAudioRef.current.currentTime = 0;
+            if (activeAudioObjectUrlRef.current) {
+              URL.revokeObjectURL(activeAudioObjectUrlRef.current);
+              activeAudioObjectUrlRef.current = null;
+            }
+            activeAudioRef.current = null;
+            activeAudioResolveRef.current = null;
+            resolve();
+          }
+        })
         .catch((error) => {
           if (activeAudioObjectUrlRef.current) {
             URL.revokeObjectURL(activeAudioObjectUrlRef.current);
             activeAudioObjectUrlRef.current = null;
           }
           activeAudioRef.current = null;
+          activeAudioResolveRef.current = null;
           reject(error);
         });
     });
   };
 
   const speak = async (text) => {
-    if (!text || isVoiceMuted) {
+    if (!text || shouldMuteAudio()) {
       return;
     }
 
@@ -804,8 +886,10 @@ function VoiceChatWidget() {
         await speakWithBrowserVoice(text);
       }
     } catch (error) {
-      setStatus('Voice service is temporarily unavailable. Using browser voice fallback.');
-      await speakWithBrowserVoice(text);
+      if (!shouldMuteAudio()) {
+        setStatus('Voice service is temporarily unavailable. Using browser voice fallback.');
+        await speakWithBrowserVoice(text);
+      }
     } finally {
       setIsSpeaking(false);
     }
@@ -1228,7 +1312,7 @@ function VoiceChatWidget() {
               </button>
               <button
                 type="button"
-                onClick={() => setIsVoiceMuted((value) => !value)}
+                onClick={handleVoiceMuteToggle}
                 title={isVoiceMuted ? 'Audio is muted' : 'Audio is enabled'}
                 className={`rounded-lg px-2 py-2 text-xs font-semibold transition-all ${
                   isVoiceMuted
