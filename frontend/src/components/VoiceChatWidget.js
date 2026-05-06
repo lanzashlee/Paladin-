@@ -1179,18 +1179,18 @@ function VoiceChatWidget() {
     <div className="fixed inset-0 pointer-events-none z-50 flex flex-col items-end justify-end p-4">
       {isOpen && (
         <section className="mb-4 pointer-events-auto relative flex h-[600px] w-[360px] min-h-0 flex-col overflow-visible rounded-2xl border border-[#d7e5ff] bg-gradient-to-b from-[#f8fbff] to-white shadow-[0_20px_45px_-25px_rgba(2,37,91,0.45)]">
-          <header className="relative shrink-0 overflow-hidden border-b border-[#d7e5ff] bg-[#072e73] px-4 py-4 text-white">
-            <div className="pointer-events-none absolute -right-8 -top-10 h-24 w-24 rounded-full bg-[#00c2a8]/35 blur-xl" />
-            <div className="pointer-events-none absolute -left-8 -bottom-10 h-20 w-20 rounded-full bg-[#2f7ff0]/30 blur-xl" />
+          <header className="relative shrink-0 overflow-hidden border-b border-[#d7e5ff] bg-gradient-to-br from-[#072e73] to-[#0a4ab3] px-4 py-5 text-white">
+            <div className="pointer-events-none absolute -right-8 -top-10 h-24 w-24 rounded-full bg-[#00c2a8]/25 blur-3xl" />
+            <div className="pointer-events-none absolute -left-8 -bottom-10 h-20 w-20 rounded-full bg-[#2f7ff0]/25 blur-3xl" />
             <div className="relative flex items-start justify-between gap-3">
               <div className="min-w-0 flex-1">
-                <h2 className="text-base font-semibold tracking-wide">Paladin Voice AI</h2>
-                <p className="mt-2 inline-flex max-w-full items-center truncate rounded-full bg-white/15 px-3 py-1 text-xs font-medium text-white/95">
+                <h2 className="font-cinzel text-lg font-bold uppercase tracking-wider text-white">Paladin Voice AI</h2>
+                <p className="mt-2.5 inline-flex max-w-full items-center truncate rounded-full bg-white/20 backdrop-blur-sm px-3 py-1.5 font-constantia text-xs font-semibold text-white/98 border border-white/20">
                   {status}
                 </p>
                 {ENABLE_AGORA && (
-                  <p className="mt-2 text-xs font-medium uppercase tracking-wide text-white/80">
-                    {isAgoraConnected ? '🔊 Live Voice: Connected' : isAgoraConnecting ? '⏳ Live Voice: Connecting' : '⊘ Live Voice: Idle'}
+                  <p className="mt-2 font-constantia text-xs font-semibold uppercase tracking-wide text-white/85">
+                    {isAgoraConnected ? '🔊 Connected' : isAgoraConnecting ? '⏳ Connecting' : '⊘ Idle'}
                   </p>
                 )}
               </div>
@@ -1211,12 +1211,12 @@ function VoiceChatWidget() {
 
           {selectedCategory && (
             <div className="absolute top-16 left-3 right-3 z-10 rounded-lg border border-[#cfe0ff] bg-gradient-to-b from-white to-[#f9fcff] p-3 shadow-lg opacity-100 transition-opacity duration-300">
-              <div className="flex items-center justify-between mb-2">
-                <p className="text-xs font-semibold uppercase tracking-wide text-[#08337e]">{QUESTION_CATEGORY_LABELS[selectedCategory] || selectedCategory}</p>
+              <div className="flex items-center justify-between mb-3">
+                <p className="font-cinzel text-xs font-bold uppercase tracking-widest text-[#08337e]">{QUESTION_CATEGORY_LABELS[selectedCategory] || selectedCategory}</p>
                 <button
                   type="button"
                   onClick={() => setSelectedCategory(null)}
-                  className="text-xs font-bold text-[#08337e] hover:text-[#0a4ab3]"
+                  className="text-lg font-bold text-[#08337e] hover:text-[#0a4ab3] transition-colors"
                 >
                   ✕
                 </button>
@@ -1231,7 +1231,7 @@ function VoiceChatWidget() {
                       setSelectedCategory(null);
                     }}
                     disabled={isLoading}
-                    className="w-full text-left rounded-md border border-[#cfe0ff] bg-white px-2 py-1.5 text-xs font-medium text-[#08337e] transition-colors hover:border-[#0a4ab3] hover:bg-[#f0f6ff] disabled:opacity-50"
+                    className="w-full text-left rounded-md border border-[#cfe0ff] bg-white px-2.5 py-2 font-serif text-xs font-medium text-[#08337e] transition-all hover:border-[#0a4ab3] hover:bg-[#f0f6ff] hover:shadow-sm disabled:opacity-50"
                   >
                     {question}
                   </button>
@@ -1256,14 +1256,14 @@ function VoiceChatWidget() {
                   {msg.role === 'assistant' ? 'AI' : 'U'}
                 </div>
                 <div
-                  className={`max-w-[75%] break-words rounded-2xl px-3 py-2 shadow-sm ${
+                  className={`max-w-[75%] break-words rounded-2xl px-3.5 py-2.5 shadow-sm transition-all ${
                     msg.role === 'assistant'
                       ? 'border border-[#dce8ff] bg-white text-[#0b1f3f]'
                       : 'bg-gradient-to-br from-[#0a4ab3] to-[#072e73] text-white'
                   }`}
                 >
-                  <p className="text-xs leading-relaxed">{msg.text}</p>
-                  <div className={`mt-1 text-[9px] ${msg.role === 'assistant' ? 'text-[#6e7e98]' : 'text-white/75'}`}>
+                  <p className="font-serif text-xs leading-relaxed">{msg.text}</p>
+                  <div className={`mt-1.5 font-serif text-[8px] ${msg.role === 'assistant' ? 'text-[#8b98b0]' : 'text-white/70'}`}>
                     {formatTimestamp(msg.timestamp)}
                   </div>
                 </div>
@@ -1300,13 +1300,13 @@ function VoiceChatWidget() {
                 onClick={handleMicToggle}
                 disabled={!canUseMic}
                 title={isListening ? 'Stop recording' : micEnabled ? 'Microphone is active' : 'Activate microphone'}
-                className={`rounded-lg px-2 py-2 text-xs font-semibold text-white transition-all ${
+                className={`rounded-lg px-2.5 py-2.5 font-constantia text-xs font-bold text-white transition-all ${
                   isListening
-                    ? 'bg-[#059669]'
+                    ? 'bg-[#059669] shadow-md'
                     : micEnabled
-                    ? 'bg-[#0a4ab3]'
-                    : 'bg-[#6b7280]'
-                } disabled:cursor-not-allowed disabled:opacity-50 hover:shadow-md`}
+                    ? 'bg-[#0a4ab3] shadow-md'
+                    : 'bg-[#8b98b0]'
+                } disabled:cursor-not-allowed disabled:opacity-50 hover:shadow-lg uppercase tracking-wide`}
               >
                 {isListening ? 'Listening' : micEnabled ? 'Mic On' : 'Mic Off'}
               </button>
@@ -1314,11 +1314,11 @@ function VoiceChatWidget() {
                 type="button"
                 onClick={handleVoiceMuteToggle}
                 title={isVoiceMuted ? 'Audio is muted' : 'Audio is enabled'}
-                className={`rounded-lg px-2 py-2 text-xs font-semibold transition-all ${
+                className={`rounded-lg px-2.5 py-2.5 font-constantia text-xs font-bold transition-all text-white uppercase tracking-wide ${
                   isVoiceMuted
-                    ? 'bg-[#dc2626] text-white'
-                    : 'bg-[#0a4ab3] text-white'
-                } hover:shadow-md`}
+                    ? 'bg-[#dc2626] shadow-md'
+                    : 'bg-[#0a4ab3] shadow-md'
+                } hover:shadow-lg`}
               >
                 {isVoiceMuted ? 'Muted' : 'Audio On'}
               </button>
@@ -1327,7 +1327,7 @@ function VoiceChatWidget() {
                 onClick={handleCopyLatestReply}
                 disabled={lastAssistantMessageIndex === -1}
                 title="Copy the latest response"
-                className="rounded-lg border border-[#bfd5ff] bg-white px-2 py-2 text-xs font-semibold text-[#08337e] transition-colors hover:border-[#0a4ab3] hover:text-[#0a4ab3] hover:shadow-md disabled:cursor-not-allowed disabled:opacity-50"
+                className="rounded-lg border border-[#bfd5ff] bg-white px-2.5 py-2.5 font-constantia text-xs font-bold text-[#08337e] transition-all hover:border-[#0a4ab3] hover:text-[#0a4ab3] hover:shadow-md hover:bg-[#f9fcff] disabled:cursor-not-allowed disabled:opacity-50 uppercase tracking-wide"
               >
                 {copiedReply ? 'Copied' : 'Copy'}
               </button>
@@ -1335,7 +1335,7 @@ function VoiceChatWidget() {
                 type="button"
                 onClick={handleClearChat}
                 title="Clear conversation history"
-                className="rounded-lg bg-[#dc2626] px-2 py-2 text-xs font-semibold text-white transition-colors hover:bg-[#b91c1c] hover:shadow-md"
+                className="rounded-lg bg-[#dc2626] px-2.5 py-2.5 font-constantia text-xs font-bold text-white transition-all hover:bg-[#b91c1c] hover:shadow-lg shadow-md uppercase tracking-wide"
               >
                 Clear
               </button>
@@ -1347,12 +1347,12 @@ function VoiceChatWidget() {
                 value={textInput}
                 onChange={(event) => setTextInput(event.target.value)}
                 placeholder="Ask something..."
-                className="flex-1 rounded-lg border border-[#bfd5ff] bg-[#fdfefe] px-3 py-2 text-xs text-[#0b1f3f] outline-none transition-shadow focus:border-[#0a4ab3] focus:ring-2 focus:ring-[#0a4ab3]/25"
+                className="flex-1 rounded-lg border border-[#bfd5ff] bg-white px-3.5 py-2 font-serif text-xs text-[#0b1f3f] placeholder:text-[#8b98b0] outline-none transition-all focus:border-[#0a4ab3] focus:ring-2 focus:ring-[#0a4ab3]/30 focus:bg-[#fafbff]"
               />
               <button
                 type="submit"
                 disabled={!textInput.trim() || isLoading}
-                className="rounded-lg bg-gradient-to-br from-[#0a4ab3] to-[#072e73] px-4 py-2 text-xs font-semibold text-white transition-transform hover:-translate-y-0.5 disabled:cursor-not-allowed disabled:opacity-50 whitespace-nowrap"
+                className="rounded-lg bg-gradient-to-br from-[#0a4ab3] to-[#072e73] px-5 py-2 font-constantia text-xs font-bold text-white transition-all hover:-translate-y-0.5 hover:shadow-md disabled:cursor-not-allowed disabled:opacity-50 whitespace-nowrap uppercase tracking-wide"
               >
                 Send
               </button>
@@ -1370,10 +1370,10 @@ function VoiceChatWidget() {
                           setQuestionCategory(categoryKey);
                           setSelectedCategory(categoryKey);
                         }}
-                        className={`rounded-full border px-2 py-1 text-xs font-semibold tracking-wide transition-colors whitespace-nowrap ${
+                        className={`rounded-full border px-2.5 py-1.5 font-constantia text-xs font-bold tracking-wider transition-all whitespace-nowrap uppercase ${
                           questionCategory === categoryKey
-                            ? 'border-[#0a4ab3] bg-[#0a4ab3] text-white'
-                            : 'border-[#bfd5ff] bg-[#f3f8ff] text-[#08337e] hover:border-[#0a4ab3]'
+                            ? 'border-[#0a4ab3] bg-[#0a4ab3] text-white shadow-md'
+                            : 'border-[#bfd5ff] bg-[#f3f8ff] text-[#08337e] hover:border-[#0a4ab3] hover:shadow-sm'
                         }`}
                       >
                         {QUESTION_CATEGORY_LABELS[categoryKey] || categoryKey}
@@ -1383,15 +1383,15 @@ function VoiceChatWidget() {
                 </div>
 
                 {suggestedActions.length > 0 && (
-                  <div className="rounded-lg border border-[#cfe0ff] bg-white p-2">
-                    <p className="mb-1 text-xs font-semibold uppercase tracking-wide text-[#08337e]">Next Steps</p>
+                  <div className="rounded-lg border border-[#cfe0ff] bg-white p-2.5 shadow-sm">
+                    <p className="mb-2 font-cinzel text-xs font-bold uppercase tracking-wider text-[#08337e]">Next Steps</p>
                     <div className="flex flex-wrap gap-1">
                       {suggestedActions.map((action) => (
                         <button
                           key={action.id || `${action.type}-${action.label}`}
                           type="button"
                           onClick={() => executeSuggestedAction(action)}
-                          className="rounded-md bg-gradient-to-br from-[#0a4ab3] to-[#072e73] px-2 py-1 text-xs font-semibold text-white transition-transform hover:-translate-y-0.5"
+                          className="rounded-md bg-gradient-to-br from-[#0a4ab3] to-[#072e73] px-2.5 py-1.5 font-constantia text-xs font-bold text-white transition-all hover:-translate-y-0.5 hover:shadow-md uppercase tracking-wide"
                         >
                           {action.label || ACTION_LABEL_BY_TYPE[action.type] || 'Action'}
                         </button>
@@ -1411,16 +1411,16 @@ function VoiceChatWidget() {
           setIsOpen((prev) => !prev);
           setUnreadCount(0);
         }}
-        className="pointer-events-auto group relative h-16 w-16 flex items-center justify-center overflow-hidden rounded-full border border-[#74a2ef] bg-gradient-to-br from-[#0a4ab3] to-[#072e73] font-semibold text-white shadow-lg shadow-[#072e73]/35 transition-all hover:-translate-y-0.5 active:translate-y-0"
+        className="pointer-events-auto group relative h-16 w-16 flex items-center justify-center overflow-hidden rounded-full border border-[#0a4ab3] bg-gradient-to-br from-[#0a4ab3] to-[#072e73] font-cinzel font-bold text-white shadow-lg shadow-[#072e73]/40 transition-all hover:-translate-y-1 active:translate-y-0 hover:shadow-xl"
         title={isOpen ? 'Close assistant' : 'Open AI Assistant'}
       >
-        <span className="pointer-events-none absolute inset-0 -translate-x-full bg-gradient-to-r from-transparent via-white/20 to-transparent transition-transform duration-700 group-hover:translate-x-full" />
-        <span className="relative flex flex-col items-center justify-center text-center leading-tight">
-          <span className="text-[10px]">AI</span>
-          <span className="text-[9px] font-medium">Assistant</span>
+        <span className="pointer-events-none absolute inset-0 -translate-x-full bg-gradient-to-r from-transparent via-white/25 to-transparent transition-transform duration-700 group-hover:translate-x-full" />
+        <span className="relative flex flex-col items-center justify-center text-center leading-tight uppercase tracking-widest">
+          <span className="text-[11px] font-bold">AI</span>
+          <span className="text-[8px] font-bold">ASSISTANT</span>
         </span>
         {!isOpen && unreadCount > 0 && (
-          <span className="absolute -right-2 -top-2 inline-flex min-h-6 min-w-6 items-center justify-center rounded-full bg-[#059669] text-xs font-bold text-white">
+          <span className="absolute -right-2 -top-2 inline-flex min-h-6 min-w-6 items-center justify-center rounded-full bg-[#059669] text-xs font-bold text-white shadow-lg border border-white/30">
             {unreadCount > 9 ? '9+' : unreadCount}
           </span>
         )}

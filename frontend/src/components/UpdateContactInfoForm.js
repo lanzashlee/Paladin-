@@ -3,6 +3,8 @@ import { FileText, Send, ShieldCheck, User } from 'lucide-react';
 import RequestModal from './RequestModal';
 import FieldGroup, { inputClassName } from './RequestFormField';
 import RequestFormWizard from './RequestFormWizard';
+import { useToast } from '../context/ToastContext';
+import Skeleton from './Skeleton';
 
 const wizardSteps = [
   { id: 'account-holder', label: 'Identify Your Account', icon: User },
@@ -133,6 +135,7 @@ const formatUsPhoneDisplay = (digitsValue = '') => {
 };
 
 function UpdateContactInfoForm({ onClose }) {
+  const { addToast } = useToast();
   const [formData, setFormData] = useState({
     formType: 'update-contact-info',
     fullName: '',
@@ -305,6 +308,9 @@ function UpdateContactInfoForm({ onClose }) {
       }
 
       setSaved(true);
+      addToast('Your contact information update has been submitted successfully!', {
+        type: 'success',
+      });
       setStepIndex(wizardSteps.length - 1);
       setFormData({
         formType: 'update-contact-info',
@@ -324,7 +330,12 @@ function UpdateContactInfoForm({ onClose }) {
         policyNumber: '',
       });
     } catch (error) {
-      setSubmitError(error.message || 'Failed to submit your request. Please try again.');
+      const errorMsg = error.message || 'Failed to submit your request. Please try again.';
+      setSubmitError(errorMsg);
+      addToast(errorMsg, {
+        type: 'error',
+        duration: 5000,
+      });
     } finally {
       setLoading(false);
     }
