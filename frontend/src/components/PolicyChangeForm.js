@@ -3,6 +3,8 @@ import { FileText, Send, ShieldCheck, User } from 'lucide-react';
 import RequestModal from './RequestModal';
 import FieldGroup, { inputClassName } from './RequestFormField';
 import RequestFormWizard from './RequestFormWizard';
+import { useToast } from '../context/ToastContext';
+import Skeleton from './Skeleton';
 
 const wizardSteps = [
   { id: 'your-information', label: 'Your Information', icon: User },
@@ -89,6 +91,7 @@ const getTodayIsoDate = () => {
 };
 
 function PolicyChangeForm({ onClose }) {
+  const { addToast } = useToast();
   const todayIsoDate = getTodayIsoDate();
   const [formData, setFormData] = useState({
     formType: 'policy-change',
@@ -269,6 +272,9 @@ function PolicyChangeForm({ onClose }) {
       }
 
       setSaved(true);
+      addToast('Your policy change request has been submitted successfully! We will confirm the changes soon.', {
+        type: 'success',
+      });
       setStepIndex(wizardSteps.length - 1);
       setFormData({
         formType: 'policy-change',
@@ -285,7 +291,12 @@ function PolicyChangeForm({ onClose }) {
         mailingAddress: '',
       });
     } catch (error) {
-      setSubmitError(error.message || 'Failed to submit your request. Please try again.');
+      const errorMsg = error.message || 'Failed to submit your request. Please try again.';
+      setSubmitError(errorMsg);
+      addToast(errorMsg, {
+        type: 'error',
+        duration: 5000,
+      });
     } finally {
       setLoading(false);
     }

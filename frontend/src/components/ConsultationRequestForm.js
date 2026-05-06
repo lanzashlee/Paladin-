@@ -3,6 +3,8 @@ import { User, Send } from 'lucide-react';
 import RequestModal from './RequestModal';
 import FieldGroup, { inputClassName } from './RequestFormField';
 import RequestFormWizard from './RequestFormWizard';
+import { useToast } from '../context/ToastContext';
+import Skeleton from './Skeleton';
 
 const wizardSteps = [
   { id: 'your-information', label: 'Your Information', icon: User },
@@ -53,6 +55,7 @@ const formatUsPhoneDisplay = (digitsValue = '') => {
 };
 
 function ConsultationRequestForm({ onClose }) {
+  const { addToast } = useToast();
   const [formData, setFormData] = useState({
     formType: 'consultation-request',
     fullName: '',
@@ -160,8 +163,16 @@ function ConsultationRequestForm({ onClose }) {
         phone: '',
         notes: '',
       });
+      addToast('Your consultation request has been submitted successfully! We will follow up within 3-4 business days.', {
+        type: 'success',
+      });
     } catch (error) {
-      setSubmitError(error.message || 'Failed to submit your request. Please try again.');
+      const errorMsg = error.message || 'Failed to submit your request. Please try again.';
+      setSubmitError(errorMsg);
+      addToast(errorMsg, {
+        type: 'error',
+        duration: 5000,
+      });
     } finally {
       setLoading(false);
     }
@@ -201,11 +212,18 @@ function ConsultationRequestForm({ onClose }) {
         >
           {stepIndex === 0 && (
             <div className="space-y-5">
-              <div className="rounded-2xl border border-amber-300 bg-amber-50 px-4 py-3 font-serif text-sm text-amber-900">
-                <strong>Note:</strong> This process will take 3-4 business days.
-              </div>
+              {loading ? (
+                <>
+                  <Skeleton.FormSection fieldCount={2} />
+                  <Skeleton.FormSection fieldCount={1} />
+                </>
+              ) : (
+                <>
+                  <div className="rounded-2xl border border-amber-300 bg-amber-50 px-4 py-3 font-serif text-sm text-amber-900">
+                    <strong>Note:</strong> This process will take 3-4 business days.
+                  </div>
 
-              <div className="grid gap-5 md:grid-cols-2">
+                  <div className="grid gap-5 md:grid-cols-2">
                 <FieldGroup label="Full name" htmlFor="consultation-fullName" required error={errors.fullName}>
                   <input
                     id="consultation-fullName"
@@ -275,6 +293,8 @@ function ConsultationRequestForm({ onClose }) {
                   disabled={loading}
                 />
               </FieldGroup>
+                </>
+              )}
             </div>
           )}
 

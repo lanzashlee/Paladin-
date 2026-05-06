@@ -11,6 +11,9 @@ import Blog from './pages/Blog';
 import Article from './pages/Article';
 import Testimonials from './pages/Testimonials';
 import VoiceChatWidget from './components/VoiceChatWidget';
+import Toast from './components/Toast';
+import PageLoader from './components/PageLoader';
+import { ToastProvider } from './context/ToastContext';
 
 function ScrollManager() {
   const { pathname, hash } = useLocation();
@@ -52,23 +55,27 @@ function ScrollManager() {
 
 function App() {
   return (
-    <Router>
-      <ScrollManager />
-      <Routes>
-        <Route path="/" element={<Home />} />
-        <Route path="/quote" element={<QuoteRequest />} />
-        <Route path="/policies" element={<PolicyManagement />} />
-        <Route path="/service" element={<Service />} />
-        <Route path="/about" element={<About />} />
-        <Route path="/faq" element={<FAQ />} />
-        <Route path="/blog" element={<Blog />} />
-        <Route path="/blog/:slug" element={<Article />} />
-        <Route path="/testimonials" element={<Testimonials />} />
-        <Route path="/contact" element={<Contact />} />
-        {/* Add more routes here */}
-      </Routes>
-      <VoiceChatWidget />
-    </Router>
+    <ToastProvider>
+      <PageLoader />
+      <Router>
+        <ScrollManager />
+        <Routes>
+          <Route path="/" element={<Home />} />
+          <Route path="/quote" element={<QuoteRequest />} />
+          <Route path="/policies" element={<PolicyManagement />} />
+          <Route path="/service" element={<Service />} />
+          <Route path="/about" element={<About />} />
+          <Route path="/faq" element={<FAQ />} />
+          <Route path="/blog" element={<Blog />} />
+          <Route path="/blog/:slug" element={<Article />} />
+          <Route path="/testimonials" element={<Testimonials />} />
+          <Route path="/contact" element={<Contact />} />
+          {/* Add more routes here */}
+        </Routes>
+        <VoiceChatWidget />
+        <Toast />
+      </Router>
+    </ToastProvider>
   );
 }
 

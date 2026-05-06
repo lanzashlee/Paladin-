@@ -3,7 +3,8 @@ import { User, FileText, ShieldCheck, Send } from 'lucide-react';
 import RequestModal from './RequestModal';
 import FieldGroup, { inputClassName } from './RequestFormField';
 import RequestFormWizard from './RequestFormWizard';
-
+import { useToast } from '../context/ToastContext';
+import Skeleton from './Skeleton';
 const wizardSteps = [
   { id: 'your-information', label: 'Your Information', icon: User },
   { id: 'incident-details', label: 'Incident Details', icon: FileText },
@@ -121,6 +122,7 @@ const getNowTime24h = () => {
 };
 
 function ClaimReportForm({ onClose }) {
+  const { addToast } = useToast();
   const todayIsoDate = getTodayIsoDate();
   const nowTime24h = getNowTime24h();
   const [formData, setFormData] = useState({
@@ -260,6 +262,9 @@ function ClaimReportForm({ onClose }) {
       }
 
       setSaved(true);
+      addToast('Your claim report has been submitted successfully! A licensed agent will follow up within 1 business day.', {
+        type: 'success',
+      });
       setStepIndex(wizardSteps.length - 1);
       setFormData({
         formType: 'claim-report',
@@ -284,7 +289,12 @@ function ClaimReportForm({ onClose }) {
         additionalNotes: '',
       });
     } catch (error) {
-      setSubmitError(error.message || 'Failed to submit your request. Please try again.');
+      const errorMsg = error.message || 'Failed to submit your request. Please try again.';
+      setSubmitError(errorMsg);
+      addToast(errorMsg, {
+        type: 'error',
+        duration: 5000,
+      });
     } finally {
       setLoading(false);
     }

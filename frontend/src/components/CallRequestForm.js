@@ -3,6 +3,8 @@ import { User, Clock3, FileText, Send } from 'lucide-react';
 import RequestModal from './RequestModal';
 import FieldGroup, { inputClassName } from './RequestFormField';
 import RequestFormWizard from './RequestFormWizard';
+import { useToast } from '../context/ToastContext';
+import Skeleton from './Skeleton';
 
 const wizardSteps = [
   { id: 'your-information', label: 'Your Information', icon: User },
@@ -84,6 +86,7 @@ const getNowIsoDateTimeLocal = () => {
 };
 
 function CallRequestForm({ onClose }) {
+  const { addToast } = useToast();
   const todayIsoDate = getTodayIsoDate();
   const nowIsoDateTimeLocal = getNowIsoDateTimeLocal();
   const [formData, setFormData] = useState({
@@ -202,6 +205,9 @@ function CallRequestForm({ onClose }) {
       }
 
       setSaved(true);
+      addToast('Your call request has been submitted successfully! We will contact you soon.', {
+        type: 'success',
+      });
       setStepIndex(wizardSteps.length - 1);
       setFormData({
         formType: 'call-request',
@@ -217,7 +223,12 @@ function CallRequestForm({ onClose }) {
         notes: '',
       });
     } catch (error) {
-      setSubmitError(error.message || 'Failed to submit your request. Please try again.');
+      const errorMsg = error.message || 'Failed to submit your request. Please try again.';
+      setSubmitError(errorMsg);
+      addToast(errorMsg, {
+        type: 'error',
+        duration: 5000,
+      });
     } finally {
       setLoading(false);
     }
