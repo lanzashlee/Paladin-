@@ -1539,6 +1539,238 @@ const matchCommercialAutoWidgetExactReply = (message) => {
   return null;
 };
 
+/** Exact general liability widget questions—specific client-facing replies. */
+const GENERAL_LIABILITY_WIDGET_REPLY_BY_KEY = new Map([
+  [
+    'what does general liability insurance cover',
+    'General liability helps protect your business from third-party claims for bodily injury, property damage, and certain personal and advertising injury exposures tied to your operations. It is not an all-risk policy, so exclusions and limits still apply based on your carrier form. We match wording to how you actually work so coverage intent lines up with your contracts.',
+  ],
+  [
+    'why do i need to describe my business operations',
+    'Carriers price and underwrite GL based on what you do day to day—trades, customer contact, premises, products, and subcontracted work. A clear operations description helps avoid wrong class codes and surprise gaps at claim time. One or two concrete sentences usually beats a vague industry label.',
+  ],
+  [
+    'how does my business revenue impact the cost of general liability insurance',
+    'Revenue is often used as a proxy for exposure: more sales and activity can mean more customer interaction, job sites, or product flow. Higher revenue can increase premium, but it is only one factor alongside operations type, claims history, limits, and territory. Accurate revenue helps the quote reflect real risk instead of guesswork.',
+  ],
+  [
+    'are subcontractors covered under my general liability policy',
+    'Usually not automatically the way people assume. Subcontractors typically need their own insurance, and your contract may require you to verify it. Your GL may respond to your liability for certain acts, but that is different from treating subs as insureds without endorsements. Tell us how you use subs and we can align COI expectations with your policy.',
+  ],
+  [
+    'what is the difference between per occurrence and aggregate limits',
+    'Per occurrence is the most the policy pays for any one covered claim or loss event. The aggregate is the total the policy pays for all covered claims during the policy term, combined. Think of occurrence as a single-claim ceiling and aggregate as the yearly bucket across multiple claims.',
+  ],
+]);
+
+const GENERAL_LIABILITY_WIDGET_KEY_ALIASES = {
+  'what does gl insurance cover': 'what does general liability insurance cover',
+  'why describe my business operations on gl': 'why do i need to describe my business operations',
+  'why do i need to describe business operations': 'why do i need to describe my business operations',
+  'how does revenue affect general liability premium': 'how does my business revenue impact the cost of general liability insurance',
+  'are subs covered under my gl policy': 'are subcontractors covered under my general liability policy',
+  'are subcontractors covered under general liability': 'are subcontractors covered under my general liability policy',
+  'per occurrence vs aggregate limits': 'what is the difference between per occurrence and aggregate limits',
+  'what is per occurrence vs aggregate': 'what is the difference between per occurrence and aggregate limits',
+};
+
+const matchGeneralLiabilityWidgetExactReply = (message) => {
+  const key = normalizeQuestionKey(message);
+  if (GENERAL_LIABILITY_WIDGET_REPLY_BY_KEY.has(key)) {
+    return GENERAL_LIABILITY_WIDGET_REPLY_BY_KEY.get(key);
+  }
+  const aliasTarget = GENERAL_LIABILITY_WIDGET_KEY_ALIASES[key];
+  if (aliasTarget && GENERAL_LIABILITY_WIDGET_REPLY_BY_KEY.has(aliasTarget)) {
+    return GENERAL_LIABILITY_WIDGET_REPLY_BY_KEY.get(aliasTarget);
+  }
+  return null;
+};
+
+/** Exact workers compensation widget questions—specific client-facing replies. */
+const WORKERS_COMP_WIDGET_REPLY_BY_KEY = new Map([
+  [
+    'what is workers compensation insurance and who needs it',
+    'Workers compensation helps cover medical costs and wage benefits for employees with work-related injuries or illness, and it can protect your business from certain related lawsuits depending on state rules. Who must carry it varies by state, payroll, employee count, and industry. If you have W-2 staff or hire in trades, we almost always review comp early in the conversation.',
+  ],
+  [
+    'why do i need to list each employees job classification for workers compensation',
+    'Class codes describe the actual work employees perform, and carriers use them to match exposure to the right rate. Wrong classes can mean wrong premium up front or problems at audit. Listing each role honestly keeps quotes defensible and renewals smoother.',
+  ],
+  [
+    'how is my workers compensation premium calculated',
+    'Premium is usually driven by payroll assigned to class codes, your experience modification if you have one, state rules, and claim history. Estimated payroll is common at quote time, then carriers reconcile with actual payroll on audit. Accurate payroll splits by job duty matter more than a single round number.',
+  ],
+  [
+    'what happens if my business has a history of workers compensation claims',
+    'Prior claims can affect your experience mod, underwriting appetite, and pricing, but they do not automatically make you uninsurable. Carriers look at frequency, severity, and what controls you have in place now. Being transparent helps us place you with markets that understand your industry.',
+  ],
+  [
+    'do i need to carry workers compensation insurance if i only have a few employees',
+    'Sometimes yes, even with a small team, depending on your state and how workers are classified. A few employees in higher-hazard work can still trigger requirements or contract demands before you can step on a job site. Tell us your state and headcount and we can map requirement versus best practice.',
+  ],
+]);
+
+const WORKERS_COMP_WIDGET_KEY_ALIASES = {
+  'what is workers comp and who needs it': 'what is workers compensation insurance and who needs it',
+  'who needs workers compensation insurance': 'what is workers compensation insurance and who needs it',
+  'why list job classification for workers comp': 'why do i need to list each employees job classification for workers compensation',
+  'why do i need employee class codes for workers comp': 'why do i need to list each employees job classification for workers compensation',
+  'how is workers comp premium calculated': 'how is my workers compensation premium calculated',
+  'how are workers compensation premiums calculated': 'how is my workers compensation premium calculated',
+  'what if i have workers comp claims history': 'what happens if my business has a history of workers compensation claims',
+  'do small businesses need workers comp': 'do i need to carry workers compensation insurance if i only have a few employees',
+  'do i need workers comp with only a few employees': 'do i need to carry workers compensation insurance if i only have a few employees',
+};
+
+const matchWorkersCompWidgetExactReply = (message) => {
+  const key = normalizeQuestionKey(message);
+  if (WORKERS_COMP_WIDGET_REPLY_BY_KEY.has(key)) {
+    return WORKERS_COMP_WIDGET_REPLY_BY_KEY.get(key);
+  }
+  const aliasTarget = WORKERS_COMP_WIDGET_KEY_ALIASES[key];
+  if (aliasTarget && WORKERS_COMP_WIDGET_REPLY_BY_KEY.has(aliasTarget)) {
+    return WORKERS_COMP_WIDGET_REPLY_BY_KEY.get(aliasTarget);
+  }
+  return null;
+};
+
+/** Exact earthquake widget questions—specific client-facing replies. */
+const EARTHQUAKE_WIDGET_REPLY_BY_KEY = new Map([
+  [
+    'is earthquake coverage included in my homeowners insurance',
+    'Standard homeowners policies usually do not include earthquake damage as a covered peril. In high-seismic areas you typically add a separate earthquake policy or endorsement. If you are unsure what you bought, your declarations page is the quickest place to confirm.',
+  ],
+  [
+    'how do i determine if i need earthquake insurance',
+    'Start with how close you are to fault activity, your home\'s age and construction, and how much equity or replacement cost you would need to rebuild. Also check lender requirements and your comfort with paying repair costs out of pocket. We can help you weigh deductible options versus premium once we know your address and goals.',
+  ],
+  [
+    'what factors affect the cost of earthquake insurance',
+    'Premium is driven by location and distance to seismic risk, home age, construction type, square footage, foundation, and the limits and deductible you choose. Older homes and higher coverage limits usually cost more. Shopping multiple carriers matters because earthquake appetite varies by region.',
+  ],
+  [
+    'is there a deductible for earthquake insurance',
+    'Yes, earthquake policies almost always include a deductible, often as a percentage of the coverage limit rather than a flat dollar amount like some home policies. The deductible you pick trades off premium versus out-of-pocket after a quake. We can explain how that math looks for your quote options.',
+  ],
+  [
+    'does earthquake insurance cover flood damage',
+    'No. Earthquake coverage responds to shaking and related earth movement, not rising water or storm surge. Flood damage generally needs a flood policy or applicable endorsement. If both risks worry you, we usually review earthquake and flood as separate protections.',
+  ],
+]);
+
+const EARTHQUAKE_WIDGET_KEY_ALIASES = {
+  'is earthquake included in homeowners insurance': 'is earthquake coverage included in my homeowners insurance',
+  'do i need earthquake insurance': 'how do i determine if i need earthquake insurance',
+  'should i get earthquake insurance': 'how do i determine if i need earthquake insurance',
+  'what affects earthquake insurance cost': 'what factors affect the cost of earthquake insurance',
+  'why is earthquake insurance expensive': 'what factors affect the cost of earthquake insurance',
+  'earthquake insurance deductible': 'is there a deductible for earthquake insurance',
+  'does earthquake cover flooding': 'does earthquake insurance cover flood damage',
+};
+
+const matchEarthquakeWidgetExactReply = (message) => {
+  const key = normalizeQuestionKey(message);
+  if (EARTHQUAKE_WIDGET_REPLY_BY_KEY.has(key)) {
+    return EARTHQUAKE_WIDGET_REPLY_BY_KEY.get(key);
+  }
+  const aliasTarget = EARTHQUAKE_WIDGET_KEY_ALIASES[key];
+  if (aliasTarget && EARTHQUAKE_WIDGET_REPLY_BY_KEY.has(aliasTarget)) {
+    return EARTHQUAKE_WIDGET_REPLY_BY_KEY.get(aliasTarget);
+  }
+  return null;
+};
+
+/** Exact flood widget questions—specific client-facing replies. */
+const FLOOD_WIDGET_REPLY_BY_KEY = new Map([
+  [
+    'why do i need flood insurance if my property isnt near water',
+    'Flood risk is not limited to waterfront property. Heavy rain, drainage overload, storm runoff, and local infrastructure failures can cause flood losses far from lakes or rivers. Standard homeowners policies usually exclude flood, so separate flood coverage fills that gap.',
+  ],
+  [
+    'how do i know if my property is in a flood zone',
+    'The usual starting point is your FEMA flood zone designation plus local floodplain data and lender requirements. We can check mapping details by property address and then compare zone-based options. Even lower-risk zones can still have meaningful flood exposure depending on local conditions.',
+  ],
+  [
+    'is flood insurance required by law',
+    'It is not universally required by law for every property, but lenders often require it when a mortgaged property is in a designated high-risk flood zone. Outside those zones, it may still be strongly recommended based on your risk tolerance and replacement cost. Requirement and best practice are not always the same.',
+  ],
+  [
+    'what does flood insurance cover',
+    'Flood insurance can cover building damage from flooding and, depending on policy type and selections, certain contents losses. Coverage scope, limits, waiting periods, and exclusions differ between NFIP and private flood options. We review both so you understand what is and is not included before binding.',
+  ],
+  [
+    'can i increase the coverage limit on my flood insurance policy',
+    'Often yes, subject to program and carrier limits. NFIP has set maximums, while private flood markets may offer higher limits or broader structures depending on property details. If you need higher protection, we can compare available carriers and layering options.',
+  ],
+]);
+
+const FLOOD_WIDGET_KEY_ALIASES = {
+  'why do i need flood insurance if my property is not near water':
+    'why do i need flood insurance if my property isnt near water',
+  'why need flood insurance if not near water': 'why do i need flood insurance if my property isnt near water',
+  'how can i tell if my property is in a flood zone': 'how do i know if my property is in a flood zone',
+  'is flood insurance legally required': 'is flood insurance required by law',
+  'what does a flood policy cover': 'what does flood insurance cover',
+  'can i increase flood coverage limits': 'can i increase the coverage limit on my flood insurance policy',
+};
+
+const matchFloodWidgetExactReply = (message) => {
+  const key = normalizeQuestionKey(message);
+  if (FLOOD_WIDGET_REPLY_BY_KEY.has(key)) {
+    return FLOOD_WIDGET_REPLY_BY_KEY.get(key);
+  }
+  const aliasTarget = FLOOD_WIDGET_KEY_ALIASES[key];
+  if (aliasTarget && FLOOD_WIDGET_REPLY_BY_KEY.has(aliasTarget)) {
+    return FLOOD_WIDGET_REPLY_BY_KEY.get(aliasTarget);
+  }
+  return null;
+};
+
+/** Exact umbrella widget questions—specific client-facing replies. */
+const UMBRELLA_WIDGET_REPLY_BY_KEY = new Map([
+  [
+    'what is umbrella insurance and who needs it',
+    'Umbrella insurance adds extra liability protection above your underlying home, auto, or business liability policies once those limits are exhausted. It is useful for households or businesses with meaningful assets, higher public exposure, or contract-driven limit requirements. Think of it as a backup layer for severe claims.',
+  ],
+  [
+    'does umbrella insurance cover everything',
+    'No, umbrella does not cover everything. It extends liability protection for covered exposures, but policy terms still include exclusions, conditions, and required underlying coverage. We review those details so you know where umbrella helps and where a different policy is needed.',
+  ],
+  [
+    'why do i need umbrella insurance if i already have liability coverage',
+    'Primary liability limits can be exhausted by a serious claim faster than most people expect. Umbrella provides an additional layer above those base limits to reduce personal or business out-of-pocket exposure. It is often one of the most cost-efficient ways to increase total liability protection.',
+  ],
+  [
+    'how does the umbrella policy limit affect my coverage',
+    'The umbrella limit is the maximum extra liability amount available after your underlying policy limits are used up. Higher umbrella limits generally provide stronger protection for catastrophic claims but may cost more. We usually align limits with asset profile, risk level, and contractual requirements.',
+  ],
+  [
+    'are there any exclusions with umbrella insurance',
+    'Yes, umbrella policies have exclusions and conditions that vary by carrier and form. Some exposures may need separate coverage or endorsements, and underlying policy requirements must stay in force. Reviewing exclusions up front prevents false assumptions at claim time.',
+  ],
+]);
+
+const UMBRELLA_WIDGET_KEY_ALIASES = {
+  'what is umbrella insurance and who needs it?': 'what is umbrella insurance and who needs it',
+  'who needs umbrella insurance': 'what is umbrella insurance and who needs it',
+  'does umbrella cover everything': 'does umbrella insurance cover everything',
+  'why do i need umbrella if i already have liability': 'why do i need umbrella insurance if i already have liability coverage',
+  'how does umbrella limit affect coverage': 'how does the umbrella policy limit affect my coverage',
+  'umbrella insurance exclusions': 'are there any exclusions with umbrella insurance',
+};
+
+const matchUmbrellaWidgetExactReply = (message) => {
+  const key = normalizeQuestionKey(message);
+  if (UMBRELLA_WIDGET_REPLY_BY_KEY.has(key)) {
+    return UMBRELLA_WIDGET_REPLY_BY_KEY.get(key);
+  }
+  const aliasTarget = UMBRELLA_WIDGET_KEY_ALIASES[key];
+  if (aliasTarget && UMBRELLA_WIDGET_REPLY_BY_KEY.has(aliasTarget)) {
+    return UMBRELLA_WIDGET_REPLY_BY_KEY.get(aliasTarget);
+  }
+  return null;
+};
+
 const matchAnyWidgetExactReply = (message) =>
   matchConsultationWidgetExactReply(message) ||
   matchPolicyWidgetExactReply(message) ||
@@ -1550,7 +1782,12 @@ const matchAnyWidgetExactReply = (message) =>
   matchHo3WidgetExactReply(message) ||
   matchHo6WidgetExactReply(message) ||
   matchHo4WidgetExactReply(message) ||
-  matchCommercialAutoWidgetExactReply(message);
+  matchCommercialAutoWidgetExactReply(message) ||
+  matchGeneralLiabilityWidgetExactReply(message) ||
+  matchWorkersCompWidgetExactReply(message) ||
+  matchEarthquakeWidgetExactReply(message) ||
+  matchFloodWidgetExactReply(message) ||
+  matchUmbrellaWidgetExactReply(message);
 
 const detectIntent = (message) => {
   const normalized = normalizeMessage(message);
@@ -1616,6 +1853,21 @@ const buildLocalReply = (message) => {
   const widgetCoverageReply = matchCoverageWidgetExactReply(message);
   if (widgetCoverageReply) {
     return widgetCoverageReply;
+  }
+
+  const widgetEarthquakeReply = matchEarthquakeWidgetExactReply(message);
+  if (widgetEarthquakeReply) {
+    return widgetEarthquakeReply;
+  }
+
+  const widgetFloodReply = matchFloodWidgetExactReply(message);
+  if (widgetFloodReply) {
+    return widgetFloodReply;
+  }
+
+  const widgetUmbrellaReply = matchUmbrellaWidgetExactReply(message);
+  if (widgetUmbrellaReply) {
+    return widgetUmbrellaReply;
   }
 
   const sampleMatch = SAMPLE_QUESTION_RESPONSES.find((item) =>
