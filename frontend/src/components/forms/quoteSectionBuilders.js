@@ -280,6 +280,7 @@ export const buildUniversalSections = (form = {}) => {
       { key: 'consentSoftCredit', label: 'Consent to Soft Credit Inquiry', valueMap: { true: 'Yes', false: 'No' } },
       { key: 'consentElectronicDelivery', label: 'Consent to Electronic Delivery', valueMap: { true: 'Yes', false: 'No' } },
       { key: 'electronicSignature', label: 'Electronic Signature' },
+      { key: 'referralCode', label: 'Referral Code' },
       { key: 'applicantNotes', label: 'Additional Notes' },
     ])),
   ];

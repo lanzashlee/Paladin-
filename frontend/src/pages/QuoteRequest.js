@@ -39,6 +39,7 @@ function QuoteRequest() {
     consentSoftCredit: false,
     consentElectronicDelivery: false,
     electronicSignature: '',
+    referralCode: '',
     applicantNotes: '',
   });
   const [step, setStep] = useState(1);

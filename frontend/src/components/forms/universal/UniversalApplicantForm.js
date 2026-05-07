@@ -120,6 +120,7 @@ function UniversalApplicantForm({ form, onNext }) {
     consentSoftCredit: Boolean(form.consentSoftCredit),
     consentElectronicDelivery: Boolean(form.consentElectronicDelivery),
     electronicSignature: form.electronicSignature ?? '',
+    referralCode: form.referralCode ?? '',
     applicantNotes: form.applicantNotes ?? '',
   });
 
@@ -829,6 +830,16 @@ function UniversalApplicantForm({ form, onNext }) {
             required
           />
           {errors.electronicSignature ? <span className="quote-request__validation-message">{errors.electronicSignature}</span> : null}
+        </label>
+
+        <label className="quote-request__field quote-request__field--full">
+          <span className="quote-request__field-label">Referral Code</span>
+          <input
+            name="referralCode"
+            value={localForm.referralCode}
+            onChange={handleChange}
+            placeholder="Enter referral code (optional)"
+          />
         </label>
 
         <label className="quote-request__field quote-request__field--full quote-request__field--notes">
