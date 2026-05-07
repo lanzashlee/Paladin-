@@ -1771,6 +1771,228 @@ const matchUmbrellaWidgetExactReply = (message) => {
   return null;
 };
 
+/** Exact specialty-product widget questions—specific client-facing replies. */
+const SPECIALTY_WIDGET_REPLY_BY_KEY = new Map([
+  // Cyber liability
+  [
+    'what is cyber liability insurance',
+    'Cyber liability insurance helps businesses manage costs from cyber incidents like data breaches, ransomware, phishing events, and system disruptions. It can support response services, legal obligations, and recovery expenses depending on the policy form.',
+  ],
+  [
+    'do small businesses need cyber liability coverage',
+    'Yes, small businesses are common targets because they often have fewer controls but still handle sensitive data and payments. One incident can create legal, operational, and reputation costs that are hard to absorb without coverage.',
+  ],
+  [
+    'what does cyber liability insurance typically cover',
+    'Typical coverage can include breach response, legal defense, notification costs, forensic investigation, and certain business interruption losses tied to a cyber event. Exact scope depends on limits, endorsements, and carrier form wording.',
+  ],
+  [
+    'what is usually excluded from cyber liability coverage',
+    'Common exclusions can include known prior incidents, certain unapproved security practices, contractual assumptions beyond policy scope, and non-cyber causes of loss. We review exclusions before binding so there are no surprises.',
+  ],
+  [
+    'how do carriers price cyber liability insurance',
+    'Pricing is usually based on revenue, data volume and type, industry risk, security controls, claims history, and selected limits/retentions. Better controls and clear incident-response planning can improve carrier options.',
+  ],
+
+  // Professional liability
+  [
+    'what is professional liability insurance',
+    'Professional liability insurance helps protect against claims that your professional services caused financial harm through errors, omissions, or alleged negligence. It is often called E&O coverage and is distinct from general liability.',
+  ],
+  [
+    'who should carry professional liability insurance',
+    'Any business or individual giving professional advice or services should evaluate it, especially if clients rely on your recommendations, designs, or deliverables. Many contracts also require this coverage before work begins.',
+  ],
+  [
+    'why do i need to describe business operations for professional liability',
+    'Carriers underwrite professional liability based on the exact services you perform and how they are delivered. Clear operations detail helps place the right form, avoid class mismatches, and reduce claim disputes later.',
+  ],
+  [
+    'what does professional liability insurance typically cover',
+    'It generally covers defense costs and damages related to covered allegations of professional mistakes or failure to deliver services as expected. Coverage terms, triggers, and exclusions vary by carrier and profession.',
+  ],
+  [
+    'what is the difference between professional liability and general liability',
+    'General liability focuses on bodily injury/property damage to third parties, while professional liability focuses on financial loss from your services or advice. Many businesses need both because they address different claim types.',
+  ],
+
+  // Inland marine
+  [
+    'what is inland marine insurance',
+    'Inland marine insurance covers movable, high-value, or specialized property that may not be fully protected under a standard property policy. It is commonly used for equipment, tools, and items that travel between sites.',
+  ],
+  [
+    'who needs inland marine insurance coverage',
+    'Businesses that transport tools, equipment, installation materials, or specialty property should consider inland marine. Contractors, service teams, and mobile operations are common examples.',
+  ],
+  [
+    'how do i determine inland marine coverage limits',
+    'Start with replacement values by item category, then account for peak values on the road, at job sites, and in temporary storage. Limits should match realistic maximum exposure, not only average daily values.',
+  ],
+  [
+    'what types of property are covered under inland marine',
+    'Coverage can apply to tools, contractor equipment, installation floaters, leased equipment, and other movable property, depending on schedule and endorsements. Item type and location patterns matter for proper setup.',
+  ],
+  [
+    'is inland marine insurance required by contract',
+    'Sometimes yes, especially when contracts involve leased equipment, installation obligations, or high-value property in transit. Even when not required, it is often recommended to close property gaps between locations.',
+  ],
+
+  // Surety bond
+  [
+    'what is a surety bond and when do i need one',
+    'A surety bond is a financial guarantee to a third party that specific obligations will be fulfilled. It is often required for licenses, permits, public projects, or contractual performance terms.',
+  ],
+  [
+    'what is the difference between surety bonds and insurance',
+    'Insurance transfers covered risk to a carrier, while surety bonds guarantee performance and can require reimbursement if the surety pays a claim. They serve different legal and financial purposes.',
+  ],
+  [
+    'what information is needed to apply for a surety bond',
+    'Typical requirements include business details, owner information, financial statements, work history, bond type, and required bond amount/obligee details. Strong documentation speeds approval.',
+  ],
+  [
+    'how is surety bond pricing determined',
+    'Pricing is based on bond type and amount, credit profile, financial strength, experience, and project risk. Better financials and proven performance usually lead to better rates.',
+  ],
+  [
+    'how quickly can a surety bond be issued',
+    'Simple license/permit bonds can often be issued quickly, while larger or complex bonds may take longer due to underwriting review. Complete and accurate submissions reduce delays significantly.',
+  ],
+
+  // Pet insurance
+  [
+    'what does pet insurance cover',
+    'Pet insurance commonly helps with eligible veterinary costs for accidents and illnesses, depending on plan design. Coverage levels, waiting periods, and reimbursement structure vary by carrier.',
+  ],
+  [
+    'does pet insurance cover routine care and vaccinations',
+    'Routine care and vaccinations are often optional wellness add-ons rather than part of base accident/illness coverage. Plan selection determines whether preventive care is included.',
+  ],
+  [
+    'are pre existing conditions covered by pet insurance',
+    'Most pet insurance plans do not cover pre-existing conditions. Definitions and review methods vary, so disclosure and policy wording should be checked carefully before purchase.',
+  ],
+  [
+    'how do deductibles and reimbursement work for pet insurance',
+    'You typically pay the vet bill first, then submit a claim. Reimbursement depends on your selected deductible, reimbursement percentage, and eligible expenses under the plan.',
+  ],
+  [
+    'is pet insurance worth it for indoor pets',
+    'It can still be valuable because indoor pets can face illnesses and unexpected accidents with significant treatment costs. Value depends on your risk tolerance, budget, and preferred care options.',
+  ],
+]);
+
+const SPECIALTY_WIDGET_KEY_ALIASES = {
+  'what is cyber liability': 'what is cyber liability insurance',
+  'does cyber liability cover small businesses': 'do small businesses need cyber liability coverage',
+  'what does cyber liability cover': 'what does cyber liability insurance typically cover',
+  'what is excluded from cyber liability': 'what is usually excluded from cyber liability coverage',
+  'how is cyber liability priced': 'how do carriers price cyber liability insurance',
+  'what is e&o insurance': 'what is professional liability insurance',
+  'who needs professional liability': 'who should carry professional liability insurance',
+  'why describe operations for professional liability':
+    'why do i need to describe business operations for professional liability',
+  'what does professional liability cover': 'what does professional liability insurance typically cover',
+  'professional liability vs general liability':
+    'what is the difference between professional liability and general liability',
+  'who needs inland marine': 'who needs inland marine insurance coverage',
+  'how to set inland marine limits': 'how do i determine inland marine coverage limits',
+  'what does inland marine cover': 'what types of property are covered under inland marine',
+  'is inland marine required': 'is inland marine insurance required by contract',
+  'what is a surety bond': 'what is a surety bond and when do i need one',
+  'surety bond vs insurance': 'what is the difference between surety bonds and insurance',
+  'what do i need to apply for a surety bond': 'what information is needed to apply for a surety bond',
+  'how are surety bond rates determined': 'how is surety bond pricing determined',
+  'how fast can a surety bond be issued': 'how quickly can a surety bond be issued',
+  'pet insurance coverage': 'what does pet insurance cover',
+  'does pet insurance cover vaccines': 'does pet insurance cover routine care and vaccinations',
+  'does pet insurance cover pre existing conditions': 'are pre existing conditions covered by pet insurance',
+  'how does pet insurance reimbursement work': 'how do deductibles and reimbursement work for pet insurance',
+  'is pet insurance worth it': 'is pet insurance worth it for indoor pets',
+};
+
+const matchSpecialtyWidgetExactReply = (message) => {
+  const key = normalizeQuestionKey(message);
+  if (SPECIALTY_WIDGET_REPLY_BY_KEY.has(key)) {
+    return SPECIALTY_WIDGET_REPLY_BY_KEY.get(key);
+  }
+  const aliasTarget = SPECIALTY_WIDGET_KEY_ALIASES[key];
+  if (aliasTarget && SPECIALTY_WIDGET_REPLY_BY_KEY.has(aliasTarget)) {
+    return SPECIALTY_WIDGET_REPLY_BY_KEY.get(aliasTarget);
+  }
+  return null;
+};
+
+/** Exact carrier-directory widget questions—specific client-facing replies. */
+const CARRIER_DIRECTORY_WIDGET_REPLY_BY_KEY = new Map([
+  [
+    'how do i know which insurance carrier to choose for my needs',
+    'The best carrier depends on your risk profile, coverage priorities, budget, and contract requirements—not just headline price. We compare quotes side by side for limits, deductibles, exclusions, and carrier fit so you can choose based on value and protection.',
+  ],
+  [
+    'how many insurance carriers does paladin work with',
+    'Paladin works with a broad network of regional and national carriers so we can shop multiple options for personal and commercial risks. The exact set available for you depends on your state, risk type, and underwriting eligibility.',
+  ],
+  [
+    'can paladin compare quotes from multiple carriers for me',
+    'Yes. We can run a multi-carrier comparison and highlight meaningful differences in pricing, coverage structure, endorsements, and service considerations. That comparison helps you choose the strongest option for your situation.',
+  ],
+  [
+    'can i change my insurance carrier after purchasing coverage',
+    'Yes, switching carriers is possible, usually at renewal and sometimes mid-term depending on policy terms and timing. Before switching, we review replacement effective dates and coverage details so there is no protection gap.',
+  ],
+  [
+    'how do i file a claim with my insurance carrier',
+    'Claim steps vary by carrier, but we can guide you through the correct reporting channel and required details. If you share your policy info and incident basics, we can help you start the claim quickly and in the right format.',
+  ],
+  [
+    'does the carrier directory include all types of coverage',
+    'The directory is designed to cover a wide range of personal, commercial, and specialty lines. Availability still depends on carrier appetite, state rules, and your underwriting profile for the requested product.',
+  ],
+  [
+    'do carrier options vary by state',
+    'Yes, carrier availability and product options vary by state due to licensing, filings, and underwriting guidelines. We match your request to carriers that are active and competitive in your state.',
+  ],
+  [
+    'can i keep the same agent if i switch carriers',
+    'Usually yes when the policy is moved through the same agency relationship. Keeping one agent can make transitions smoother because your coverage history and service context stay centralized.',
+  ],
+  [
+    'how do carrier underwriting guidelines affect my quote',
+    'Underwriting guidelines determine eligibility, required documentation, rating assumptions, and final terms. Two carriers can price the same risk differently because their guidelines and appetite are not identical.',
+  ],
+  [
+    'will changing carriers affect my coverage limits or deductibles',
+    'It can. Different carriers structure coverage forms and options differently, so limits, deductibles, endorsements, and exclusions may change even at similar premium levels. We review these differences before any move is finalized.',
+  ],
+]);
+
+const CARRIER_DIRECTORY_WIDGET_KEY_ALIASES = {
+  'how many carriers does paladin work with': 'how many insurance carriers does paladin work with',
+  'can you compare multiple carriers for me': 'can paladin compare quotes from multiple carriers for me',
+  'can i switch insurance carriers after purchase': 'can i change my insurance carrier after purchasing coverage',
+  'how do i file a claim with my carrier': 'how do i file a claim with my insurance carrier',
+  'does carrier directory include all coverages': 'does the carrier directory include all types of coverage',
+  'do carrier choices vary by state': 'do carrier options vary by state',
+  'can i keep my same agent if i switch carriers': 'can i keep the same agent if i switch carriers',
+  'how does underwriting affect my quote': 'how do carrier underwriting guidelines affect my quote',
+  'will switching carriers change limits or deductibles': 'will changing carriers affect my coverage limits or deductibles',
+};
+
+const matchCarrierDirectoryWidgetExactReply = (message) => {
+  const key = normalizeQuestionKey(message);
+  if (CARRIER_DIRECTORY_WIDGET_REPLY_BY_KEY.has(key)) {
+    return CARRIER_DIRECTORY_WIDGET_REPLY_BY_KEY.get(key);
+  }
+  const aliasTarget = CARRIER_DIRECTORY_WIDGET_KEY_ALIASES[key];
+  if (aliasTarget && CARRIER_DIRECTORY_WIDGET_REPLY_BY_KEY.has(aliasTarget)) {
+    return CARRIER_DIRECTORY_WIDGET_REPLY_BY_KEY.get(aliasTarget);
+  }
+  return null;
+};
+
 const matchAnyWidgetExactReply = (message) =>
   matchConsultationWidgetExactReply(message) ||
   matchPolicyWidgetExactReply(message) ||
@@ -1787,7 +2009,9 @@ const matchAnyWidgetExactReply = (message) =>
   matchWorkersCompWidgetExactReply(message) ||
   matchEarthquakeWidgetExactReply(message) ||
   matchFloodWidgetExactReply(message) ||
-  matchUmbrellaWidgetExactReply(message);
+  matchUmbrellaWidgetExactReply(message) ||
+  matchSpecialtyWidgetExactReply(message) ||
+  matchCarrierDirectoryWidgetExactReply(message);
 
 const detectIntent = (message) => {
   const normalized = normalizeMessage(message);
@@ -1868,6 +2092,16 @@ const buildLocalReply = (message) => {
   const widgetUmbrellaReply = matchUmbrellaWidgetExactReply(message);
   if (widgetUmbrellaReply) {
     return widgetUmbrellaReply;
+  }
+
+  const widgetSpecialtyReply = matchSpecialtyWidgetExactReply(message);
+  if (widgetSpecialtyReply) {
+    return widgetSpecialtyReply;
+  }
+
+  const widgetCarrierDirectoryReply = matchCarrierDirectoryWidgetExactReply(message);
+  if (widgetCarrierDirectoryReply) {
+    return widgetCarrierDirectoryReply;
   }
 
   const sampleMatch = SAMPLE_QUESTION_RESPONSES.find((item) =>
