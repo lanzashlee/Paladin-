@@ -29,7 +29,7 @@ function Team() {
       <div className="pointer-events-none absolute -right-12 bottom-6 h-56 w-56 rounded-full bg-[#d9e4f5]/45 blur-3xl" />
 
       <div className="relative z-10 mx-auto grid w-full max-w-7xl grid-cols-1 items-center gap-10 px-6 md:grid-cols-[1fr_1.15fr] md:gap-14">
-        <div className="max-w-xl">
+        <div className="mx-auto flex max-w-xl flex-col items-center text-center md:mx-0 md:items-start md:text-left">
           <span className="inline-flex items-center rounded-full border border-[#b8c7dc] bg-white px-4 py-2 text-xs font-semibold uppercase tracking-wide text-[#012E72] shadow-[0_6px_14px_rgba(1,46,114,0.15)]" style={{ fontFamily: FONT_BODY }}>
             People behind Paladin
           </span>

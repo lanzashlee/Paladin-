@@ -166,7 +166,7 @@ export default function About() {
         </div>
       </section>
 
-      {/* Partners & Carriers Section */}
+      {/* Partners &  Carriers Section */}
       <Carriers />
 
       <MapLocation className="pt-8 mt-0" />
