@@ -12,7 +12,7 @@ import ContactInfo from '../components/ContactInfo';
 import Footer from '../components/Footer';
 import MapLocation from '../components/MapLocation';
 import Carriers from '../components/Carriers';
-import TestimonialsPreview from '../components/TestimonialsPreview';
+import TestimonialsCarousel from '../components/TestimonialsCarousel';
 import QuickActionsSection from '../components/QuickActionsSection';
 
 const FONT_DISPLAY = 'Cinzel, serif';
@@ -28,7 +28,7 @@ function Home() {
       <WhyChooseUs />
       <Carriers showViewPartnersButton featuredOnly />
       {/* <FeaturedProducts /> */}
-      <TestimonialsPreview />
+      <TestimonialsCarousel />
       <Team />
       <OfficeHours />
       <ContactInfo />

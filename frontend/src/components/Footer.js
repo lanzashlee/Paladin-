@@ -50,6 +50,27 @@ function Footer() {
   return (
     <footer className="bg-[#F7F4EF] text-[#010407]/80 py-12 border-t border-[#e7dccb]">
       <div className="max-w-7xl mx-auto px-8 w-full flex flex-col gap-8">
+        
+        {/* Contact Support Card - Highlighted Section */}
+        <div className="bg-gradient-to-r from-[#012E72] to-[#003a99] rounded-lg p-6 md:p-8 text-white shadow-lg">
+          <div className="flex flex-col md:flex-row items-start md:items-center justify-between gap-6">
+            <div>
+              <p className="font-semibold text-lg" style={{ fontFamily: FONT_DISPLAY }}>Need Support?</p>
+              <p className="text-white/85 mt-1 max-w-md" style={{ fontFamily: FONT_BODY }}>
+                Have a question or need assistance? Our team is here to help you find the right insurance solution.
+              </p>
+            </div>
+            <button
+              type="button"
+              onClick={() => openLegalModal('contact')}
+              className="inline-flex items-center justify-center rounded-full bg-white text-[#012E72] px-6 py-2.5 font-semibold text-sm hover:bg-[#F7F4EF] transition-colors whitespace-nowrap flex-shrink-0"
+              style={{ fontFamily: FONT_BODY }}
+            >
+              Contact Support
+            </button>
+          </div>
+        </div>
+
         <div className="grid gap-6 md:grid-cols-[1.3fr,1fr] items-start">
           <div className="space-y-4">
             <p className="font-semibold text-[#012E72]" style={{ fontFamily: FONT_DISPLAY }}>Contact Details</p>
@@ -62,9 +83,9 @@ function Footer() {
               </div>
               <div className="space-y-1">
                 <p className="font-semibold text-[#012E72]" style={{ fontFamily: FONT_DISPLAY }}>Phone</p>
-                <Link to="/contact#contact-location" className="text-[#010407]/75 hover:text-[#002DB5] transition-colors block" style={{ fontFamily: FONT_BODY }}>
+                <a href="tel:8056926900" className="text-[#010407]/75 hover:text-[#002DB5] transition-colors block font-semibold" style={{ fontFamily: FONT_BODY }}>
                   805-692-6900
-                </Link>
+                </a>
               </div>
               <div className="space-y-1">
                 <p className="font-semibold text-[#012E72]" style={{ fontFamily: FONT_DISPLAY }}>Fax</p>
@@ -74,9 +95,9 @@ function Footer() {
               </div>
               <div className="space-y-1">
                 <p className="font-semibold text-[#012E72]" style={{ fontFamily: FONT_DISPLAY }}>Email</p>
-                <Link to="/contact#contact-location" className="text-[#010407]/75 hover:text-[#002DB5] transition-colors block" style={{ fontFamily: FONT_BODY }}>
+                <a href="mailto:admin@paladinbusinessservices.net" className="text-[#010407]/75 hover:text-[#002DB5] transition-colors block" style={{ fontFamily: FONT_BODY }}>
                   admin@paladinbusinessservices.net
-                </Link>
+                </a>
               </div>
             </div>
             <div className="flex gap-4 text-[#012E72] pt-2">
@@ -136,8 +157,8 @@ function Footer() {
           <p className="text-sm" style={{ fontFamily: FONT_BODY }}>
             &copy; {new Date().getFullYear()} Paladin Professional Insurance Solutions. All Rights Reserved.
           </p>
-          <div className="flex items-center gap-8">
-            <div className="flex gap-6 text-sm">
+          <div className="flex items-center gap-8 text-sm">
+            <div className="flex gap-6">
               <button
                 type="button"
                 onClick={() => openLegalModal('privacy')}
@@ -153,6 +174,14 @@ function Footer() {
                 style={{ fontFamily: FONT_BODY }}
               >
                 Terms of Service
+              </button>
+              <button
+                type="button"
+                onClick={() => openLegalModal('disclaimer')}
+                className="hover:text-[#002DB5] transition-colors"
+                style={{ fontFamily: FONT_BODY }}
+              >
+                Disclaimer
               </button>
             </div>
           </div>

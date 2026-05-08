@@ -21,9 +21,11 @@ function Hero() {
       {/* Use an <img> behind content so left/right empty areas show the same solid hero background color. */}
       <img
         src={heroImage}
-        alt=""
+        alt="Modern corporate office building"
         aria-hidden="true"
         className="absolute inset-0 h-full w-full origin-top object-cover object-top pointer-events-none z-0"
+        loading="lazy"
+        decoding="async"
       />
 
       {/* Gradient overlay that blends image to background */}
