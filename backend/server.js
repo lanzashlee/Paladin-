@@ -24,9 +24,11 @@ app.get('/', (req, res) => {
 const contactRoutes = require('./routes/contactRoutes');
 const voiceChatRoutes = require('./routes/voiceChatRoutes');
 const agoraRoutes = require('./routes/agoraRoutes');
+const reviewRoutes = require('./routes/reviewRoutes');
 app.use('/api', contactRoutes);
 app.use('/api', voiceChatRoutes);
 app.use('/api', agoraRoutes);
+app.use('/api', reviewRoutes);
 
 const MONGO_URI = process.env.MONGO_URI || 'mongodb://localhost:27017/paladin';
 
