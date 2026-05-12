@@ -111,10 +111,58 @@ const testimonials = [
     result: 'a month ago',
     rating: 5,
   },
+  {
+    name: 'Carol Ellinger',
+    title: '',
+    quote:
+      'Glad I found the Paladin Insurance Company when my other insurance company stopped insuring homes in our area. Knowledgeable, professional and always ready to help are traits I appreciate and the Paladin Team, especially Denise P., demonstrates these qualities to assure I receive top service.',
+    result: '2 days ago',
+    rating: 5,
+  },
+  {
+    name: 'James Freer',
+    title: '',
+    quote:
+      'Paladin once again checked out my insurance options and worked out suitable coverage policies. Good communication has been provided concerning steps along the way.',
+    result: '3 days ago',
+    rating: 5,
+  },
+  {
+    name: 'Janet Sprissler',
+    title: '',
+    quote:
+      'Denise and her team are very insightful and knowledgeable. Great service and friendly to work with. When I had a hard time getting insurance they saved the day.',
+    result: '5 days ago',
+    rating: 5,
+  },
+  {
+    name: 'Kris Grasty',
+    title: '',
+    quote:
+      'Paladin Professional Insurance Solutions is the easiest insurance company to work with ! The staff are always on top of important information . I had a hard time getting home owner\'s insurance. They were the only insurance company that would help me ! I highly recommend them !',
+    result: '5 days ago',
+    rating: 5,
+  },
+  {
+    name: 'Erica Feldscher',
+    title: '',
+    quote:
+      'Working with Paladin has been a great experience. Communication was clear and punctual.',
+    result: 'a week ago',
+    rating: 5,
+  },
+  {
+    name: 'Shawn McMaster',
+    title: '',
+    quote:
+      'I had a great experience with Paladin! I found them to be very helpful with my homeowners insurance needs--help that no one else seemed able to offer.',
+    result: '2 weeks ago',
+    rating: 5,
+  },
 ];
 
 const overallRating = 4.7;
-const totalReviews = 13;
+const totalReviews = 19;
 
 function getInitials(name) {
   const parts = name

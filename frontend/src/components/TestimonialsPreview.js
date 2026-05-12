@@ -1,6 +1,7 @@
-import React from 'react';
+import React, { useState, useEffect } from 'react';
 import { Link } from 'react-router-dom';
 import { Quote, Star } from 'lucide-react';
+import useReviews from '../hooks/useReviews';
 
 const FONT_DISPLAY = 'Cinzel, serif';
 const FONT_SUBHEADING = 'Constantia, "Times New Roman", serif';
@@ -63,6 +64,25 @@ function getAvatarStyle(name) {
 }
 
 function TestimonialsPreview() {
+  const { reviews, loading, error } = useReviews(3);
+  const [displayTestimonials, setDisplayTestimonials] = useState(previewTestimonials);
+
+  // Update testimonials when reviews are loaded
+  useEffect(() => {
+    if (reviews && reviews.reviews && reviews.reviews.length > 0) {
+      // Transform Google reviews to match our testimonial format
+      const googleReviews = reviews.reviews.map((review) => ({
+        name: review.author || review.reviewer_name || 'Google Reviewer',
+        title: '',
+        quote: review.text || review.review || '',
+        result: review.relative_time_description || 'Recently',
+        rating: review.rating || 5,
+      }));
+      setDisplayTestimonials(googleReviews);
+    }
+    // If no reviews or error, fall back to hardcoded testimonials
+  }, [reviews]);
+
   return (
     <section id="what-our-clients-say" className="bg-[#012E72] py-12 md:py-20 px-4 sm:px-6 md:px-8">
       <div className="max-w-7xl mx-auto">
@@ -98,7 +118,7 @@ function TestimonialsPreview() {
           <div className="order-2 relative w-full lg:flex lg:items-center lg:justify-center">
             {/* Mobile: Stacked cards */}
             <div className="lg:hidden space-y-3 sm:space-y-4">
-              {previewTestimonials.map((item) => (
+              {displayTestimonials.map((item) => (
                 <article
                   key={item.name}
                   className="flex w-full flex-col rounded-lg border border-[#e3e8f2] bg-white p-3 shadow-[0_10px_24px_rgba(1,46,114,0.12)] sm:rounded-xl sm:p-4"
@@ -139,7 +159,7 @@ function TestimonialsPreview() {
 
             {/* Desktop: Floating staggered cards */}
             <div className="hidden lg:block relative mx-auto h-[610px] w-full max-w-[700px]">
-              {previewTestimonials.map((item, index) => (
+              {displayTestimonials.map((item, index) => (
                 <article
                   key={item.name}
                   className="absolute flex flex-col rounded-lg border border-[#e3e8f2] bg-white p-3.5 shadow-[0_12px_26px_rgba(1,46,114,0.14)] md:p-4"
@@ -148,7 +168,7 @@ function TestimonialsPreview() {
                     top: index === 0 ? '4px' : index === 1 ? '150px' : '336px',
                     left: index === 1 ? '66px' : 'auto',
                     right: index !== 1 ? '18px' : 'auto',
-                    zIndex: previewTestimonials.length - index,
+                    zIndex: displayTestimonials.length - index,
                   }}
                 >
                   <div className="flex items-center justify-between mb-2.5">
